@@ -1,0 +1,12 @@
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<?import javafx.scene.layout.VBox?>
+<VBox fx:id="rootPane"
+      xmlns:fx="http://javafx.com/fxml" alignment="center">
+	<ImageView>
+		<Image url="image/title.png"/>
+	</ImageView>
+</VBox>
