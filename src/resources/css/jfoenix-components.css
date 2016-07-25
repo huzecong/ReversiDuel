@@ -1,5 +1,5 @@
 @font-face {
-    font-family: BankGothic;
+    font-family: 'Bank Gothic Light BT';
     src: url("../font/BankGothic.ttf");
 }
 
@@ -14,7 +14,6 @@
 
 .label {
     -fx-font-family: Roboto;
-    src: "/resources/roboto/Roboto-Regular.ttf";
     -fx-text-fill: rgba(0, 0, 0, 0.8);
 }
 
@@ -22,9 +21,10 @@
     -fx-fill: rgba(0, 0, 0, 0.6);
 }
 
-.title-label {
-    -fx-font-family: BankGothic;
-    -fx-font-size: 25px;
+.label.title-label {
+    -fx-font-family: 'Bank Gothic Light BT';
+    -fx-font-size: 35px;
+    -fx-text-fill: rgba(0, 0, 0, 0.9);
 }
 
 .page-center-pane {
@@ -39,6 +39,12 @@
 
 .page-center-pane .label.sublist-header {
     -fx-text-fill: DARKGREY;
+}
+
+.main-menu-item {
+    -fx-font-family: HoboStd;
+    -fx-font-size: 40px;
+    -fx-text-fill: BLACK;
 }
 
 /*******************************************************************************
@@ -82,14 +88,6 @@
     -fx-font-weight: BOLD;
     -fx-padding: 0.4em 0.8em;
     -fx-background-color: WHITE;
-}
-
-/* Main Menu */
-
-.main-menu-item {
-    -fx-font-family: HoboStd;
-    -fx-font-size: 40px;
-    -fx-text-fill: BLACK;
 }
 
 /* Burgers Demo */
@@ -287,9 +285,6 @@
 }
 
 .jfx-tool-bar {
-    -fx-font-size: 20;
-    -fx-font-weight: BOLD;
-    /*	-fx-background-color: #5264AE;*/
     -fx-background-color: WHITE;
     -fx-pref-width: 100%;
     -fx-pref-height: 64px;
@@ -299,10 +294,6 @@
     -fx-alignment: center;
     -fx-spacing: 25;
     -fx-padding: 0 10;
-}
-
-.jfx-tool-bar Label {
-    -fx-text-fill: BLACK;
 }
 
 .jfx-popup-container {
