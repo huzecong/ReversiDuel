@@ -98,11 +98,6 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 		}
 		animation = new Timeline();
 
-		for (Integer hash : historyViews) {
-			System.out.print(hash + " ");
-		}
-		System.out.println();
-
 		Integer hash = context.getController().getClass().hashCode();
 		if (historyViews.size() > 1 && hash.equals(historyViews.get(historyViews.size() - 2))) {
 			historyViews.pop();
@@ -114,7 +109,6 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 
 		animation.getKeyFrames().add(new KeyFrame(duration, (e) -> clearPlaceholder()));
 		animation.play();
-		System.out.println("View stack size: " + historyViews.size());
 		isInitialView.setValue(historyViews.size() == 1);
 	}
 

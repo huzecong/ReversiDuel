@@ -72,7 +72,7 @@ public class BaseController {
 
 		titleLabel.textProperty().bind(stage.titleProperty());
 
-		JFXDepthManager.setDepth(toolbar, 2);
+		JFXDepthManager.setDepth(toolbar, 1);
 
 //		flowHandler = innerFlow.createHandler(context);
 		flowHandler = new CustomFlowHandler(innerFlow, context);
@@ -80,22 +80,16 @@ public class BaseController {
 		mainPane.getChildren().add(flowHandler.start(container));
 
 		backButton.visibleProperty().bind(container.isInitialViewProperty().not());
-		// backButton.setOnMouseClicked(event -> {          // using MouseClicked would trigger twice... don't know why
-		// flowHandler.attachBackEventHandler(backButton);  // same for this
+//		backButton.setOnMouseClicked(event -> {          // using MouseClicked would trigger twice... don't know why
+//		flowHandler.attachBackEventHandler(backButton);  // same for this
 		backButton.setOnMouseReleased(event -> {
 			try {
-				System.out.println("back");
+//				System.out.println("back");
 				flowHandler.navigateBack();
 			} catch (VetoException | FlowException e) {
 				e.printStackTrace();
 			}
 		});
-		__rootPane.setMaxHeight(900);
-		__rootPane.setMinHeight(900);
-		__rootPane.setPrefHeight(900);
-		__rootPane.setMaxWidth(1200);
-		__rootPane.setMinWidth(1200);
-		__rootPane.setPrefWidth(1200);
 
 //		SVGGlyph glyphClose = new SVGGlyph(0, "CLOSE", "M810 274l-238 238 238 238-60 60-238-238-238 238-60-60 238-238-238-238 60-60 238 238 238-238z", Color.DARKSLATEGRAY);
 //		glyphClose.setSize(20, 20);

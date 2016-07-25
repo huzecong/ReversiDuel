@@ -5,36 +5,39 @@
 <?import javafx.scene.layout.*?>
 
 <?import de.jensd.fx.fontawesome.Icon?>
-<StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml"
+           maxWidth="1200" prefWidth="1200" minWidth="1200"
+           maxHeight="900" prefHeight="900" minHeight="900">
 	<ImageView fitWidth="${__rootPane.width}" fitHeight="${__rootPane.height}">
 		<Image url="image/background.jpg"/>
 	</ImageView>
 
 	<BorderPane>
+		<center>
+			<AnchorPane>
+				<StackPane fx:id="mainPane" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+				           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
+			</AnchorPane>
+		</center>
 		<top>
 			<StackPane>
 				<JFXToolbar fx:id="toolbar">
 					<leftItems>
 						<JFXRippler fx:id="backButton" maskType="CIRCLE" style="-fx-ripple-color: WHITE">
-							<Icon awesomeIcon="CHEVRON_LEFT" size="25"/>
+							<MaterialIconView glyphName="ARROW_BACK" glyphSize="28"/>
 						</JFXRippler>
 					</leftItems>
 					<rightItems>
 						<JFXRippler fx:id="closeButton" maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
 							<!--<JFXButton fx:id="closeButton"/>-->
-							<Icon awesomeIcon="CLOSE" size="25"/>
+							<MaterialIconView glyphName="CLEAR" glyphSize="28"/>
 						</JFXRippler>
 					</rightItems>
 				</JFXToolbar>
 				<Label fx:id="titleLabel" styleClass="title-label"/>
 			</StackPane>
 		</top>
-		<center>
-			<AnchorPane>
-				<StackPane fx:id="mainPane" AnchorPane.topAnchor="64" AnchorPane.bottomAnchor="0"
-				           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
-			</AnchorPane>
-		</center>
 	</BorderPane>
 
 	<JFXDialog fx:id="closeDialog">

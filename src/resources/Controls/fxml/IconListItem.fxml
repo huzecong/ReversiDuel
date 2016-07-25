@@ -1,0 +1,25 @@
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.layout.VBox?>
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<fx:root type="javafx.scene.layout.AnchorPane" xmlns:fx="http://javafx.com/fxml">
+	<HBox AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0"
+	      AnchorPane.bottomAnchor="0" alignment="CENTER">
+
+		<ImageView fx:id="imageView" fitHeight="60" fitWidth="60"/>
+	</HBox>
+	<VBox AnchorPane.leftAnchor="70" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+		<Label fx:id="name" text="Name"/>
+		<Label fx:id="ip" text="123.45.67.8" style="-fx-text-fill: DARKGREY"/>
+	</VBox>
+	<HBox AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"
+	      AnchorPane.bottomAnchor="0" alignment="CENTER">
+		<MaterialIconView glyphName="KEYBOARD_ARROW_RIGHT" glyphSize="30"/>
+	</HBox>
+</fx:root>

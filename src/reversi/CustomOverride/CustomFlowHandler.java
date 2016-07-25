@@ -12,7 +12,7 @@ import org.datafx.controller.flow.FlowHandler;
 import org.datafx.controller.flow.context.ViewFlowContext;
 import org.datafx.controller.util.VetoException;
 
-public class CustomFlowHandler extends FlowHandler{
+public class CustomFlowHandler extends FlowHandler {
 	public CustomFlowHandler(Flow flow, ViewFlowContext flowContext) {
 		super(flow, flowContext);
 	}

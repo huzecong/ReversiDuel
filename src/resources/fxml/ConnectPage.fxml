@@ -1,9 +1,25 @@
-<?import javafx.geometry.Insets?>
+<?import com.jfoenix.controls.JFXListView?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
 <?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.VBox?>
+<?import Controls.IconListItem?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" alignment="center" styleClass="page-center-pane">
-
-</VBox>
+<AnchorPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" styleClass="page-center-pane">
+	<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+		<JFXListView AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<Label text="Create match..."/>
+		</JFXListView>
+		<Label text="  Available matches" styleClass="sublist-header"/>
+		<Label fx:id="noMatchLabel" text="    Searching for online matches..." styleClass="sublist-header" style="-fx-font-size: 20px"/>
+		<JFXListView fx:id="matchList" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<IconListItem name="果皇·天气晴朗" IP="127.0.0.1">
+				<icon>
+					<Image url="avatar/ha.gif"/>
+				</icon>
+			</IconListItem>
+		</JFXListView>
+	</VBox>
+	<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+		<Label text="Manually connect..."/>
+	</JFXListView>
+</AnchorPane>

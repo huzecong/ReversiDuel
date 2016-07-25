@@ -7,7 +7,7 @@ I tried to make this "clone" as similar to its original as possible, but due to 
 This project is based on JavaFX 8. Below is a list of third-party frameworks used:
 - JFoenix: https://github.com/jfoenixadmin/JFoenix
 - DataFX 8: https://bitbucket.org/datafx/datafx/
-- FontAwesomeFX 8.0.10: https://bitbucket.org/Jerady/fontawesomefx (note: a legacy version is used)
+- Material Icons 2.2.0: https://bitbucket.org/Jerady/fontawesomefx
 
 To build this project, you need to have gradle installed. Then run:
 ```bash

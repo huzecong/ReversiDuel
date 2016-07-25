@@ -8,9 +8,18 @@
     src: url("../font/HoboStd.otf");
 }
 
-.root {
+.jfx-rippler {
+    -fx-rippler-fill: GREY;
+}
+
+.label {
     -fx-font-family: Roboto;
     src: "/resources/roboto/Roboto-Regular.ttf";
+    -fx-text-fill: rgba(0, 0, 0, 0.8);
+}
+
+.glyph-icon {
+    -fx-fill: rgba(0, 0, 0, 0.6);
 }
 
 .title-label {
@@ -19,7 +28,17 @@
 }
 
 .page-center-pane {
-    -fx-pref-width: 60%;
+    -fx-max-width: 720;
+    -fx-background-color: WHITE;
+}
+
+.page-center-pane .label {
+    -fx-font-size: 18px;
+    -fx-padding: 5px 10px 5px 10px;
+}
+
+.page-center-pane .label.sublist-header {
+    -fx-text-fill: DARKGREY;
 }
 
 /*******************************************************************************
@@ -242,17 +261,8 @@
     -fx-alignment: center-left;
 }
 
-.jfx-list-cell-container > .label {
-    -fx-text-fill: BLACK;
-}
-
-.jfx-list-cell:odd:selected > .jfx-rippler > StackPane, .jfx-list-cell:even:selected > .jfx-rippler > StackPane {
-    -fx-background-color: rgba(0, 0, 255, 0.2);
-}
-
 .jfx-list-cell {
     -fx-background-insets: 0.0;
-    -fx-text-fill: BLACK;
 }
 
 .jfx-list-cell:odd, .jfx-list-cell:even {
@@ -261,10 +271,6 @@
 
 .jfx-list-cell:filled:hover {
     -fx-text-fill: black;
-}
-
-.jfx-list-cell .jfx-rippler {
-    -fx-rippler-fill: BLUE;
 }
 
 .jfx-list-view {
@@ -321,27 +327,14 @@
     -fx-alignment: center-left;
 }
 
-.jfx-list-cell-container .label {
-    -fx-text-fill: BLACK;
-}
-
 .combo-box-popup .list-view .jfx-list-cell:odd:selected .jfx-list-cell-container,
 .combo-box-popup .list-view .jfx-list-cell:even:selected .jfx-list-cell-container {
     -fx-background-color: rgba(0.0, 0.0, 255.0, 0.2);
 }
 
-.combo-box-popup .list-view .jfx-list-cell {
-    -fx-background-insets: 0.0;
-    -fx-text-fill: BLACK;
-}
-
 .combo-box-popup .list-view .jfx-list-cell:odd,
 .combo-box-popup .list-view .jfx-list-cell:even {
     -fx-background-color: WHITE;
-}
-
-.combo-box-popup .list-view .jfx-list-cell:filled:hover {
-    -fx-text-fill: black;
 }
 
 .combo-box-popup .list-view .jfx-list-cell .jfx-rippler {
