@@ -1,32 +1,32 @@
+/**
+ * Created by kanari on 2016/7/24.
+ */
+
+import CustomOverride.CustomAnimatedFlowContainer;
+import CustomOverride.CustomFlowHandler;
+
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXToolbar;
 import com.jfoenix.effects.JFXDepthManager;
-import com.jfoenix.svg.SVGGlyph;
 import javafx.application.Platform;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.Flow;
 import org.datafx.controller.flow.FlowException;
-import org.datafx.controller.flow.action.ActionTrigger;
-import org.datafx.controller.flow.container.AnimatedFlowContainer;
-import org.datafx.controller.flow.container.ContainerAnimations;
-import org.datafx.controller.flow.context.ActionHandler;
+import org.datafx.controller.flow.FlowHandler;
 import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
+import org.datafx.controller.util.VetoException;
 
 import javax.annotation.PostConstruct;
-import java.util.function.Consumer;
 
 @FXMLController(value = "fxml/Base.fxml", title = "Gomoku Duel")
 public class BaseController {
@@ -49,7 +49,6 @@ public class BaseController {
 	private JFXRippler closeButton;
 
 	@FXML
-	@ActionTrigger("back")
 	private JFXRippler backButton;
 
 	@FXML
@@ -57,13 +56,16 @@ public class BaseController {
 
 	private double xOffset, yOffset;
 
+	private FlowHandler flowHandler;
+
 	@PostConstruct
 	public void init() throws FlowException {
 		Flow innerFlow = new Flow(MainMenuController.class)
 				.withLink(MainMenuController.class, "singlePlayer", AIConfigurePageController.class)
 				.withLink(MainMenuController.class, "networkDuel", ConnectPageController.class)
-				.withLink(MainMenuController.class, "profile", ProfilePageController.class)
-				.withGlobalBackAction("back");
+				.withLink(MainMenuController.class, "profile", ProfilePageController.class);
+//				.withAction(MainMenuController.class, "networkDuel", (flowHandler, actionId) -> System.out.println("wow"))
+//				.withGlobalBackAction("back");
 		EventHandler<Event> closeHandler = event -> closeDialog.show(__rootPane);
 		Stage stage = (Stage) context.getRegisteredObject("stage");
 		context.register("closeHandler", closeHandler);
@@ -72,9 +74,22 @@ public class BaseController {
 
 		JFXDepthManager.setDepth(toolbar, 2);
 
-		mainPane.getChildren().add(innerFlow.createHandler(context)
-				.start(new AnimatedFlowContainer(Duration.millis(400), ContainerAnimations.SWIPE_RIGHT)));
+//		flowHandler = innerFlow.createHandler(context);
+		flowHandler = new CustomFlowHandler(innerFlow, context);
+		CustomAnimatedFlowContainer container = new CustomAnimatedFlowContainer(Duration.millis(400));
+		mainPane.getChildren().add(flowHandler.start(container));
 
+		backButton.visibleProperty().bind(container.isInitialViewProperty().not());
+		// backButton.setOnMouseClicked(event -> {          // using MouseClicked would trigger twice... don't know why
+		// flowHandler.attachBackEventHandler(backButton);  // same for this
+		backButton.setOnMouseReleased(event -> {
+			try {
+				System.out.println("back");
+				flowHandler.navigateBack();
+			} catch (VetoException | FlowException e) {
+				e.printStackTrace();
+			}
+		});
 		__rootPane.setMaxHeight(900);
 		__rootPane.setMinHeight(900);
 		__rootPane.setPrefHeight(900);

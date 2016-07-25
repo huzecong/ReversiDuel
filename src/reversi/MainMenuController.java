@@ -5,14 +5,12 @@
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.datafx.controller.FXMLController;
@@ -21,13 +19,12 @@ import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
 
 import javax.annotation.PostConstruct;
-import java.sql.Time;
 import java.util.HashMap;
 
 @FXMLController(value = "fxml/MainMenu.fxml", title = "Gomoku Duel")
 public class MainMenuController {
 	@FXMLViewFlowContext
-	ViewFlowContext context;
+	private ViewFlowContext context;
 
 	@FXML
 	private VBox rootPane;
@@ -52,12 +49,12 @@ public class MainMenuController {
 
 	@PostConstruct
 	public void init() {
-		buttonBox.getChildren().forEach(node->{
-			Label label = (Label)node;
+		buttonBox.getChildren().forEach(node -> {
+			Label label = (Label) node;
 			label.setEffect(new Glow(0.0));
 			label.setOnMouseEntered(this::buttonMouseEntered);
 			label.setOnMouseExited(this::buttonMouseExited);
-			System.out.println(label.getText());
+//			System.out.println(label.getText());
 		});
 	}
 
@@ -75,7 +72,8 @@ public class MainMenuController {
 		KeyValue kvX = new KeyValue(label.scaleXProperty(), scale);
 		KeyValue kvY = new KeyValue(label.scaleYProperty(), scale);
 		KeyValue kvGlow = new KeyValue(((Glow) label.getEffect()).levelProperty(), glow);
-		KeyFrame keyFrame = new KeyFrame(Duration.millis(100), x -> {}, kvX, kvY, kvGlow);
+		KeyFrame keyFrame = new KeyFrame(Duration.millis(100), x -> {
+		}, kvX, kvY, kvGlow);
 		timeline.getKeyFrames().add(keyFrame);
 		timeline.play();
 		timelines.put(label.getText(), timeline);
