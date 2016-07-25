@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import org.datafx.controller.context.ViewMetadata;
 import org.datafx.controller.flow.Flow;
 import org.datafx.controller.flow.FlowHandler;

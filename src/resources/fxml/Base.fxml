@@ -4,32 +4,37 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
+<?import de.jensd.fx.fontawesome.Icon?>
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
 	<ImageView fitWidth="${__rootPane.width}" fitHeight="${__rootPane.height}">
 		<Image url="image/background.jpg"/>
 	</ImageView>
 
-	<AnchorPane>
-		<StackPane fx:id="mainPane" AnchorPane.topAnchor="64" AnchorPane.bottomAnchor="0"
-		           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
-	</AnchorPane>
-
 	<BorderPane>
 		<top>
-			<JFXToolbar fx:id="toolbar">
-				<leftItems>
-					<JFXRippler maskType="CIRCLE" style="-fx-ripple-color: WHITE">
-
-					</JFXRippler>
-				</leftItems>
-
-				<rightItems>
-					<JFXRippler maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
-						<JFXButton fx:id="closeButton"/>
-					</JFXRippler>
-				</rightItems>
-			</JFXToolbar>
+			<StackPane>
+				<JFXToolbar fx:id="toolbar">
+					<leftItems>
+						<JFXRippler fx:id="backButton" maskType="CIRCLE" style="-fx-ripple-color: WHITE">
+							<Icon awesomeIcon="CHEVRON_LEFT" size="25"/>
+						</JFXRippler>
+					</leftItems>
+					<rightItems>
+						<JFXRippler fx:id="closeButton" maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
+							<!--<JFXButton fx:id="closeButton"/>-->
+							<Icon awesomeIcon="CLOSE" size="25"/>
+						</JFXRippler>
+					</rightItems>
+				</JFXToolbar>
+				<Label fx:id="titleLabel" styleClass="title-label"/>
+			</StackPane>
 		</top>
+		<center>
+			<AnchorPane>
+				<StackPane fx:id="mainPane" AnchorPane.topAnchor="64" AnchorPane.bottomAnchor="0"
+				           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
+			</AnchorPane>
+		</center>
 	</BorderPane>
 
 	<JFXDialog fx:id="closeDialog">

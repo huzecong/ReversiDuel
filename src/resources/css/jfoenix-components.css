@@ -1,6 +1,21 @@
+@font-face {
+    font-family: BankGothic;
+    src: url("../font/BankGothic.ttf");
+}
+
+@font-face {
+    font-family: HoboStd;
+    src: url("../font/HoboStd.otf");
+}
+
 .root {
     -fx-font-family: Roboto;
     src: "/resources/roboto/Roboto-Regular.ttf";
+}
+
+.title-label {
+    -fx-font-family: BankGothic;
+    -fx-font-size: 25px;
 }
 
 /*******************************************************************************
@@ -44,6 +59,14 @@
     -fx-font-weight: BOLD;
     -fx-padding: 0.4em 0.8em;
     -fx-background-color: WHITE;
+}
+
+/* Main Menu */
+
+.main-menu-item {
+    -fx-font-family: HoboStd;
+    -fx-font-size: 40px;
+    -fx-text-fill: BLACK;
 }
 
 /* Burgers Demo */
@@ -270,7 +293,6 @@
 
 .jfx-tool-bar Label {
     -fx-text-fill: BLACK;
-    -fx-font: url("../font/BankGothic.ttf");
 }
 
 .jfx-popup-container {
