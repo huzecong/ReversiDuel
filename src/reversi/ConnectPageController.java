@@ -3,6 +3,7 @@
  */
 
 import Controls.IconListItem;
+import NetworkUtils.ConnectionManager;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.beans.value.ChangeListener;
@@ -27,6 +28,8 @@ public class ConnectPageController {
 
 	@FXML
 	private JFXListView<IconListItem> matchList;
+
+	private ConnectionManager connectionManager;
 
 	@PostConstruct
 	public void init() {
@@ -56,5 +59,15 @@ public class ConnectPageController {
 		matchList.getFocusModel().focusedIndexProperty().addListener((observable, oldValue, newValue) -> {
 			System.out.println("focus " + newValue);
 		});
+
+		connectionManager = new ConnectionManager("Someone", "ha.gif", 123);
+		connectionManager.setOnAddToHostList(hostData -> {
+			IconListItem newItem = new IconListItem();
+			newItem.setName(hostData.getProfileName());
+			newItem.setIP(hostData.getIP());
+			newItem.setIcon(new Image("avatar/" + hostData.getAvatarID()));
+			matchList.getItems().add(newItem);
+		});
+		connectionManager.setOnRemoveHostListIndex(index -> matchList.getItems().remove(index.intValue()));
 	}
 }
