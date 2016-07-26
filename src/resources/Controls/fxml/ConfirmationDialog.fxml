@@ -1,0 +1,19 @@
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXButton?>
+
+<fx:root type="JFXDialog" xmlns:fx="http://javafx.com/fxml">
+	<JFXDialogLayout fx:id="content">
+		<heading>
+			<Label fx:id="heading">Confirmation</Label>
+		</heading>
+		<body>
+
+		</body>
+		<actions>
+			<JFXButton fx:id="declineButton" styleClass="dialog-trigger">NO</JFXButton>
+			<JFXButton fx:id="acceptButton" styleClass="dialog-accept">YES</JFXButton>
+		</actions>
+	</JFXDialogLayout>
+</fx:root>

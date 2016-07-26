@@ -27,6 +27,8 @@ dependencies {
 
 mainClassName = "Main"
 
+applicationDefaultJvmArgs = ['-Djava.net.preferIPv4Stack=true']
+
 sourceSets {
     main {
         java {
@@ -36,8 +38,4 @@ sourceSets {
             srcDir 'src/resources'
         }
     }
-}
-
-run {
-    jvmArgs = '-Djava.net.preferIPv4Stack=true'
 }

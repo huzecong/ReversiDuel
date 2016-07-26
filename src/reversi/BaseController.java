@@ -2,11 +2,10 @@
  * Created by kanari on 2016/7/24.
  */
 
+import Controls.ConfirmationDialog;
 import CustomOverride.CustomAnimatedFlowContainer;
 import CustomOverride.CustomFlowHandler;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXToolbar;
 import com.jfoenix.effects.JFXDepthManager;
@@ -16,7 +15,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.datafx.controller.FXMLController;
@@ -41,10 +39,7 @@ public class BaseController {
 	private JFXToolbar toolbar;
 
 	@FXML
-	private JFXDialog closeDialog;
-
-	@FXML
-	private JFXButton dialogAcceptButton, dialogDeclineButton;
+	private ConfirmationDialog closeDialog;
 
 	@FXML
 	private JFXRippler closeButton;
@@ -97,16 +92,11 @@ public class BaseController {
 //		closeButton.setGraphic(glyphClose);
 
 		// override default quit behavior
-		closeDialog.setTransitionType(JFXDialog.DialogTransition.CENTER);
 		closeButton.setOnMouseClicked(closeHandler);
-		dialogAcceptButton.setOnAction(event -> {
-			closeDialog.close();
-			Platform.runLater(() -> {
-				Platform.exit();
-				System.exit(0);
-			});
-		});
-		dialogDeclineButton.setOnAction(event -> closeDialog.close());
+		closeDialog.setOnAccepted(e -> Platform.runLater(() -> {
+			Platform.exit();
+			System.exit(0);
+		}));
 		stage.setOnCloseRequest(event -> {
 			event.consume();
 			closeHandler.handle(event);

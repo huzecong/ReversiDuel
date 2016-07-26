@@ -1,0 +1,18 @@
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXButton?>
+
+<fx:root type="JFXDialog" xmlns:fx="http://javafx.com/fxml">
+	<JFXDialogLayout>
+		<heading>
+			<Label fx:id="heading">Information</Label>
+		</heading>
+		<body>
+			<Label fx:id="body">Some info that's supposed to be important.</Label>
+		</body>
+		<actions>
+			<JFXButton fx:id="acceptButton" styleClass="dialog-accept">OK</JFXButton>
+		</actions>
+	</JFXDialogLayout>
+</fx:root>

@@ -2,7 +2,7 @@
  * Created by kanari on 2016/7/26.
  */
 
-package NetworkUtils;
+package Network;
 
 import java.net.InetAddress;
 import java.util.Date;
@@ -40,5 +40,15 @@ public class HostData {
 		this.avatarID = avatarID;
 		this.uniqueID = uniqueID;
 		this.date = date;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof HostData)) return false;
+		HostData rhs = (HostData) obj;
+		return this.profileName.equals(rhs.profileName)
+				&& this.IP.equals(rhs.IP)
+				&& this.avatarID.equals(rhs.avatarID)
+				&& this.uniqueID == rhs.uniqueID;
 	}
 }

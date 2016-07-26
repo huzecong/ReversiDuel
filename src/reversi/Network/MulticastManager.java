@@ -2,14 +2,10 @@
  * Created by kanari on 2016/7/26.
  */
 
-package NetworkUtils;
-
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+package Network;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.Collections;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 

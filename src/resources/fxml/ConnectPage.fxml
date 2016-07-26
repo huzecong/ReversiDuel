@@ -4,22 +4,58 @@
 <?import javafx.scene.image.Image?>
 <?import Controls.IconListItem?>
 
-<AnchorPane fx:id="rootPane" xmlns:fx="http://javafx.com/fxml" styleClass="page-center-pane">
-	<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-		<JFXListView AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-			<Label text="Create match..."/>
+<?import Controls.InformationDialog?>
+<?import Controls.ConfirmationDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXSpinner?>
+<?import com.jfoenix.controls.JFXButton?>
+<StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
+	<AnchorPane fx:id="rootPane" styleClass="page-center-pane">
+		<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<JFXListView AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+				<Label text="Create match..." onMouseClicked="#createMatch"/>
+			</JFXListView>
+			<Label text="  Available matches" styleClass="sublist-header"/>
+			<Label fx:id="noMatchLabel" text="    Searching for online matches..." styleClass="sublist-header"
+			       style="-fx-font-size: 20px"/>
+			<JFXListView fx:id="matchList" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+			             AnchorPane.bottomAnchor="30">
+			</JFXListView>
+		</VBox>
+		<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<Label text="Manually connect..."/>
 		</JFXListView>
-		<Label text="  Available matches" styleClass="sublist-header"/>
-		<Label fx:id="noMatchLabel" text="    Searching for online matches..." styleClass="sublist-header" style="-fx-font-size: 20px"/>
-		<JFXListView fx:id="matchList" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-			<IconListItem name="果皇·天气晴朗" IP="127.0.0.1">
-				<icon>
-					<Image url="avatar/ha.gif"/>
-				</icon>
-			</IconListItem>
-		</JFXListView>
-	</VBox>
-	<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-		<Label text="Manually connect..."/>
-	</JFXListView>
-</AnchorPane>
+	</AnchorPane>
+
+	<InformationDialog fx:id="connectionCancelledDialog"/>
+	<JFXDialog fx:id="searchClientDialog">
+		<JFXDialogLayout>
+			<heading>
+				<Label text="Your IP address is: "/>
+			</heading>
+			<body>
+				<HBox spacing="20">
+					<JFXSpinner styleClass="blue-spinner" style="-fx-radius: 40px"/>
+					<Label text="Waiting for opponents..."/>
+				</HBox>
+			</body>
+			<actions>
+				<JFXButton fx:id="abortSearchClientButton" styleClass="dialog-trigger">ABORT</JFXButton>
+			</actions>
+		</JFXDialogLayout>
+	</JFXDialog>
+	<ConfirmationDialog fx:id="newClientDialog" heading="A new opponent!"
+	                    acceptButtonText="ACCEPT" declineButtonText="REFUSE">
+		<body>
+			<IconListItem fx:id="newClientDataItem" style="-fx-background-color: LIGHTGREY"/>
+		</body>
+	</ConfirmationDialog>
+	<ConfirmationDialog fx:id="connectToHostDialog" heading="Connecting to host..."
+	                    acceptButtonText="ABORT" declineButtonVisibility="false">
+		<body>
+			<Label text="Your opponent:"/>
+			<IconListItem fx:id="hostDataItem" style="-fx-background-color: LIGHTGREY"/>
+		</body>
+	</ConfirmationDialog>
+</StackPane>

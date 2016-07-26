@@ -4,6 +4,7 @@
 
 package Controls;
 
+import Network.HostData;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -22,6 +23,8 @@ public class IconListItem extends AnchorPane {
 	@FXML
 	private Label name, ip;
 
+	private HostData hostData;
+
 	public IconListItem() {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/IconListItem.fxml"));
 		loader.setRoot(this);
@@ -31,6 +34,17 @@ public class IconListItem extends AnchorPane {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public void setUsingHostData(HostData hostData) {
+		this.hostData = hostData;
+		setName(hostData.getProfileName());
+		setIP(hostData.getIP());
+		setIcon(new Image("../avatar/" + hostData.getAvatarID()));
+	}
+
+	public HostData getHostData() {
+		return hostData;
 	}
 
 	public Image getIcon() {

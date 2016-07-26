@@ -2,18 +2,22 @@
  * Created by kanari on 2016/7/25.
  */
 
+import Controls.ConfirmationDialog;
 import Controls.IconListItem;
-import NetworkUtils.ConnectionManager;
+import Controls.InformationDialog;
+import Network.ConnectionManager;
+import Utility.Synchronous;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.effects.JFXDepthManager;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import org.datafx.controller.FXMLController;
 
 import javax.annotation.PostConstruct;
@@ -24,12 +28,46 @@ public class ConnectPageController {
 	private AnchorPane rootPane;
 
 	@FXML
+	private StackPane __rootPane;
+
+	@FXML
 	private Label noMatchLabel;
 
 	@FXML
 	private JFXListView<IconListItem> matchList;
 
+	@FXML
+	private InformationDialog connectionCancelledDialog;
+
+	@FXML
+	private JFXDialog searchClientDialog;
+
+	@FXML
+	private JFXButton abortSearchClientButton;
+
+	@FXML
+	private ConfirmationDialog newClientDialog, connectToHostDialog;
+
+	@FXML
+	private IconListItem newClientDataItem, hostDataItem;
+
 	private ConnectionManager connectionManager;
+
+	private JFXDialog currentDialog;
+
+	@FXML
+	public void createMatch() {
+		connectionManager.startHost();
+		searchClientDialog.show(__rootPane);
+		currentDialog = searchClientDialog;
+	}
+
+	private void connectToHost(IconListItem item) {
+		connectionManager.connectToHost(item.getHostData());
+		hostDataItem.setUsingHostData(item.getHostData());
+		connectToHostDialog.show(__rootPane);
+		currentDialog = connectToHostDialog;
+	}
 
 	@PostConstruct
 	public void init() {
@@ -50,24 +88,43 @@ public class ConnectPageController {
 				}
 			}
 		});
-		IconListItem item = new IconListItem();
-		item.setName("果皇");
-		item.setIP("127.0.0.1");
-		item.setIcon(new Image("avatar/ha.gif"));
-		matchList.getItems().add(item);
 
 		matchList.getFocusModel().focusedIndexProperty().addListener((observable, oldValue, newValue) -> {
 			System.out.println("focus " + newValue);
 		});
 
+		abortSearchClientButton.setOnAction(e -> {
+			connectionManager.abortHost();
+			searchClientDialog.close();
+		});
+
+		connectionCancelledDialog.setHeading("Connection cancelled");
+		connectionCancelledDialog.setOnDialogClosed(e -> currentDialog.close());
+
+		connectToHostDialog.setOnAccepted(e -> connectionManager.abortConnectionToHost());
+
 		connectionManager = new ConnectionManager("Someone", "ha.gif", 123);
 		connectionManager.setOnAddToHostList(hostData -> {
 			IconListItem newItem = new IconListItem();
-			newItem.setName(hostData.getProfileName());
-			newItem.setIP(hostData.getIP());
-			newItem.setIcon(new Image("avatar/" + hostData.getAvatarID()));
+			newItem.setUsingHostData(hostData);
 			matchList.getItems().add(newItem);
 		});
 		connectionManager.setOnRemoveHostListIndex(index -> matchList.getItems().remove(index.intValue()));
+		connectionManager.setOnCancelConnection(message -> {
+			connectionCancelledDialog.setContents(message);
+			connectionCancelledDialog.show(__rootPane);
+		});
+		connectionManager.setOnNewClientJoined(clientData -> {
+			newClientDataItem.setUsingHostData(clientData);
+			Synchronous<Boolean> accepted = new Synchronous<>();
+			newClientDialog.setOnAccepted(e -> accepted.setValue(true));
+			newClientDialog.setOnDeclined(e -> accepted.setValue(false));
+			newClientDialog.show(__rootPane);
+			currentDialog = newClientDialog;
+			return accepted.getValue();
+		});
+		connectionManager.setOnConnectionConfirmed(hostData -> {
+			System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP());
+		});
 	}
 }

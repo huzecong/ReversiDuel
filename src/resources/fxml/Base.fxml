@@ -5,6 +5,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
+<?import Controls.ConfirmationDialog?>
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml"
            maxWidth="1200" prefWidth="1200" minWidth="1200"
            maxHeight="900" prefHeight="900" minHeight="900">
@@ -39,18 +40,9 @@
 		</top>
 	</BorderPane>
 
-	<JFXDialog fx:id="closeDialog">
-		<JFXDialogLayout>
-			<heading>
-				<Label>Confirm quit</Label>
-			</heading>
-			<body>
-				<Label>Are you sure you want to quit?</Label>
-			</body>
-			<actions>
-				<JFXButton fx:id="dialogDeclineButton" styleClass="dialog-trigger">NO</JFXButton>
-				<JFXButton fx:id="dialogAcceptButton" styleClass="dialog-accept">YES</JFXButton>
-			</actions>
-		</JFXDialogLayout>
-	</JFXDialog>
+	<ConfirmationDialog fx:id="closeDialog" heading="Confirm quit">
+		<body>
+			<Label>Are you sure you want to quit?</Label>
+		</body>
+	</ConfirmationDialog>
 </StackPane>
