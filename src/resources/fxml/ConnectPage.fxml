@@ -1,3 +1,4 @@
+<?language javascript?>
 <?import com.jfoenix.controls.JFXListView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
@@ -10,6 +11,11 @@
 <?import com.jfoenix.controls.JFXDialog?>
 <?import com.jfoenix.controls.JFXSpinner?>
 <?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.control.TextField?>
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import com.jfoenix.controls.JFXTextField?>
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
 	<AnchorPane fx:id="rootPane" styleClass="page-center-pane">
 		<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
@@ -24,16 +30,16 @@
 			</JFXListView>
 		</VBox>
 		<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-			<Label text="Manually connect..."/>
+			<Label text="Manually connect..." onMouseClicked="#manualIP"/>
 		</JFXListView>
 	</AnchorPane>
 
 	<InformationDialog fx:id="connectionCancelledDialog"/>
-	<ConfirmationDialog fx:id="searchClientDialog" heading="Your IP address is: "
-	                    acceptButtonText="ABORT" declineButtonVisibility="false">
+	<ConfirmationDialog fx:id="searchClientDialog" heading="Your address address is: "
+	                    acceptButtonText="ABORT" declineButtonVisible="false">
 		<body>
-			<HBox spacing="20">
-				<JFXSpinner styleClass="blue-spinner" style="-fx-radius: 40px"/>
+			<HBox spacing="20" alignment="CENTER">
+				<JFXSpinner styleClass="blue-spinner" style="-fx-radius: 25px"/>
 				<Label text="Waiting for opponents..."/>
 			</HBox>
 		</body>
@@ -41,14 +47,90 @@
 	<ConfirmationDialog fx:id="newClientDialog" heading="A new opponent!"
 	                    acceptButtonText="ACCEPT" declineButtonText="REFUSE">
 		<body>
-			<IconListItem fx:id="newClientDataItem" style="-fx-background-color: LIGHTGREY"/>
+			<IconListItem fx:id="newClientDataItem" styleClass="dialog-data-item"
+			              iconVisible="false"/>
 		</body>
 	</ConfirmationDialog>
 	<ConfirmationDialog fx:id="connectToHostDialog" heading="Connecting to host..."
-	                    acceptButtonText="ABORT" declineButtonVisibility="false">
+	                    acceptButtonText="ABORT" declineButtonVisible="false">
 		<body>
-			<Label text="Your opponent:"/>
-			<IconListItem fx:id="hostDataItem" style="-fx-background-color: LIGHTGREY"/>
+			<VBox spacing="10">
+				<Label text="Your opponent:"/>
+				<IconListItem fx:id="hostDataItem" styleClass="dialog-data-item"
+				              iconVisible="false"/>
+			</VBox>
+		</body>
+	</ConfirmationDialog>
+
+	<ConfirmationDialog fx:id="manualIPDialog" heading="Input opponent address"
+	                    acceptButtonText="OK" declineButtonText="CANCEL">
+		<body>
+			<VBox spacing="10" alignment="CENTER">
+				<padding>
+					<Insets bottom="20"/>
+				</padding>
+				<JFXTextField fx:id="IPText" style="-fx-font-size: 20px; -fx-font-family: Consolas"/>
+				<GridPane fx:id="numbersPane" hgap="10" vgap="10" alignment="CENTER">
+					<JFXButton styleClass="ip-dial-button" onAction="moveCaretLeft()"
+					           GridPane.rowIndex="2" GridPane.columnIndex="0" focusTraversable="false">
+						<padding>
+							<Insets top="10"/>
+						</padding>
+						<graphic>
+							<MaterialIconView glyphName="ARROW_BACK" glyphSize="25"/>
+						</graphic>
+					</JFXButton>
+					<JFXButton styleClass="ip-dial-button" onAction="moveCaretRight()"
+					           GridPane.rowIndex="2" GridPane.columnIndex="1" focusTraversable="false">
+						<padding>
+							<Insets top="10"/>
+						</padding>
+						<graphic>
+							<MaterialIconView glyphName="ARROW_FORWARD" glyphSize="25"/>
+						</graphic>
+					</JFXButton>
+					<JFXButton styleClass="ip-dial-button" onAction="insertDot()" text="."
+					           GridPane.rowIndex="2" GridPane.columnIndex="3" focusTraversable="false">
+						<padding>
+							<Insets top="10"/>
+						</padding>
+					</JFXButton>
+					<JFXButton styleClass="ip-dial-button" onAction="backspace()"
+					           GridPane.rowIndex="2" GridPane.columnIndex="4" focusTraversable="false">
+						<padding>
+							<Insets top="10"/>
+						</padding>
+						<graphic>
+							<MaterialIconView glyphName="BACKSPACE" glyphSize="25"/>
+						</graphic>
+					</JFXButton>
+					<fx:script>
+						function moveCaretLeft() {
+							var pos = IPText.getCaretPosition();
+							if (pos !== 0)
+								IPText.positionCaret(pos - 1);
+						}
+
+						function moveCaretRight() {
+							var pos = IPText.getCaretPosition();
+							if (pos !== IPText.getLength())
+								IPText.positionCaret(pos + 1);
+						}
+
+						function backspace() {
+							var pos = IPText.getCaretPosition();
+							if (pos !== 0) {
+								IPText.setText(IPText.getText(0, pos - 1) + IPText.getText(pos, IPText.getLength()));
+								IPText.positionCaret(pos - 1);
+							}
+						}
+
+						function insertDot() {
+							IPText.insertText(IPText.getCaretPosition(), ".");
+						}
+							</fx:script>
+				</GridPane>
+			</VBox>
 		</body>
 	</ConfirmationDialog>
 </StackPane>

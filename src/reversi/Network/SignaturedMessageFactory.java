@@ -5,6 +5,7 @@
 package Network;
 
 import com.sun.media.sound.InvalidFormatException;
+import com.sun.tools.javac.util.Pair;
 
 import java.net.InetAddress;
 import java.util.Date;
@@ -19,7 +20,9 @@ public class SignaturedMessageFactory {
 				+ data.getUniqueID() + separator + data.getIP() + separator + message + separator + "ReversiDuel";
 	}
 
-	public static Optional<HostData> parseSignaturedMessage(String data, String message) {
+
+	public static Optional<Pair<HostData, String>> parseSignaturedMessage(String data) {
+		if (data == null) return Optional.empty();
 		String[] parts = data.split(Pattern.quote(separator));
 		if (parts.length != 7) return Optional.empty();
 
@@ -29,7 +32,6 @@ public class SignaturedMessageFactory {
 		Date date;
 
 		if (!parts[6].equals("ReversiDuel")) return Optional.empty();
-		if (!parts[5].equals(message)) return Optional.empty();
 		try {
 			date = new Date(Long.parseLong(parts[0]));
 			profileName = parts[1];
@@ -40,31 +42,33 @@ public class SignaturedMessageFactory {
 			return Optional.empty();
 		}
 
-		return Optional.of(new HostData(profileName, avatarID, uniqueID, IP, date));
+		return Optional.of(Pair.of(new HostData(profileName, avatarID, uniqueID, IP, date), parts[5]));
+	}
+
+	public static Optional<HostData> parseSignaturedMessage(String data, String message) {
+		Optional<Pair<HostData, String>> result = parseSignaturedMessage(data);
+		if (!result.isPresent()) return Optional.empty();
+		if (!result.get().snd.equals(message)) return Optional.empty();
+		return Optional.of(result.get().fst);
+	}
+
+	public static Optional<String> parseSignaturedMessage(String data, HostData hostData) {
+		Optional<Pair<HostData, String>> result = parseSignaturedMessage(data);
+		if (!result.isPresent()) return Optional.empty();
+		if (!result.get().fst.equals(hostData)) return Optional.empty();
+		return Optional.of(result.get().snd);
+	}
+
+	public static Pair<HostData, String> parseSignaturedMessageWithException(String data) throws InvalidFormatException {
+		Optional<Pair<HostData, String>> result = parseSignaturedMessage(data);
+		if (!result.isPresent()) throw new InvalidFormatException("Signatured message has invalid format.");
+		return result.get();
 	}
 
 	public static HostData parseSignaturedMessageWithException(String data, String message) throws InvalidFormatException {
 		Optional<HostData> hostData = parseSignaturedMessage(data, message);
 		if (!hostData.isPresent()) throw new InvalidFormatException("Signatured message has invalid format.");
 		return hostData.get();
-	}
-
-	public static Optional<String> parseSignaturedMessage(String data, HostData hostData) {
-		String[] parts = data.split(Pattern.quote(separator));
-		if (parts.length != 7) return Optional.empty();
-
-		if (!parts[6].equals("ReversiDuel")) return Optional.empty();
-		try {
-			new Date(Long.parseLong(parts[0]));
-			if (!parts[1].equals(hostData.getProfileName())) return Optional.empty();
-			if (!parts[2].equals(hostData.getAvatarID())) return Optional.empty();
-			if (Integer.parseInt(parts[3]) != hostData.getUniqueID()) return Optional.empty();
-			if (!parts[4].equals(hostData.getIP())) return Optional.empty();
-		} catch (Exception e) {
-			return Optional.empty();
-		}
-
-		return Optional.of(parts[5]);
 	}
 
 	public static String parseSignaturedMessageWithException(String data, HostData hostData) throws InvalidFormatException {

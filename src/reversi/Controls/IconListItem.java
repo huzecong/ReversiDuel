@@ -5,6 +5,8 @@
 package Controls;
 
 import Network.HostData;
+import de.jensd.fx.glyphs.materialicons.MaterialIconView;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
@@ -22,6 +24,9 @@ public class IconListItem extends AnchorPane {
 
 	@FXML
 	private Label name, ip;
+
+	@FXML
+	private MaterialIconView icon;
 
 	private HostData hostData;
 
@@ -84,5 +89,17 @@ public class IconListItem extends AnchorPane {
 	public StringProperty IPProperty() {
 		if (ip == null) ip = new Label();
 		return ip.textProperty();
+	}
+
+	public boolean isIconVisible() {
+		return icon.isVisible();
+	}
+
+	public void setIconVisible(boolean visibile) {
+		icon.setVisible(visibile);
+	}
+
+	public BooleanProperty iconVisibleProperty() {
+		return icon.visibleProperty();
 	}
 }

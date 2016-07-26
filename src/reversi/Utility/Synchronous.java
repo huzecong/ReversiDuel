@@ -11,7 +11,7 @@ public class Synchronous<T> {
 	T value;
 
 	public Synchronous() {
-		hasSet.set(false);
+		hasSet = new AtomicBoolean(false);
 	}
 
 	public void setValue(T newValue) {

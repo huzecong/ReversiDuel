@@ -12,7 +12,7 @@ import java.util.function.Consumer;
 public class MulticastManager {
 
 	/**
-	 * groupIP           : IP multicast group address
+	 * groupIP           : address multicast group address
 	 * port              : multicast port
 	 * broadcastInterval : time between two consecutive UDP broadcasts
 	 */
@@ -117,6 +117,7 @@ public class MulticastManager {
 		public void run() {
 			byte[] buffer = new byte[256];
 			try {
+				if (socket != null) socket.close();
 				socket = new MulticastSocket(port);
 				socket.joinGroup(group);
 			} catch (IOException e) {
@@ -174,6 +175,7 @@ public class MulticastManager {
 		public void run() {
 			byte[] buffer;
 			try {
+				if (socket != null) socket.close();
 				socket = new MulticastSocket(port);
 			} catch (IOException e) {
 				e.printStackTrace();

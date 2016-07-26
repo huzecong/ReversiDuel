@@ -8,13 +8,11 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.events.JFXDialogEvent;
-import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -47,13 +45,21 @@ public class ConfirmationDialog extends JFXDialog {
 		onAccepted = new SimpleObjectProperty<>(null);
 		onDeclined = new SimpleObjectProperty<>(null);
 		acceptButton.setOnAction(e -> {
-			if (onAccepted.get() != null)
+			if (onAccepted.get() != null) {
 				setOnDialogClosed(onAccepted.get());
+			} else {
+				setOnDialogClosed(event -> {
+				});
+			}
 			close();
 		});
 		declineButton.setOnAction(e -> {
-			if (onDeclined.get() != null)
+			if (onDeclined.get() != null) {
 				setOnDialogClosed(onDeclined.get());
+			} else {
+				setOnDialogClosed(event -> {
+				});
+			}
 			close();
 		});
 		setOverlayClose(false);
@@ -128,15 +134,15 @@ public class ConfirmationDialog extends JFXDialog {
 		return this.declineButton.textProperty();
 	}
 
-	public boolean getDeclineButtonVisibility() {
+	public boolean isDeclineButtonVisible() {
 		return declineButton.isVisible();
 	}
 
-	public void setDeclineButtonVisibility(boolean visibility) {
-		declineButton.setVisible(visibility);
+	public void setDeclineButtonVisible(boolean visible) {
+		declineButton.setVisible(visible);
 	}
 
-	public BooleanProperty declineButtonVisibilityProperty() {
+	public BooleanProperty declineButtonVisibleProperty() {
 		return declineButton.visibleProperty();
 	}
 }
