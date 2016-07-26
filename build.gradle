@@ -37,3 +37,7 @@ sourceSets {
         }
     }
 }
+
+run {
+    jvmArgs = '-Djava.net.preferIPv4Stack=true'
+}
