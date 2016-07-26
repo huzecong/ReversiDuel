@@ -61,13 +61,13 @@ public class MulticastManager {
 	private Thread receiverThread, transceiverThread;
 
 	MulticastManager(Consumer<String> onReceiveData, Callable<String> sendDataProvider) {
-		try {
-			System.out.println(InetAddress.getLocalHost());
-			for (NetworkInterface networkInterface : Collections.list(NetworkInterface.getNetworkInterfaces()))
-				Collections.list(networkInterface.getInetAddresses()).forEach(System.out::println);
-		} catch (UnknownHostException | SocketException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			System.out.println(InetAddress.getLocalHost());
+//			for (NetworkInterface networkInterface : Collections.list(NetworkInterface.getNetworkInterfaces()))
+//				Collections.list(networkInterface.getInetAddresses()).forEach(System.out::println);
+//		} catch (UnknownHostException | SocketException e) {
+//			e.printStackTrace();
+//		}
 
 		receiver = new MulticastReceiver(groupIP, port);
 		transceiver = new MulticastTransceiver(groupIP, port, broadcastInterval);
@@ -102,6 +102,7 @@ public class MulticastManager {
 			try {
 				socket = new MulticastSocket(port);
 				group = InetAddress.getByName(groupIP);
+				this.port = port;
 				socket.joinGroup(group);
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -153,6 +154,7 @@ public class MulticastManager {
 			try {
 				socket = new MulticastSocket(port);
 				group = InetAddress.getByName(groupIP);
+				this.port = port;
 				this.broadcastInterval = broadcastInterval;
 			} catch (IOException e) {
 				e.printStackTrace();
