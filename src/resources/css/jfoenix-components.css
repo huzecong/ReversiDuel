@@ -82,7 +82,6 @@
 }
 
 .jfx-layout-actions .button {
-    -fx-pref-width: 80px;
     -fx-font-size: 19px;
     -fx-text-fill: #03A9F4;
     -fx-font-weight: BOLD;

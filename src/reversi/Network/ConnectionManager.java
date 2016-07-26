@@ -13,9 +13,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -26,6 +25,21 @@ public class ConnectionManager {
 	private static int UDPTimeoutInterval = 2000;       // milliseconds
 	private static int TCPPort = 41013;
 	private static int TCPTimeoutInterval = 2000;
+
+	private Timer hostListRefreshTimer;
+
+	private class RefreshListTask extends TimerTask {
+		Runnable task;
+
+		RefreshListTask(Runnable task) {
+			this.task = task;
+		}
+
+		@Override
+		public void run() {
+			task.run();
+		}
+	}
 
 	private HostTCPManager hostTCPManager;
 	private ClientTCPManager clientTCPManager;
@@ -45,6 +59,8 @@ public class ConnectionManager {
 		}
 
 		this.hostList = new ArrayList<>();
+		this.hostListRefreshTimer = new Timer();
+		this.hostListRefreshTimer.scheduleAtFixedRate(new RefreshListTask(this::updateHostList), new Date(), UDPTimeoutInterval);
 
 		this.manager = new MulticastManager(data -> {
 			Optional<HostData> result = SignaturedMessageFactory.parseSignaturedMessage(data, "create");
@@ -133,6 +149,7 @@ public class ConnectionManager {
 	}
 
 	private void updateHostList(HostData hostData) {
+		System.out.println("hostData: " + hostData.getProfileName() + " " + hostData.getIP());
 		boolean exist = false;
 		for (HostData host : hostList)
 			if (host.equals(hostData)) {
@@ -232,10 +249,18 @@ public class ConnectionManager {
 		public void run() {
 			try {
 				serverSocket = new ServerSocket(ConnectionManager.TCPPort);
-				serverSocket.setSoTimeout(ConnectionManager.TCPTimeoutInterval);
+				serverSocket.setSoTimeout(500);
 				while (!Thread.interrupted()) {
 					try {
-						Socket socket = serverSocket.accept();
+						Socket socket = null;
+						while (socket == null) {
+							try {
+								socket = serverSocket.accept();
+							} catch (SocketTimeoutException e) {
+								if (Thread.interrupted()) return;
+							}
+						}
+						socket.setSoTimeout(ConnectionManager.TCPTimeoutInterval);
 						PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 						BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 

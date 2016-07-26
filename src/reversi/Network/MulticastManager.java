@@ -96,11 +96,9 @@ public class MulticastManager {
 
 		MulticastReceiver(String groupIP, int port) {
 			try {
-				socket = new MulticastSocket(port);
 				group = InetAddress.getByName(groupIP);
 				this.port = port;
-				socket.joinGroup(group);
-			} catch (IOException e) {
+			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
 		}
@@ -118,6 +116,12 @@ public class MulticastManager {
 		@Override
 		public void run() {
 			byte[] buffer = new byte[256];
+			try {
+				socket = new MulticastSocket(port);
+				socket.joinGroup(group);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			while (!Thread.interrupted()) {
 				try {
 					DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
@@ -148,11 +152,10 @@ public class MulticastManager {
 
 		MulticastTransceiver(String groupIP, int port, int broadcastInterval) {
 			try {
-				socket = new MulticastSocket(port);
 				group = InetAddress.getByName(groupIP);
 				this.port = port;
 				this.broadcastInterval = broadcastInterval;
-			} catch (IOException e) {
+			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
 		}
@@ -170,6 +173,11 @@ public class MulticastManager {
 		@Override
 		public void run() {
 			byte[] buffer;
+			try {
+				socket = new MulticastSocket(port);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			while (!Thread.interrupted()) {
 				try {
 					String sendData = sendDataProvider.call();
@@ -181,7 +189,8 @@ public class MulticastManager {
 				}
 				try {
 					Thread.sleep(broadcastInterval);
-				} catch (InterruptedException ignored) {
+				} catch (InterruptedException e) {
+					break;
 				}
 			}
 			socket.close();

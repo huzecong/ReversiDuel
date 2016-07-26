@@ -11,6 +11,7 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.effects.JFXDepthManager;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -40,13 +41,7 @@ public class ConnectPageController {
 	private InformationDialog connectionCancelledDialog;
 
 	@FXML
-	private JFXDialog searchClientDialog;
-
-	@FXML
-	private JFXButton abortSearchClientButton;
-
-	@FXML
-	private ConfirmationDialog newClientDialog, connectToHostDialog;
+	private ConfirmationDialog newClientDialog, connectToHostDialog, searchClientDialog;
 
 	@FXML
 	private IconListItem newClientDataItem, hostDataItem;
@@ -93,13 +88,10 @@ public class ConnectPageController {
 			System.out.println("focus " + newValue);
 		});
 
-		abortSearchClientButton.setOnAction(e -> {
-			connectionManager.abortHost();
-			searchClientDialog.close();
-		});
-
 		connectionCancelledDialog.setHeading("Connection cancelled");
 		connectionCancelledDialog.setOnDialogClosed(e -> currentDialog.close());
+
+		searchClientDialog.setOnAccepted(e -> connectionManager.abortHost());
 
 		connectToHostDialog.setOnAccepted(e -> connectionManager.abortConnectionToHost());
 
@@ -107,19 +99,21 @@ public class ConnectPageController {
 		connectionManager.setOnAddToHostList(hostData -> {
 			IconListItem newItem = new IconListItem();
 			newItem.setUsingHostData(hostData);
-			matchList.getItems().add(newItem);
+			newItem.setOnMouseClicked(e -> connectToHost(newItem));
+			Platform.runLater(() -> matchList.getItems().add(newItem));
 		});
-		connectionManager.setOnRemoveHostListIndex(index -> matchList.getItems().remove(index.intValue()));
+		connectionManager.setOnRemoveHostListIndex(index ->
+				Platform.runLater(() -> matchList.getItems().remove(index.intValue())));
 		connectionManager.setOnCancelConnection(message -> {
 			connectionCancelledDialog.setContents(message);
-			connectionCancelledDialog.show(__rootPane);
+			Platform.runLater(() -> connectionCancelledDialog.show(__rootPane));
 		});
 		connectionManager.setOnNewClientJoined(clientData -> {
 			newClientDataItem.setUsingHostData(clientData);
 			Synchronous<Boolean> accepted = new Synchronous<>();
 			newClientDialog.setOnAccepted(e -> accepted.setValue(true));
 			newClientDialog.setOnDeclined(e -> accepted.setValue(false));
-			newClientDialog.show(__rootPane);
+			Platform.runLater(() -> newClientDialog.show(__rootPane));
 			currentDialog = newClientDialog;
 			return accepted.getValue();
 		});

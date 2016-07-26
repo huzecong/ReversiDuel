@@ -29,22 +29,15 @@
 	</AnchorPane>
 
 	<InformationDialog fx:id="connectionCancelledDialog"/>
-	<JFXDialog fx:id="searchClientDialog">
-		<JFXDialogLayout>
-			<heading>
-				<Label text="Your IP address is: "/>
-			</heading>
-			<body>
-				<HBox spacing="20">
-					<JFXSpinner styleClass="blue-spinner" style="-fx-radius: 40px"/>
-					<Label text="Waiting for opponents..."/>
-				</HBox>
-			</body>
-			<actions>
-				<JFXButton fx:id="abortSearchClientButton" styleClass="dialog-trigger">ABORT</JFXButton>
-			</actions>
-		</JFXDialogLayout>
-	</JFXDialog>
+	<ConfirmationDialog fx:id="searchClientDialog" heading="Your IP address is: "
+	                    acceptButtonText="ABORT" declineButtonVisibility="false">
+		<body>
+			<HBox spacing="20">
+				<JFXSpinner styleClass="blue-spinner" style="-fx-radius: 40px"/>
+				<Label text="Waiting for opponents..."/>
+			</HBox>
+		</body>
+	</ConfirmationDialog>
 	<ConfirmationDialog fx:id="newClientDialog" heading="A new opponent!"
 	                    acceptButtonText="ACCEPT" declineButtonText="REFUSE">
 		<body>

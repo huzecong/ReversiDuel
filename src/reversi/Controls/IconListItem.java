@@ -40,7 +40,7 @@ public class IconListItem extends AnchorPane {
 		this.hostData = hostData;
 		setName(hostData.getProfileName());
 		setIP(hostData.getIP());
-		setIcon(new Image("../avatar/" + hostData.getAvatarID()));
+		setIcon(new Image(getClass().getResource("avatar/" + hostData.getAvatarID()).toExternalForm()));
 	}
 
 	public HostData getHostData() {
