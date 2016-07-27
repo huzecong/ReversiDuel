@@ -50,11 +50,12 @@ public class MainMenuController {
 	@PostConstruct
 	public void init() {
 		buttonBox.getChildren().forEach(node -> {
-			Label label = (Label) node;
-			label.setEffect(new Glow(0.0));
-			label.setOnMouseEntered(this::buttonMouseEntered);
-			label.setOnMouseExited(this::buttonMouseExited);
-//			System.out.println(label.getText());
+			if (node instanceof Label) {
+				Label label = (Label) node;
+				label.setEffect(new Glow(0.0));
+				label.setOnMouseEntered(this::buttonMouseEntered);
+				label.setOnMouseExited(this::buttonMouseExited);
+			}
 		});
 	}
 

@@ -7,6 +7,7 @@ import Controls.IconListItem;
 import Controls.InformationDialog;
 import Network.ConnectionManager;
 import Network.HostData;
+import Utility.BackgroundColorAnimator;
 import Utility.Synchronous;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
@@ -14,9 +15,12 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -27,6 +31,7 @@ import javafx.scene.layout.StackPane;
 import org.datafx.controller.FXMLController;
 
 import javax.annotation.PostConstruct;
+import javax.validation.constraints.Null;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
@@ -95,26 +100,14 @@ public class ConnectPageController {
 	@PostConstruct
 	public void init() throws UnknownHostException {
 		JFXDepthManager.setDepth(rootPane, 1);
-		matchList.getItems().addListener(new ListChangeListener<IconListItem>() {
-			@Override
-			public void onChanged(Change<? extends IconListItem> c) {
-				if (matchList.getItems().size() == 0) {
-					noMatchLabel.setVisible(true);
-					noMatchLabel.setMaxHeight(Region.USE_COMPUTED_SIZE);
-					noMatchLabel.setPrefHeight(Region.USE_COMPUTED_SIZE);
-					noMatchLabel.setMinHeight(Region.USE_COMPUTED_SIZE);
-				} else {
-					noMatchLabel.setVisible(false);
-					noMatchLabel.setMaxHeight(0);
-					noMatchLabel.setPrefHeight(0);
-					noMatchLabel.setMinHeight(0);
-				}
+
+		matchList.getFocusModel().focusedItemProperty().addListener((observable, oldValue, newValue) -> {
+			try {
+				oldValue.getParent().getParent().setStyle("-fx-background-color: WHITE");
+				newValue.getParent().getParent().setStyle("-fx-background-color: rgba(242, 242, 242, 1)");
+			} catch (NullPointerException ignored) {
 			}
 		});
-
-//		matchList.getFocusModel().focusedIndexProperty().addListener((observable, oldValue, newValue) -> {
-//			System.out.println("focus " + newValue);
-//		});
 
 		connectionCancelledDialog.setHeading("Connection cancelled");
 		connectionCancelledDialog.setOnDialogClosed(e -> {
@@ -165,6 +158,8 @@ public class ConnectPageController {
 			GridPane.setRowIndex(button, i / 5);
 			GridPane.setColumnIndex(button, i % 5);
 		}
+		numbersPane.getChildren().forEach(BackgroundColorAnimator::applyAnimation);
+
 		manualIPDialog.setOnAccepted(event -> {
 			InetAddress address;
 			try {
@@ -176,7 +171,12 @@ public class ConnectPageController {
 				return;
 			}
 			manualConnectToHost(address);
-
 		});
+
+		for (int i = 0; i < 10; ++i) {
+			IconListItem item = new IconListItem();
+			item.setName("Item " + (i + 1));
+			matchList.getItems().add(item);
+		}
 	}
 }

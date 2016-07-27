@@ -1,11 +1,12 @@
-<?import com.jfoenix.controls.*?>
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import Controls.ConfirmationDialog?>
+<?import CustomOverride.CustomRippler?>
 <?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<?import Controls.ConfirmationDialog?>
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml"
            maxWidth="1200" prefWidth="1200" minWidth="1200"
            maxHeight="900" prefHeight="900" minHeight="900">
@@ -24,15 +25,15 @@
 			<StackPane>
 				<JFXToolbar fx:id="toolbar">
 					<leftItems>
-						<JFXRippler fx:id="backButton" maskType="CIRCLE" style="-fx-ripple-color: WHITE">
+						<CustomRippler fx:id="backButton" maskType="CIRCLE" style="-fx-ripple-color: WHITE">
 							<MaterialIconView glyphName="ARROW_BACK" glyphSize="28"/>
-						</JFXRippler>
+						</CustomRippler>
 					</leftItems>
 					<rightItems>
-						<JFXRippler fx:id="closeButton" maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
+						<CustomRippler fx:id="closeButton" maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
 							<!--<JFXButton fx:id="closeButton"/>-->
 							<MaterialIconView glyphName="CLEAR" glyphSize="28"/>
-						</JFXRippler>
+						</CustomRippler>
 					</rightItems>
 				</JFXToolbar>
 				<Label fx:id="titleLabel" styleClass="title-label"/>
@@ -40,7 +41,7 @@
 		</top>
 	</BorderPane>
 
-	<ConfirmationDialog fx:id="closeDialog" heading="Confirm quit">
+	<ConfirmationDialog fx:id="closeDialog" heading="Confirm quit" overlayClose="true">
 		<body>
 			<Label>Are you sure you want to quit?</Label>
 		</body>

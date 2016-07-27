@@ -4,6 +4,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 
+<?import CustomOverride.CustomRippler?>
 <VBox fx:id="rootPane"
       xmlns:fx="http://javafx.com/fxml" alignment="center">
 	<VBox alignment="center">

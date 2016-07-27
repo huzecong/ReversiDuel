@@ -3,6 +3,7 @@
 <?import com.jfoenix.controls.JFXDialogLayout?>
 <?import com.jfoenix.controls.JFXButton?>
 
+<?import javafx.scene.layout.HBox?>
 <fx:root type="JFXDialog" xmlns:fx="http://javafx.com/fxml">
 	<JFXDialogLayout fx:id="content">
 		<heading>
@@ -12,8 +13,10 @@
 
 		</body>
 		<actions>
-			<JFXButton fx:id="declineButton" styleClass="dialog-trigger">NO</JFXButton>
-			<JFXButton fx:id="acceptButton" styleClass="dialog-accept">YES</JFXButton>
+			<HBox spacing="15" alignment="CENTER">
+				<JFXButton fx:id="declineButton" styleClass="dialog-trigger">NO</JFXButton>
+				<JFXButton fx:id="acceptButton" styleClass="dialog-accept">YES</JFXButton>
+			</HBox>
 		</actions>
 	</JFXDialogLayout>
 </fx:root>

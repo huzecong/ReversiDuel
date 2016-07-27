@@ -6,7 +6,7 @@ import Controls.ConfirmationDialog;
 import CustomOverride.CustomAnimatedFlowContainer;
 import CustomOverride.CustomFlowHandler;
 
-import com.jfoenix.controls.JFXRippler;
+import CustomOverride.CustomRippler;
 import com.jfoenix.controls.JFXToolbar;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.application.Platform;
@@ -42,10 +42,7 @@ public class BaseController {
 	private ConfirmationDialog closeDialog;
 
 	@FXML
-	private JFXRippler closeButton;
-
-	@FXML
-	private JFXRippler backButton;
+	private CustomRippler closeButton, backButton;
 
 	@FXML
 	private Label titleLabel;

@@ -72,16 +72,16 @@ public class ConnectionManager {
 		}, () -> SignaturedMessageFactory.createSignaturedMessage(playerData, "create"));
 
 		this.hostTCPManager = new HostTCPManager();
-		this.hostTCPManager.setOnTimeout(e -> getOnCancelConnection().accept(e.getLocalizedMessage()));
-		this.hostTCPManager.setOnNewClientJoined(hostData -> getOnNewClientJoined().apply(hostData));
-		this.hostTCPManager.setOnClientAborted(e -> getOnCancelConnection().accept(e.getLocalizedMessage()));
-		this.hostTCPManager.setOnConnectionConfirmed(hostData -> getOnConnectionConfirmed().accept(hostData));
+		this.hostTCPManager.setOnTimeout(e -> onCancelConnection.accept(e.getLocalizedMessage()));
+		this.hostTCPManager.setOnNewClientJoined(hostData -> onNewClientJoined.apply(hostData));
+		this.hostTCPManager.setOnClientAborted(e -> onCancelConnection.accept(e.getLocalizedMessage()));
+		this.hostTCPManager.setOnConnectionConfirmed(hostData -> onConnectionConfirmed.accept(hostData));
 
 		this.clientTCPManager = new ClientTCPManager();
-		this.clientTCPManager.setOnTimeout(e -> getOnCancelConnection().accept(e.getLocalizedMessage()));
-		this.clientTCPManager.setOnRequestRefused(e -> getOnCancelConnection().accept(e.getLocalizedMessage()));
-		this.clientTCPManager.setOnConnectionConfirmed(hostData -> getOnConnectionConfirmed().accept(hostData));
-		this.clientTCPManager.setOnHostDataReceived(hostData -> getOnHostDataReceived().accept(hostData));
+		this.clientTCPManager.setOnTimeout(e -> onCancelConnection.accept(e.getLocalizedMessage()));
+		this.clientTCPManager.setOnRequestRefused(e -> onCancelConnection.accept(e.getLocalizedMessage()));
+		this.clientTCPManager.setOnConnectionConfirmed(hostData -> onConnectionConfirmed.accept(hostData));
+		this.clientTCPManager.setOnHostDataReceived(hostData -> onHostDataReceived.accept(hostData));
 	}
 
 	/**

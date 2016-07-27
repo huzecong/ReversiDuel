@@ -5,16 +5,26 @@
 package Controls;
 
 import Network.HostData;
+import Utility.BackgroundColorAnimator;
+import com.jfoenix.controls.JFXListCell;
 import de.jensd.fx.glyphs.materialicons.MaterialIconView;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.animation.Interpolator;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.property.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Background;
+import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 import java.io.IOException;
 
@@ -26,11 +36,12 @@ public class IconListItem extends AnchorPane {
 	private Label name, ip;
 
 	@FXML
-	private MaterialIconView icon;
+	private MaterialIconView glyph;
 
 	private HostData hostData;
 
 	public IconListItem() {
+		super();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/IconListItem.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
@@ -74,7 +85,6 @@ public class IconListItem extends AnchorPane {
 	}
 
 	public StringProperty nameProperty() {
-		if (name == null) name = new Label();
 		return name.textProperty();
 	}
 
@@ -87,19 +97,18 @@ public class IconListItem extends AnchorPane {
 	}
 
 	public StringProperty IPProperty() {
-		if (ip == null) ip = new Label();
 		return ip.textProperty();
 	}
 
-	public boolean isIconVisible() {
-		return icon.isVisible();
+	public boolean isGlyphVisible() {
+		return glyph.isVisible();
 	}
 
-	public void setIconVisible(boolean visibile) {
-		icon.setVisible(visibile);
+	public void setGlyphVisible(boolean visibile) {
+		glyph.setVisible(visibile);
 	}
 
-	public BooleanProperty iconVisibleProperty() {
-		return icon.visibleProperty();
+	public BooleanProperty glyphVisibleProperty() {
+		return glyph.visibleProperty();
 	}
 }

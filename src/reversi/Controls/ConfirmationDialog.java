@@ -4,6 +4,7 @@
 
 package Controls;
 
+import Utility.BackgroundColorAnimator;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
@@ -13,13 +14,17 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseEvent;
 
 import java.io.IOException;
+import java.security.Key;
 
 public class ConfirmationDialog extends JFXDialog {
 	@FXML
@@ -44,6 +49,8 @@ public class ConfirmationDialog extends JFXDialog {
 		}
 		onAccepted = new SimpleObjectProperty<>(null);
 		onDeclined = new SimpleObjectProperty<>(null);
+		BackgroundColorAnimator.applyAnimation(acceptButton);
+		BackgroundColorAnimator.applyAnimation(declineButton);
 		acceptButton.setOnAction(e -> {
 			if (onAccepted.get() != null) {
 				setOnDialogClosed(onAccepted.get());
@@ -61,6 +68,13 @@ public class ConfirmationDialog extends JFXDialog {
 				});
 			}
 			close();
+		});
+		setOnKeyPressed(e -> {
+			if (!isOverlayClose()) return;
+			if (e.getCode() == KeyCode.ESCAPE)
+				declineButton.fire();
+			else if (e.getCode() == KeyCode.ENTER)
+				acceptButton.fire();
 		});
 		setOverlayClose(false);
 		onDeclinedProperty().addListener(((observable, oldValue, newValue) -> setOnDialogClosed(newValue)));

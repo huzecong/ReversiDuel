@@ -10,6 +10,7 @@ import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 
 import java.io.IOException;
 
@@ -32,6 +33,10 @@ public class InformationDialog extends JFXDialog {
 			e.printStackTrace();
 		}
 		acceptButton.setOnAction(e -> close());
+		setOnKeyPressed(e -> {
+			if (e.getCode() == KeyCode.ESCAPE || e.getCode() == KeyCode.ENTER)
+				acceptButton.fire();
+		});
 	}
 
 	public String getHeading() {

@@ -61,8 +61,12 @@
     -fx-font-size: 14px;
     -fx-button-type: RAISED;
     -fx-background-color: WHITE;
+    -fx-min-width: 40px;
     -fx-pref-width: 40px;
+    -fx-max-width: 40px;
+    -fx-min-height: 40px;
     -fx-pref-height: 40px;
+    -fx-max-height: 40px;
 }
 
 /*******************************************************************************
@@ -103,7 +107,7 @@
     -fx-font-size: 19px;
     -fx-text-fill: #03A9F4;
     -fx-font-weight: BOLD;
-    -fx-padding: 0.4em 0.8em;
+    -fx-padding: 0.4em 1.2em;
     -fx-background-color: WHITE;
 }
 
@@ -215,21 +219,7 @@
     -fx-checked-color: RED;
     -fx-unchecked-color: BLACK;
 }
-/* Button */
 
-.button {
-    -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 14px;
-}
-
-.button-raised {
-    -fx-padding: 0.7em 0.57em;
-    -fx-font-size: 14px;
-    -fx-button-type: RAISED;
-    -fx-background-color: rgb(77, 102, 204);
-    -fx-pref-width: 200;
-    -fx-text-fill: WHITE;
-}
 /* The main scrollbar **track** CSS class  */
 
 .mylistview .scroll-bar:horizontal .track,
@@ -276,16 +266,12 @@
     -fx-alignment: center-left;
 }
 
+.jfx-list-cell-content-container {
+    -fx-alignment: center-left;
+}
+
 .jfx-list-cell {
-    -fx-background-insets: 0.0;
-}
-
-.jfx-list-cell:odd, .jfx-list-cell:even {
-    -fx-background-color: WHITE;
-}
-
-.jfx-list-cell:filled:hover {
-    -fx-text-fill: black;
+    -fx-background-color: inherit;
 }
 
 .jfx-list-view {
@@ -294,7 +280,6 @@
     -fx-cell-vertical-margin: 5.0;
     -fx-vertical-gap: 10;
     -fx-expanded: false;
-    -fx-pref-width: 200;
 }
 
 .jfx-toggle-button {
@@ -329,10 +314,6 @@
 
 .jfx-snackbar-action {
     -fx-text-fill: #ff4081;
-}
-
-.jfx-list-cell-content-container {
-    -fx-alignment: center-left;
 }
 
 .combo-box-popup .list-view .jfx-list-cell:odd:selected .jfx-list-cell-container,

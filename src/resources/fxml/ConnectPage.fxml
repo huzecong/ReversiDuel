@@ -18,16 +18,19 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
 	<AnchorPane fx:id="rootPane" styleClass="page-center-pane">
-		<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+		<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
 			<JFXListView AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 				<Label text="Create match..." onMouseClicked="#createMatch"/>
 			</JFXListView>
 			<Label text="  Available matches" styleClass="sublist-header"/>
-			<Label fx:id="noMatchLabel" text="    Searching for online matches..." styleClass="sublist-header"
-			       style="-fx-font-size: 20px"/>
-			<JFXListView fx:id="matchList" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
-			             AnchorPane.bottomAnchor="30">
-			</JFXListView>
+			<StackPane>
+				<JFXListView fx:id="matchList" styleClass="mylistview">
+					<placeholder>
+						<Label fx:id="noMatchLabel" text="    Searching for online matches..."
+						       styleClass="sublist-header" style="-fx-font-size: 20px"/>
+					</placeholder>
+				</JFXListView>
+			</StackPane>
 		</VBox>
 		<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
 			<Label text="Manually connect..." onMouseClicked="#manualIP"/>
@@ -48,7 +51,7 @@
 	                    acceptButtonText="ACCEPT" declineButtonText="REFUSE">
 		<body>
 			<IconListItem fx:id="newClientDataItem" styleClass="dialog-data-item"
-			              iconVisible="false"/>
+			              glyphVisible="false"/>
 		</body>
 	</ConfirmationDialog>
 	<ConfirmationDialog fx:id="connectToHostDialog" heading="Connecting to host..."
@@ -57,7 +60,7 @@
 			<VBox spacing="10">
 				<Label text="Your opponent:"/>
 				<IconListItem fx:id="hostDataItem" styleClass="dialog-data-item"
-				              iconVisible="false"/>
+				              glyphVisible="false"/>
 			</VBox>
 		</body>
 	</ConfirmationDialog>
