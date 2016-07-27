@@ -8,6 +8,23 @@
     src: url("../font/HoboStd.otf");
 }
 
+@font-face {
+    font-family: 'out'; /* wtf? */
+    src: url("../font/ZhuanTi.ttf");
+}
+
+.jfx-tool-bar {
+    -fx-background-color: WHITE;
+    -fx-pref-width: 100%;
+    -fx-pref-height: 64px;
+}
+
+.jfx-tool-bar HBox {
+    -fx-alignment: center;
+    -fx-spacing: 25;
+    -fx-padding: 0 10;
+}
+
 .jfx-rippler {
     -fx-rippler-fill: GREY;
 }
@@ -28,7 +45,6 @@
 }
 
 .page-center-pane {
-    -fx-max-width: 720;
     -fx-background-color: WHITE;
 }
 
@@ -38,7 +54,8 @@
 }
 
 .page-center-pane .label.sublist-header {
-    -fx-text-fill: DARKGREY;
+    -fx-font-size: 16px;
+    -fx-text-fill: #979797
 }
 
 .main-menu-item {
@@ -54,6 +71,12 @@
 
 .blue-spinner .arc {
     -fx-stroke-width: 5px;
+}
+
+.button-raised {
+    -fx-padding: 0.4em 0.8em;
+    -fx-button-type: RAISED;
+    -fx-background-color: WHITE;
 }
 
 .ip-dial-button {
@@ -111,51 +134,14 @@
     -fx-background-color: WHITE;
 }
 
-/* Burgers Demo */
-
-.jfx-hamburger {
-    -fx-spacing: 5;
-    -fx-cursor: hand;
-}
-
-.jfx-hamburger StackPane {
-    -fx-pref-width: 40px;
-    -fx-pref-height: 7px;
-    -fx-background-color: #D63333;
-    -fx-background-radius: 5px;
-}
-
 /* Input Demo */
-
-.text-field {
-    -fx-max-width: 300;
-}
 
 .jfx-text-field, .jfx-password-field {
     -fx-background-color: WHITE;
-    -fx-font-weight: BOLD;
     -fx-prompt-text-fill: #808080;
     -fx-alignment: top-left;
     -fx-focus-color: #4059A9;
     -fx-unfocus-color: #4d4d4d;
-    -fx-max-width: 300;
-}
-
-.jfx-decorator {
-    -fx-decorator-color: RED;
-}
-
-.jfx-decorator .jfx-decorator-buttons-container {
-    -fx-background-color: -fx-decorator-color;
-}
-
-.jfx-decorator .resize-border {
-    -fx-border-color: -fx-decorator-color;
-    -fx-border-width: 0 4 4 4;
-}
-
-.jfx-text-area, .text-area {
-    -fx-font-weight: BOLD;
 }
 
 .jfx-text-field:error, .jfx-password-field:error, .jfx-text-area:error {
@@ -222,8 +208,8 @@
 
 /* The main scrollbar **track** CSS class  */
 
-.mylistview .scroll-bar:horizontal .track,
-.mylistview .scroll-bar:vertical .track {
+.os-x-scrollbar .scroll-bar:horizontal .track,
+.os-x-scrollbar .scroll-bar:vertical .track {
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-background-radius: 0em;
@@ -231,8 +217,8 @@
 }
 /* The increment and decrement button CSS class of scrollbar */
 
-.mylistview .scroll-bar:horizontal .increment-button,
-.mylistview .scroll-bar:horizontal .decrement-button {
+.os-x-scrollbar .scroll-bar:horizontal .increment-button,
+.os-x-scrollbar .scroll-bar:horizontal .decrement-button {
     -fx-background-color: transparent;
     -fx-background-radius: 0em;
     -fx-padding: 0 0 10 0;
@@ -240,23 +226,23 @@
 
 /* The increment and decrement button CSS class of scrollbar */
 
-.mylistview .scroll-bar:vertical .increment-button,
-.mylistview .scroll-bar:vertical .decrement-button {
+.os-x-scrollbar .scroll-bar:vertical .increment-button,
+.os-x-scrollbar .scroll-bar:vertical .decrement-button {
     -fx-background-color: transparent;
     -fx-background-radius: 0em;
     -fx-padding: 0 10 0 0;
 
 }
 
-.mylistview .scroll-bar .increment-arrow,
-.mylistview .scroll-bar .decrement-arrow {
+.os-x-scrollbar .scroll-bar .increment-arrow,
+.os-x-scrollbar .scroll-bar .decrement-arrow {
     -fx-shape: " ";
     -fx-padding: 0;
 }
 /* The main scrollbar **thumb** CSS class which we drag every time (movable) */
 
-.mylistview .scroll-bar:horizontal .thumb,
-.mylistview .scroll-bar:vertical .thumb {
+.os-x-scrollbar .scroll-bar:horizontal .thumb,
+.os-x-scrollbar .scroll-bar:vertical .thumb {
     -fx-background-color: derive(black, 90%);
     -fx-background-insets: 2, 0, 0;
     -fx-background-radius: 2em;
@@ -284,18 +270,6 @@
 
 .jfx-toggle-button {
     -fx-toggle-color: RED;
-}
-
-.jfx-tool-bar {
-    -fx-background-color: WHITE;
-    -fx-pref-width: 100%;
-    -fx-pref-height: 64px;
-}
-
-.jfx-tool-bar HBox {
-    -fx-alignment: center;
-    -fx-spacing: 25;
-    -fx-padding: 0 10;
 }
 
 .jfx-popup-container {
@@ -328,131 +302,4 @@
 
 .combo-box-popup .list-view .jfx-list-cell .jfx-rippler {
     -fx-rippler-fill: #5264AE;
-}
-
-/*.combo-box .combo-box-button-container{
- 	-fx-border-color:BLACK;-fx-border-width: 0 0 1 0;
-}
-.combo-box .combo-box-selected-value-container{
-	-fx-border-color:BLACK;
-} */
-
-/*
- * TREE TABLE CSS
- */
-
-.tree-table-view {
-    -fx-tree-table-color: rgba(255, 0, 0, 0.2);
-    -fx-tree-table-rippler-color: rgba(255, 0, 0, 0.4);
-}
-
-.tree-table-view:focused .tree-table-row-cell:selected {
-    -fx-background-color: -fx-tree-table-color;
-    -fx-table-cell-border-color: -fx-tree-table-color;
-    -fx-text-fill: BLACK;
-}
-
-.tree-table-view:focused .tree-table-row-cell:selected .tree-table-cell {
-    -fx-text-fill: BLACK;
-}
-
-.tree-table-view .jfx-rippler {
-    -fx-rippler-fill: -fx-tree-table-rippler-color;
-}
-
-.tree-table-view .column-header,
-.tree-table-view .column-header-background,
-.tree-table-view .column-header-background .filler {
-    -fx-background-color: TRANSPARENT;
-}
-
-.tree-table-view .column-header {
-    -fx-border-width: 0 1 0 1;
-    -fx-border-color: #F3F3F3;
-}
-
-.tree-table-view .column-header .label {
-    -fx-text-fill: #949494;
-    -fx-padding: 16 0 16 0;
-}
-
-.tree-table-view .column-header .arrow, .tree-table-view .column-header .sort-order-dot {
-    -fx-background-color: #949494;
-}
-
-.tree-table-view .column-header:last-visible {
-    -fx-border-width: 0 2 0 1;
-}
-
-.tree-table-view .column-header-background {
-    -fx-border-width: 0 0.0 1 0;
-    -fx-border-color: #F3F3F3;
-}
-
-.tree-table-view .tree-table-cell {
-    -fx-border-width: 0 0 0 0;
-    -fx-padding: 16 0 16 0;
-}
-
-.tree-table-view .column-overlay {
-    -fx-background-color: -fx-tree-table-color;
-}
-
-.tree-table-view .column-resize-line, .tree-table-view .column-drag-header {
-    -fx-background-color: -fx-tree-table-rippler-color;
-}
-.tree-table-view:focused {
-    -fx-background-color: -fx-tree-table-color, -fx-box-border, -fx-control-inner-background;
-    -fx-background-insets: -1.4, 0, 1;
-    -fx-background-radius: 1.4, 0, 0;
-/*....*/
--fx-padding: 1; /* 0.083333em; */
-}
-
-.tree-table-row-cell > .tree-disclosure-node > .arrow {
-    -fx-background-color: -fx-text-fill;
--fx-padding: 0.333333em 0.229em 0.333333em 0.229em; /* 4 */
--fx-shape: "M 0 -3.5 L 4 0 L 0 3.5 z";
-}
-
-
-.tree-table-row-cell .jfx-text-field {
-    -fx-focus-color: rgba(240, 40, 40);
-}
-
-.tree-table-row-group {
-    -fx-background-color: rgba(230, 230, 230);
-}
-
-.animated-option-button {
-    -fx-pref-width: 50px;
-    -fx-background-color: #44B449;
-    -fx-background-radius: 50px;
-    -fx-pref-height: 50px;
-    -fx-text-fill: white;
-    -fx-border-color: WHITE;
-    -fx-border-radius: 50px;
-    -fx-border-width: 4px;
-}
-
-.animated-option-sub-button {
-    -fx-background-color: #43609C;
-}
-
-.animated-option-sub-button2 {
-    -fx-background-color: rgb(203, 104, 96);
-}
-
-.tree-table-view .menu-item:focused {
-    -fx-background-color: -fx-tree-table-color;
-
-}
-
-.tree-table-view .menu-item .label {
-    -fx-padding: 5 0 5 0;
-}
-
-.jfx-combo-box .combo-box-button-container {
-    -fx-border-color: rgb(180, 180, 180);
-    -fx-border-width: 0 0 2 0;
 }

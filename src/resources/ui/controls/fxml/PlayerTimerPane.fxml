@@ -1,0 +1,25 @@
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<fx:root type="AnchorPane" xmlns:fx="http://javafx.com/fxml">
+	<VBox alignment="CENTER_RIGHT"
+	      AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+	      maxWidth="65" prefWidth="65" minWidth="65">
+		<Label fx:id="scoreText" text="0" style="-fx-font-size: 30px; -fx-font-family: 'Bank Gothic Light BT'"/>
+	</VBox>
+	<VBox alignment="CENTER" AnchorPane.leftAnchor="75" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+		<ImageView fx:id="avatarView" fitHeight="45" fitWidth="45"/>
+	</VBox>
+	<VBox spacing="-5" alignment="CENTER_LEFT"
+	      AnchorPane.leftAnchor="120" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+		<Label fx:id="nameText" text="Name"/>
+		<Label fx:id="totalTimeText" text="00:00"
+		       style="-fx-text-fill: DARKGREY; -fx-font-size: 16px" lineSpacing="-5"/>
+	</VBox>
+	<VBox spacing="-5" alignment="CENTER"
+	      AnchorPane.bottomAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="5">
+		<Label text="Remain" style="-fx-font-size: 16px"/>
+		<Label fx:id="remainingTimeText" text="20" style="-fx-font-size: 30px; -fx-font-family: 'out'"/>
+	</VBox>
+</fx:root>

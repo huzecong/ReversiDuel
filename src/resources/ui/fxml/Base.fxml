@@ -1,0 +1,49 @@
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import ui.controls.ConfirmationDialog?>
+<?import override.CustomRippler?>
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml"
+           maxWidth="1200" prefWidth="1200" minWidth="1200"
+           maxHeight="900" prefHeight="900" minHeight="900">
+	<ImageView fitWidth="${__rootPane.width}" fitHeight="${__rootPane.height}">
+		<Image url="image/background.jpg"/>
+	</ImageView>
+
+	<BorderPane>
+		<center>
+			<AnchorPane>
+				<StackPane fx:id="mainPane" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
+				           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
+			</AnchorPane>
+		</center>
+		<top>
+			<StackPane>
+				<JFXToolbar fx:id="toolbar">
+					<leftItems>
+						<CustomRippler fx:id="backButton" maskType="CIRCLE" style="-fx-ripple-color: WHITE">
+							<MaterialIconView glyphName="ARROW_BACK" glyphSize="28"/>
+						</CustomRippler>
+					</leftItems>
+					<rightItems>
+						<CustomRippler fx:id="closeButton" maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
+							<!--<JFXButton fx:id="closeButton"/>-->
+							<MaterialIconView glyphName="CLEAR" glyphSize="28"/>
+						</CustomRippler>
+					</rightItems>
+				</JFXToolbar>
+				<Label fx:id="titleLabel" styleClass="title-label"/>
+			</StackPane>
+		</top>
+	</BorderPane>
+
+	<ConfirmationDialog fx:id="closeDialog" heading="Confirm quit" overlayClose="true">
+		<body>
+			<Label text="Are you sure you want to quit?"/>
+		</body>
+	</ConfirmationDialog>
+</StackPane>

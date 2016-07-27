@@ -1,23 +1,15 @@
-import com.jfoenix.concurrency.JFXUtilities;
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDecorator;
+import ui.AbstractGameBoardController;
+import ui.BaseController;
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 import org.datafx.controller.context.ViewMetadata;
 import org.datafx.controller.flow.Flow;
 import org.datafx.controller.flow.FlowHandler;
 import org.datafx.controller.flow.container.DefaultFlowContainer;
 import org.datafx.controller.flow.context.ViewFlowContext;
-
-import java.net.URL;
-
 
 public class Main extends Application {
 
