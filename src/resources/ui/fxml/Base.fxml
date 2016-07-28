@@ -16,9 +16,18 @@
 
 	<BorderPane>
 		<center>
-			<AnchorPane>
+			<AnchorPane fx:id="borderShadows">
 				<StackPane fx:id="mainPane" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
 				           AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
+				<AnchorPane style="-fx-background-color: WHITE"
+				            AnchorPane.leftAnchor="-20" AnchorPane.rightAnchor="1197"
+				            AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"/>
+				<AnchorPane style="-fx-background-color: WHITE"
+				            AnchorPane.leftAnchor="1197" AnchorPane.rightAnchor="-20"
+				            AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"/>
+				<AnchorPane style="-fx-background-color: WHITE"
+				            AnchorPane.topAnchor="833" AnchorPane.bottomAnchor="-20"
+				            AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"/>
 			</AnchorPane>
 		</center>
 		<top>
@@ -31,7 +40,6 @@
 					</leftItems>
 					<rightItems>
 						<CustomRippler fx:id="closeButton" maskType="CIRCLE" style="-fx-ripple-fill: WHITE">
-							<!--<JFXButton fx:id="closeButton"/>-->
 							<MaterialIconView glyphName="CLEAR" glyphSize="28"/>
 						</CustomRippler>
 					</rightItems>

@@ -6,12 +6,14 @@ package ui.controls;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
+import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.StackPane;
+import util.TaskScheduler;
 
 import java.io.IOException;
 
@@ -44,13 +46,14 @@ public class InformationDialog extends JFXDialog {
 	@Override
 	public void show(StackPane dialogContainer) {
 		super.show(dialogContainer);
-		requestFocus();
+		// focus must be requested after a short delay... dunno why
+		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
 	}
 
 	@Override
 	public void show() {
 		super.show();
-		requestFocus();
+		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
 	}
 
 	public String getHeading() {

@@ -4,6 +4,13 @@
 
 package ui;
 
+import javafx.scene.Node;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import ui.controls.ConfirmationDialog;
 import override.CustomAnimatedFlowContainer;
 import override.CustomFlowHandler;
@@ -38,6 +45,9 @@ public class BaseController {
 	private StackPane __rootPane, mainPane;
 
 	@FXML
+	private AnchorPane borderShadows;
+
+	@FXML
 	private JFXToolbar toolbar;
 
 	@FXML
@@ -67,6 +77,9 @@ public class BaseController {
 		titleLabel.textProperty().bind(stage.titleProperty());
 
 		JFXDepthManager.setDepth(toolbar, 1);
+		borderShadows.getChildren().get(1).setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 10, 0.12, 2, 0));
+		borderShadows.getChildren().get(2).setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 10, 0.12, -2, 0));
+		borderShadows.getChildren().get(3).setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 10, 0.12, 0, -2));
 
 //		flowHandler = innerFlow.createHandler(context);
 		flowHandler = new CustomFlowHandler(innerFlow, context);
@@ -84,10 +97,6 @@ public class BaseController {
 				e.printStackTrace();
 			}
 		});
-
-//		SVGGlyph glyphClose = new SVGGlyph(0, "CLOSE", "M810 274l-238 238 238 238-60 60-238-238-238 238-60-60 238-238-238-238 60-60 238 238 238-238z", Color.DARKSLATEGRAY);
-//		glyphClose.setSize(20, 20);
-//		closeButton.setGraphic(glyphClose);
 
 		// override default quit behavior
 		closeButton.setOnMouseClicked(closeHandler);

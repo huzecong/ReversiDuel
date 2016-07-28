@@ -29,6 +29,11 @@
     -fx-rippler-fill: GREY;
 }
 
+.button {
+    -fx-font-weight: BOLD;
+    -fx-text-fill: rgba(0, 0, 0, 0.8);
+}
+
 .label {
     -fx-font-family: Roboto;
     -fx-text-fill: rgba(0, 0, 0, 0.8);
@@ -77,6 +82,14 @@
     -fx-padding: 0.4em 0.8em;
     -fx-button-type: RAISED;
     -fx-background-color: WHITE;
+}
+
+.game-page-buttons-pane .button {
+    -fx-button-type: RAISED;
+    -fx-background-color: WHITE;
+    -fx-padding: 0.6em;
+    -fx-pref-width: 100px;
+    -fx-font-size: 16px;
 }
 
 .ip-dial-button {

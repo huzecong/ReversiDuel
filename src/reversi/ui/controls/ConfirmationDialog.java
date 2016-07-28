@@ -4,17 +4,18 @@
 
 package ui.controls;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
+import javafx.beans.property.*;
 import javafx.scene.layout.StackPane;
+import javafx.util.Duration;
 import util.BackgroundColorAnimator;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.events.JFXDialogEvent;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -22,8 +23,10 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import util.TaskScheduler;
 
 import java.io.IOException;
+import java.util.Timer;
 
 public class ConfirmationDialog extends JFXDialog {
 	@FXML
@@ -84,13 +87,14 @@ public class ConfirmationDialog extends JFXDialog {
 	@Override
 	public void show(StackPane dialogContainer) {
 		super.show(dialogContainer);
-		Platform.runLater(() -> requestFocus());
+		// focus must be requested after a short delay... dunno why
+		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
 	}
 
 	@Override
 	public void show() {
 		super.show();
-		Platform.runLater(() -> requestFocus());
+		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
 	}
 
 	public String getHeading() {

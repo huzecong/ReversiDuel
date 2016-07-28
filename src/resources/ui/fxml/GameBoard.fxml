@@ -12,17 +12,20 @@
 <?import javafx.scene.layout.HBox?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.layout.GridPane?>
 <AnchorPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
-	<ImageView fx:id="gameBoard" fitHeight="774" fitWidth="774" AnchorPane.topAnchor="30" AnchorPane.leftAnchor="30">
-		<Image url="image/board.jpg"/>
-	</ImageView>
+	<StackPane fx:id="gameBoard" AnchorPane.topAnchor="30" AnchorPane.leftAnchor="30">
+		<ImageView fitHeight="774" fitWidth="774">
+			<Image url="image/board.png"/>
+		</ImageView>
+	</StackPane>
 
 	<AnchorPane fx:id="rootPane" styleClass="page-center-pane" AnchorPane.leftAnchor="844"
 	            AnchorPane.rightAnchor="20" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
 		<!-- 30 + 774 + 40 -->
 		<VBox spacing="10"
-		      AnchorPane.topAnchor="10" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-			<Label text="  Match summary" styleClass="sublist-header"/>
+		      AnchorPane.topAnchor="10" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<Label text="  Match Summary" styleClass="sublist-header"/>
 			<PlayerTimerPane fx:id="player1Pane" name="Naïve!" score="99" totalTime="123" remainingTime="20">
 				<icon>
 					<Image url="ui/controls/avatar/ha.gif"/>
@@ -33,7 +36,10 @@
 					<Image url="ui/controls/avatar/honoka.jpg"/>
 				</icon>
 			</PlayerTimerPane>
+		</VBox>
 
+		<VBox spacing="10" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0"
+		      AnchorPane.topAnchor="230" AnchorPane.bottomAnchor="250">
 			<Label text="  Chat" styleClass="sublist-header"/>
 			<StackPane>
 				<padding>
@@ -42,12 +48,30 @@
 				<TextArea fx:id="chatDialog" focusTraversable="false" editable="false" wrapText="true"
 				          style="-fx-font-size: 16px" styleClass="os-x-scrollbar"
 				          text="Pretending there's dialog"
-				          maxHeight="200" minHeight="200" prefHeight="200"/>
+				          minHeight="250" maxHeight="250"/>
 			</StackPane>
 			<HBox spacing="10" alignment="CENTER">
 				<JFXTextField fx:id="chatText" promptText="Chat here" prefWidth="225" style="-fx-font-size: 16px"/>
-				<JFXButton fx:id="sendChatButton" text="Send" styleClass="button-raised"/>
+				<JFXButton fx:id="sendChatButton" text="SEND" styleClass="button-raised"/>
 			</HBox>
+		</VBox>
+
+		<VBox spacing="10" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.bottomAnchor="30">
+			<Label text="  Game Actions" styleClass="sublist-header"/>
+			<GridPane fx:id="buttonsPane" alignment="CENTER" vgap="25" hgap="25" styleClass="game-page-buttons-pane">
+				<JFXButton fx:id="readyButton" text="READY"
+				           GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+				<JFXButton fx:id="undoButton" text="UNDO"
+				           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+				<JFXButton fx:id="drawButton" text="DRAW"
+				           GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+				<JFXButton fx:id="surrenderButton" text="GIVE UP"
+				           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+				<JFXButton fx:id="saveLoadButton" text="LOAD"
+				           GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+				<JFXButton fx:id="exitButton" text="EXIT"
+				           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+			</GridPane>
 		</VBox>
 	</AnchorPane>
 </AnchorPane>
