@@ -10,6 +10,9 @@ import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
@@ -27,12 +30,17 @@ import javafx.scene.shape.*;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import logic.GameManager;
+import logic.LocalPlayer;
+import logic.PlayerState;
 import org.datafx.controller.FXMLController;
 import ui.controls.PlayerTimerPane;
 import util.BackgroundColorAnimator;
+import util.TaskScheduler;
 
 import javax.annotation.PostConstruct;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Random;
 
 @FXMLController(value = "fxml/GameBoard.fxml", title = "Duel!")
@@ -73,19 +81,26 @@ public class AbstractGameBoardController {
 		static Image whitePiece = new Image("image/white.png", imageLength, imageLength, true, false);
 
 		StackPane container;
-		ImageView view;
+		ImageView view, candidateView;
 		Timeline showAnimation, flipAnimation;
 
 		BoardPiece(int row, int column) {
 			container = new StackPane();
 			container.setTranslateX(-boardLength / 2 + (row + 0.5) * boardGridLength + boardOffsetX);
 			container.setTranslateY(-boardLength / 2 + (column + 0.5) * boardGridLength + boardOffsetY);
+			container.setAlignment(Pos.CENTER);
+
 			view = new ImageView();
-			view.setImage(new Random().nextBoolean() ? whitePiece : blackPiece);
 			JFXDepthManager.setDepth(view, 2);
 			view.setOpacity(0.0);
 			container.getChildren().add(view);
-			container.setAlignment(Pos.CENTER);
+
+			candidateView = new ImageView();
+			candidateView.setFitHeight(imageLength / 2);
+			candidateView.setFitWidth(imageLength / 2);
+			candidateView.setOpacity(0.5);
+			candidateView.setVisible(false);
+			container.getChildren().add(candidateView);
 
 			showAnimation = new Timeline(
 					new KeyFrame(Duration.ZERO,
@@ -100,7 +115,7 @@ public class AbstractGameBoardController {
 			view.setRotationAxis(new Point3D(1, 0, 0));
 			flipAnimation = new Timeline(
 					new KeyFrame(Duration.ZERO, new KeyValue(view.rotateProperty(), 0.0)),
-					new KeyFrame(Duration.millis(150), event->switchColor(), new KeyValue(view.rotateProperty(), 90.0)),
+					new KeyFrame(Duration.millis(150), event -> switchColor(), new KeyValue(view.rotateProperty(), 90.0)),
 					new KeyFrame(Duration.millis(300), new KeyValue(view.rotateProperty(), 0.0)));
 		}
 
@@ -109,9 +124,27 @@ public class AbstractGameBoardController {
 			else view.setImage(blackPiece);
 		}
 
-		void show() {
-			showAnimation.setRate(1.0);
-			showAnimation.play();
+		void showAsCandidate(PlayerState player) {
+			if (player == PlayerState.NONE) hideCandidate();
+			else {
+				if (player == PlayerState.WHITE) candidateView.setImage(whitePiece);
+				else if (player == PlayerState.BLACK) candidateView.setImage(blackPiece);
+				candidateView.setVisible(true);
+			}
+		}
+
+		void hideCandidate() {
+			candidateView.setVisible(false);
+		}
+
+		void show(PlayerState player) {
+			if (player == PlayerState.NONE) hide();
+			else {
+				if (player == PlayerState.WHITE) view.setImage(whitePiece);
+				else if (player == PlayerState.BLACK) view.setImage(blackPiece);
+				showAnimation.setRate(1.0);
+				showAnimation.play();
+			}
 		}
 
 		void hide() {
@@ -127,11 +160,41 @@ public class AbstractGameBoardController {
 	BoardPiece[][] boardPieces = new BoardPiece[N][N];
 
 	protected GameManager manager;
+	protected LocalPlayer player1, player2;
 
 	@PostConstruct
 	public void init() {
 		manager = new GameManager();
-		manager.init();
+		player1 = new LocalPlayer();
+		player2 = new LocalPlayer();
+		manager.init(player1, player2);
+		manager.setDropPieceHandler(pair -> {
+			boardPieces[pair.fst.x][pair.fst.y].show(pair.snd);
+			Collection<Point> flippedPosition = manager.getFlippedPositions();
+			if (flippedPosition.size() == 0) {
+				drawCandidatePositions();
+				return;
+			}
+			Timeline animation = new Timeline();
+			ArrayList<Point>[] pointDist = new ArrayList[N];
+			for (int i = 0; i < N; ++i)
+				pointDist[i] = new ArrayList<Point>();
+			for (Point point : flippedPosition) {
+				int dist = Math.max(Math.abs(point.x - pair.fst.x), Math.abs(point.y - pair.fst.y));
+				pointDist[dist - 1].add(point);
+			}
+			IntegerProperty ignored = new SimpleIntegerProperty(0);
+			for (int i = 0; i < N; ++i) {
+				final int index = i;
+				if (pointDist[index].size() == 0) break;
+				animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * index), event -> {
+					for (Point point : pointDist[index])
+						boardPieces[point.x][point.y].flip();
+				}, new KeyValue(ignored, index + 1)));
+			}
+			animation.setOnFinished(e -> TaskScheduler.singleShot(300, this::drawCandidatePositions));
+			animation.play();
+		});
 
 		JFXDepthManager.setDepth(rootPane, 1);
 		chatDialog.setText("1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
@@ -146,6 +209,14 @@ public class AbstractGameBoardController {
 				boardPieces[i][j] = new BoardPiece(i, j);
 				gameBoard.getChildren().add(boardPieces[i][j].container);
 			}
+
+		manager.newGame();
+	}
+
+	private void drawCandidatePositions() {
+		Collection<Point> positions = manager.getCandidatePositions();
+		for (Point point : positions)
+			boardPieces[point.x][point.y].showAsCandidate(manager.getCurrentPlayer());
 	}
 
 	private Point getCell(double mouseX, double mouseY) {
@@ -158,15 +229,15 @@ public class AbstractGameBoardController {
 	}
 
 	protected void gameBoardClicked(MouseEvent mouseEvent) {
-		if (!manager.myTurn()) return;
 		Point point = getCell(mouseEvent.getX(), mouseEvent.getY());
-		int x = point.x, y = point.y;
-		if (x == -1) return;
-		if (manager.canDrop(x, y)) {
-			manager.dropPiece(x, y);
-			boardPieces[x][y].show();
-		} else {
-			boardPieces[x][y].flip();
+		if (point.x == -1) return;
+		boolean success = false;
+		if (manager.getCurrentPlayer() == PlayerState.BLACK) success = player1.dropPiece(point);
+		else if (manager.getCurrentPlayer() == PlayerState.WHITE) success = player2.dropPiece(point);
+		if (success) {
+			for (int i = 0; i < N; ++i)
+				for (int j = 0; j < N; ++j)
+					boardPieces[i][j].hideCandidate();
 		}
 	}
 }
