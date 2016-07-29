@@ -4,22 +4,28 @@
 
 package ui.controls;
 
+import com.jfoenix.effects.JFXDepthManager;
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
+import logic.PlayerState;
 
 import java.io.IOException;
 
 public class PlayerTimerPane extends AnchorPane {
 	@FXML
-	private Label scoreText, nameText, totalTimeText, remainingTimeText;
+	private Label scoreText, nameText, remainingTimeText, colorText;
 
 	@FXML
-	private ImageView avatarView;
+	private ImageView avatarView, colorPiece;
 
 	public PlayerTimerPane() {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/PlayerTimerPane.fxml"));
@@ -31,20 +37,39 @@ public class PlayerTimerPane extends AnchorPane {
 			e.printStackTrace();
 		}
 		score = new SimpleIntegerProperty(0);
-		totalTime = new SimpleIntegerProperty(-1);
 		remainingTime = new SimpleIntegerProperty(0);
-		name = new SimpleStringProperty("");
+		stateProperty = new SimpleObjectProperty<>(PlayerState.NONE);
+
+		score.addListener((observable, oldValue, newValue) ->
+				Platform.runLater(() -> scoreText.setText(String.valueOf(newValue))));
+		remainingTime.addListener(((observable, oldValue, newValue) ->
+				Platform.runLater(() -> remainingTimeText.setText(String.valueOf(newValue)))));
+		stateProperty.addListener((observable, oldValue, newValue) ->
+				Platform.runLater(() -> {
+					if (newValue == PlayerState.BLACK) {
+						colorText.setText("BLACK");
+						colorPiece.setImage(new Image("image/black_small.png", 20, 20, true, true));
+					} else if (newValue == PlayerState.WHITE) {
+						colorText.setText("WHITE");
+						colorPiece.setImage(new Image("image/white_small.png", 20, 20, true, true));
+					}
+					colorPiece.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 5, 0.12, 0, 2));
+				}));
 	}
 
-	private IntegerProperty score, totalTime, remainingTime;
-	private StringProperty name;
+	private IntegerProperty score, remainingTime;
+	private ObjectProperty<PlayerState> stateProperty;
 
 	public Image getIcon() {
 		return iconProperty().get();
 	}
 
-	public void setIcon(Image value) {
-		iconProperty().set(value);
+	public void setIcon(Image icon) {
+		iconProperty().set(icon);
+	}
+
+	public void setIcon(String avatarID) {
+		iconProperty().set(new Image(getClass().getResource("avatar/" + avatarID).toExternalForm()));
 	}
 
 	public ObjectProperty<Image> iconProperty() {
@@ -62,21 +87,6 @@ public class PlayerTimerPane extends AnchorPane {
 
 	public void setScore(int score) {
 		scoreProperty().set(score);
-		scoreText.setText(String.valueOf(score));
-	}
-
-	public int getTotalTime() {
-		return totalTimeProperty().get();
-	}
-
-	public IntegerProperty totalTimeProperty() {
-		return totalTime;
-	}
-
-	public void setTotalTime(int totalTime) {
-		totalTimeProperty().set(totalTime);
-		totalTimeText.setText("Total time:\n"
-				+ String.format("%02d:%02d", totalTime / 60, totalTime % 60));
 	}
 
 	public int getRemainingTime() {
@@ -89,7 +99,6 @@ public class PlayerTimerPane extends AnchorPane {
 
 	public void setRemainingTime(int remainingTime) {
 		remainingTimeProperty().set(remainingTime);
-		remainingTimeText.setText(String.valueOf(remainingTime));
 	}
 
 	public String getName() {
@@ -97,11 +106,22 @@ public class PlayerTimerPane extends AnchorPane {
 	}
 
 	public StringProperty nameProperty() {
-		return name;
+		return nameText.textProperty();
 	}
 
 	public void setName(String name) {
 		nameProperty().set(name);
-		nameText.setText(name);
+	}
+
+	public PlayerState getState() {
+		return stateProperty().get();
+	}
+
+	public ObjectProperty<PlayerState> stateProperty() {
+		return stateProperty;
+	}
+
+	public void setState(PlayerState stateProperty) {
+		this.stateProperty().set(stateProperty);
 	}
 }

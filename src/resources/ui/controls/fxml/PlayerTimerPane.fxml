@@ -2,7 +2,8 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 
-<fx:root type="AnchorPane" xmlns:fx="http://javafx.com/fxml">
+<?import javafx.scene.image.Image?>
+<fx:root type="AnchorPane" xmlns:fx="http://javafx.com/fxml" style="-fx-background-color: WHITE">
 	<VBox alignment="CENTER_RIGHT"
 	      AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
 	      maxWidth="65" prefWidth="65" minWidth="65">
@@ -12,10 +13,12 @@
 		<ImageView fx:id="avatarView" fitHeight="45" fitWidth="45"/>
 	</VBox>
 	<VBox spacing="-5" alignment="CENTER_LEFT"
-	      AnchorPane.leftAnchor="120" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+	      AnchorPane.leftAnchor="120" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" AnchorPane.rightAnchor="70">
 		<Label fx:id="nameText" text="Name"/>
-		<Label fx:id="totalTimeText" text="00:00"
-		       style="-fx-text-fill: DARKGREY; -fx-font-size: 16px" lineSpacing="-5"/>
+		<HBox alignment="CENTER" translateX="-10">
+			<Label fx:id="colorText" text="WHITE" style="-fx-text-fill: rgba(0, 0, 0, 0.7); -fx-font-size: 18px"/>
+			<ImageView fx:id="colorPiece" fitHeight="20" fitWidth="20"/>
+		</HBox>
 	</VBox>
 	<VBox spacing="-5" alignment="CENTER"
 	      AnchorPane.bottomAnchor="0" AnchorPane.topAnchor="0" AnchorPane.rightAnchor="5">

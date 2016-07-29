@@ -8,6 +8,10 @@ import java.awt.*;
 
 public class NetworkPlayer extends AbstractPlayer {
 
+	public NetworkPlayer(String profileName, String avatarID) {
+		super(profileName, avatarID);
+	}
+
 	@Override
 	public void newGame(PlayerState state) {
 

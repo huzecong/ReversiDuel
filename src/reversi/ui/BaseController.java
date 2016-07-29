@@ -65,15 +65,25 @@ public class BaseController {
 
 	@PostConstruct
 	public void init() throws FlowException {
-//		Flow innerFlow = new Flow(MainMenuController.class)
-		Flow innerFlow = new Flow(AbstractGameBoardController.class)
-				.withLink(MainMenuController.class, "singlePlayer", LocalGameConfigurePageController.class)
+		Flow innerFlow = new Flow(MainMenuController.class)
+				.withLink(MainMenuController.class, "singlePlayer", LocalDuelGameBoardController.class)
 				.withLink(MainMenuController.class, "networkDuel", ConnectPageController.class)
 				.withLink(MainMenuController.class, "profile", ProfilePageController.class);
 		EventHandler<Event> closeHandler = event -> closeDialog.show(__rootPane);
 		Stage stage = (Stage) context.getRegisteredObject("stage");
+		CustomAnimatedFlowContainer container = new CustomAnimatedFlowContainer(Duration.millis(400));
 		context.register("closeHandler", closeHandler);
+		context.register("returnToHome", (Runnable) () -> Platform.runLater(() -> {
+			while (!container.isIsInitialView()) {
+				try {
+					flowHandler.navigateBack();
+				} catch (VetoException | FlowException e) {
+					e.printStackTrace();
+				}
+			}
+		}));
 
+		stage.titleProperty().unbind();
 		titleLabel.textProperty().bind(stage.titleProperty());
 
 		JFXDepthManager.setDepth(toolbar, 1);
@@ -83,7 +93,6 @@ public class BaseController {
 
 //		flowHandler = innerFlow.createHandler(context);
 		flowHandler = new CustomFlowHandler(innerFlow, context);
-		CustomAnimatedFlowContainer container = new CustomAnimatedFlowContainer(Duration.millis(400));
 		mainPane.getChildren().add(flowHandler.start(container));
 
 		backButton.visibleProperty().bind(container.isInitialViewProperty().not());

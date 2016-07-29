@@ -41,4 +41,10 @@ public class PlayerProperty<T> {
 		if (player == PlayerState.WHITE) white = value;
 		if (player == PlayerState.BLACK) black = value;
 	}
+
+	public void swap() {
+		T _tmp = black;
+		black = white;
+		white = _tmp;
+	}
 }

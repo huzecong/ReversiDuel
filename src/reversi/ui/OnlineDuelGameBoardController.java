@@ -5,4 +5,8 @@
 package ui;
 
 public class OnlineDuelGameBoardController extends AbstractGameBoardController {
+	@Override
+	protected void initPlayersAndControls() {
+
+	}
 }

@@ -4,10 +4,26 @@
 
 package logic;
 
+import javafx.beans.property.BooleanProperty;
+
 import java.awt.*;
 
 public abstract class AbstractPlayer {
 	protected GameManagerInterface manager;
+	protected String profileName, avatarID;
+
+	public AbstractPlayer(String profileName, String avatarID) {
+		this.profileName = profileName;
+		this.avatarID = avatarID;
+	}
+
+	public String getProfileName() {
+		return profileName;
+	}
+
+	public String getAvatarID() {
+		return avatarID;
+	}
 
 	public void setManager(GameManagerInterface manager) {
 		this.manager = manager;
@@ -15,6 +31,10 @@ public abstract class AbstractPlayer {
 
 	public boolean isMyTurn() {
 		return manager.isMyTurn();
+	}
+
+	public BooleanProperty canUndoProperty() {
+		return manager.canUndoProperty();
 	}
 
 	/**
@@ -43,6 +63,10 @@ public abstract class AbstractPlayer {
 	 */
 	public abstract void gameOver(boolean isWinner, boolean isTie);
 
+	/**
+	 * Called when the opponent sent out corresponding requests.
+	 * @return Whether the player accepts the request.
+	 */
 	public abstract boolean undoRequested();
 
 	public abstract boolean drawRequested();

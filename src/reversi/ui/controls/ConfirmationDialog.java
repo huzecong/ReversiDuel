@@ -83,7 +83,7 @@ public class ConfirmationDialog extends CustomDialog {
 		});
 
 		setOnKeyPressed(e -> {
-			if (!isOverlayClose()) return;
+//			if (!isOverlayClose()) return;
 			if (e.getCode() == KeyCode.ESCAPE)
 				declineButton.fire();
 			else if (e.getCode() == KeyCode.ENTER)

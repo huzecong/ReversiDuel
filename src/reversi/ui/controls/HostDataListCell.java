@@ -44,7 +44,7 @@ public class HostDataListCell extends AnchorPane {
 		this.hostData = hostData;
 		setName(hostData.getProfileName());
 		setIP(hostData.getIP());
-		setIcon(new Image(getClass().getResource("avatar/" + hostData.getAvatarID()).toExternalForm()));
+		setIcon(hostData.getAvatarID());
 	}
 
 	public HostData getHostData() {
@@ -55,8 +55,12 @@ public class HostDataListCell extends AnchorPane {
 		return iconProperty().get();
 	}
 
-	public void setIcon(Image value) {
-		iconProperty().set(value);
+	public void setIcon(Image icon) {
+		iconProperty().set(icon);
+	}
+
+	public void setIcon(String avatarID) {
+		iconProperty().set(new Image(getClass().getResource("avatar/" + avatarID).toExternalForm()));
 	}
 
 	public ObjectProperty<Image> iconProperty() {

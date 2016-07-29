@@ -5,6 +5,7 @@
 package logic;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import util.Synchronous;
 
 public class GameManagerInterface {
@@ -28,24 +29,32 @@ public class GameManagerInterface {
 		manager.ready(player);
 	}
 
+	private BooleanProperty canUndo = new SimpleBooleanProperty(false);
+
+	public BooleanProperty canUndoProperty() {
+		return canUndo;
+	}
+
 	public boolean canUndo() {
-		return false;
+		return manager.canUndo(player);
 	}
 
 	public boolean requestUndo() {
-		return manager.requestUndo(player);
+		boolean result = manager.requestUndo(player);
+		if (result) canUndo.set(canUndo());
+		return result;
 	}
 
 	public boolean requestDraw() {
-		return false;
+		return manager.requestDraw(player);
 	}
 
 	public boolean requestSurrender() {
-		return true;
+		return manager.requestSurrender(player);
 	}
 
 	public boolean requestExit() {
-		return false;
+		return manager.requestExit(player);
 	}
 
 	public boolean canDrop(int x, int y) {
@@ -59,6 +68,7 @@ public class GameManagerInterface {
 	public boolean dropPiece(int x, int y) {
 		if (!isMyTurn() || !canDrop(x, y)) return false;
 		manager.dropPiece(x, y, player);
+		canUndo.set(canUndo());
 		return true;
 	}
 }

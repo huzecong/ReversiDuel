@@ -12,6 +12,10 @@ public class LocalPlayer extends AbstractPlayer {
 	BiConsumer<String, String> infoDialogCaller;
 	BiFunction<String, String, Boolean> confirmDialogCaller;
 
+	public LocalPlayer(String profileName, String avatarID) {
+		super(profileName, avatarID);
+	}
+
 	public void setInfoDialogCaller(BiConsumer<String, String> infoDialogCaller) {
 		this.infoDialogCaller = infoDialogCaller;
 	}
@@ -35,8 +39,24 @@ public class LocalPlayer extends AbstractPlayer {
 		// does nothing
 	}
 
+	public void ready() {
+		manager.ready();
+	}
+
 	public void requestUndo() {
 		manager.requestUndo();
+	}
+
+	public void requestDraw() {
+		manager.requestDraw();
+	}
+
+	public void requestSurrender() {
+		manager.requestSurrender();
+	}
+
+	public void requestExit() {
+		manager.requestExit();
 	}
 
 	@Override

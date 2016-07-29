@@ -75,8 +75,7 @@ public class MainMenuController {
 		KeyValue kvX = new KeyValue(label.scaleXProperty(), scale);
 		KeyValue kvY = new KeyValue(label.scaleYProperty(), scale);
 		KeyValue kvGlow = new KeyValue(((Glow) label.getEffect()).levelProperty(), glow);
-		KeyFrame keyFrame = new KeyFrame(Duration.millis(100), x -> {
-		}, kvX, kvY, kvGlow);
+		KeyFrame keyFrame = new KeyFrame(Duration.millis(100), kvX, kvY, kvGlow);
 		timeline.getKeyFrames().add(keyFrame);
 		timeline.play();
 		timelines.put(label.getText(), timeline);

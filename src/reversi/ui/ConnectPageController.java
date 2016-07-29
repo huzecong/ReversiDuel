@@ -102,15 +102,11 @@ public class ConnectPageController {
 			subtracted.add((JFXListView) rootPane.getChildren().filtered(node -> node instanceof JFXListView).get(0));
 			DoubleBinding fillHeight = null;
 			for (Region region : subtracted) {
-				System.out.println(region.getClass() + " " + region.getHeight());
 				if (fillHeight == null) fillHeight = rootPane.heightProperty().subtract(region.heightProperty());
 				else fillHeight = fillHeight.subtract(region.heightProperty());
 			}
 
 			fillHeight.addListener(((observable, oldValue, newValue) -> {
-				System.out.println(newValue);
-				for (Region region : subtracted)
-					System.out.println(region.getClass() + " " + region.getHeight());
 				for (Region region : subtracted)
 					if (region.getHeight() == 0) return;
 				matchList.setPrefHeight(newValue.doubleValue());

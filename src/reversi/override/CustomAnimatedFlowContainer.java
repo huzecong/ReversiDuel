@@ -10,7 +10,10 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -20,6 +23,7 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.datafx.controller.context.ViewContext;
 import org.datafx.controller.flow.FlowContainer;
+import org.datafx.controller.flow.container.AnimatedFlowContainer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +44,7 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 	private Stack<Integer> historyViews;
 	private StackPane root;
 	private Duration duration;
-	private Function<org.datafx.controller.flow.container.AnimatedFlowContainer, List<KeyFrame>> animationProducer;
+	private Function<AnimatedFlowContainer, List<KeyFrame>> animationProducer;
 	private Timeline animation;
 	private ImageView placeholder;
 
@@ -81,6 +85,7 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 	 */
 	public CustomAnimatedFlowContainer(Duration duration) {
 		this.root = new StackPane();
+		this.root.setAlignment(Pos.CENTER);
 		this.duration = duration;
 		placeholder = new ImageView();
 		placeholder.setPreserveRatio(true);
@@ -99,15 +104,17 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 		animation = new Timeline();
 
 		Integer hash = context.getController().getClass().hashCode();
-		if (historyViews.size() > 1 && hash.equals(historyViews.get(historyViews.size() - 2))) {
-			historyViews.pop();
+		int pos = historyViews.indexOf(hash);
+		if (historyViews.size() > 1 && pos < historyViews.size() - 1) {
+			for (int i = historyViews.size() - 1; i > pos; --i)
+				historyViews.remove(i);
 			animation.getKeyFrames().addAll(SWIPE_RIGHT.apply(this));
 		} else {
 			animation.getKeyFrames().addAll(SWIPE_LEFT.apply(this));
 			historyViews.push(hash);
 		}
 
-		animation.getKeyFrames().add(new KeyFrame(duration, (e) -> clearPlaceholder()));
+		animation.getKeyFrames().add(new KeyFrame(duration, e -> clearPlaceholder()));
 		animation.play();
 		isInitialView.setValue(historyViews.size() == 1);
 	}
@@ -144,6 +151,7 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 		if (root.getWidth() > 0 && root.getHeight() > 0) {
 			SnapshotParameters parameters = new SnapshotParameters();
 			parameters.setFill(Color.TRANSPARENT);
+			parameters.setViewport(new Rectangle2D(0, 0, root.getWidth(), root.getHeight()));   // bug fix
 			Image placeholderImage = root.snapshot(parameters, new WritableImage((int) root.getWidth(), (int) root.getHeight()));
 			placeholder.setImage(placeholderImage);
 			placeholder.setFitWidth(placeholderImage.getWidth());

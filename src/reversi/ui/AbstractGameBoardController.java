@@ -21,17 +21,26 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.BlurType;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.effect.Glow;
+import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import logic.AbstractPlayer;
 import logic.GameManager;
 import logic.LocalPlayer;
 import logic.PlayerState;
 import org.datafx.controller.FXMLController;
+import org.datafx.controller.flow.context.FXMLViewFlowContext;
+import org.datafx.controller.flow.context.ViewFlowContext;
 import ui.controls.ConfirmationDialog;
 import ui.controls.InformationDialog;
 import ui.controls.PlayerTimerPane;
@@ -42,9 +51,13 @@ import javax.annotation.PostConstruct;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.BiConsumer;
 
-@FXMLController(value = "fxml/GameBoard.fxml", title = "Duel!")
-public class AbstractGameBoardController {
+@FXMLController("fxml/GameBoard.fxml")
+public abstract class AbstractGameBoardController {
+	@FXMLViewFlowContext
+	protected ViewFlowContext context;
+
 	@FXML
 	protected AnchorPane rootPane;
 
@@ -53,6 +66,9 @@ public class AbstractGameBoardController {
 
 	@FXML
 	protected PlayerTimerPane player1Pane, player2Pane;
+
+	@FXML
+	protected HBox chatBox;
 
 	@FXML
 	protected TextArea chatDialog;
@@ -76,7 +92,7 @@ public class AbstractGameBoardController {
 	protected ConfirmationDialog confirmDialog;
 
 	@FXML
-	protected Label confirmDialogContents;
+	protected Label confirmDialogContents, bannerText;
 
 	public void showInfoDialog(String heading, String contents) {
 		Platform.runLater(() -> {
@@ -91,9 +107,15 @@ public class AbstractGameBoardController {
 			confirmDialog.setHeading(heading);
 			confirmDialogContents.setText(contents);
 		});
-		boolean result = confirmDialog.showAndWaitResult();
-		System.out.println(result);
-		return result;
+		return confirmDialog.showAndWaitResult();
+	}
+
+	public boolean showConfirmDialog(String heading, String contents, String acceptButtonText, String declineButtonText) {
+		Platform.runLater(() -> {
+			confirmDialog.setAcceptButtonText(acceptButtonText);
+			confirmDialog.setDeclineButtonText(declineButtonText);
+		});
+		return showConfirmDialog(heading, contents);
 	}
 
 	protected final static int N = 8;
@@ -104,12 +126,16 @@ public class AbstractGameBoardController {
 
 	static class BoardPiece {
 		static double imageLength = 70;
+		static double candidateLength = 35;
 		static Image blackPiece = new Image("image/black.png", imageLength, imageLength, true, false);
 		static Image whitePiece = new Image("image/white.png", imageLength, imageLength, true, false);
+		static Image blackCandidate = new Image("image/black_candidate.png", candidateLength, candidateLength, true, false);
+		static Image whiteCandidate = new Image("image/white_candidate.png", candidateLength, candidateLength, true, false);
 
 		StackPane container;
 		ImageView view, candidateView;
-		Timeline showAnimation, flipAnimation;
+		Timeline showAnimation, flipAnimation, candidateAnimation;
+		boolean isShown, isCandidateShown;
 
 		BoardPiece(int row, int column) {
 			container = new StackPane();
@@ -123,13 +149,10 @@ public class AbstractGameBoardController {
 			container.getChildren().add(view);
 
 			candidateView = new ImageView();
-			candidateView.setSmooth(true);
-			candidateView.setFitHeight(imageLength / 2);
-			candidateView.setFitWidth(imageLength / 2);
-			candidateView.setOpacity(0.75);
-			candidateView.setVisible(false);
+			candidateView.setOpacity(0.0);
 			container.getChildren().add(candidateView);
 
+			isShown = false;
 			showAnimation = new Timeline(
 					new KeyFrame(Duration.ZERO,
 							new KeyValue(view.opacityProperty(), 0.0, Interpolator.EASE_IN),
@@ -145,6 +168,11 @@ public class AbstractGameBoardController {
 					new KeyFrame(Duration.ZERO, new KeyValue(view.rotateProperty(), 0.0)),
 					new KeyFrame(Duration.millis(150), event -> switchColor(), new KeyValue(view.rotateProperty(), 90.0)),
 					new KeyFrame(Duration.millis(300), new KeyValue(view.rotateProperty(), 0.0)));
+
+			isCandidateShown = false;
+			candidateAnimation = new Timeline(
+					new KeyFrame(Duration.ZERO, new KeyValue(candidateView.opacityProperty(), 0.0, Interpolator.EASE_IN)),
+					new KeyFrame(Duration.millis(100), new KeyValue(candidateView.opacityProperty(), 0.75, Interpolator.EASE_IN)));
 		}
 
 		private void switchColor() {
@@ -155,14 +183,20 @@ public class AbstractGameBoardController {
 		void showAsCandidate(PlayerState player) {
 			if (player == PlayerState.NONE) hideCandidate();
 			else {
-				if (player == PlayerState.WHITE) candidateView.setImage(whitePiece);
-				else if (player == PlayerState.BLACK) candidateView.setImage(blackPiece);
-				candidateView.setVisible(true);
+				if (isCandidateShown) return;
+				if (player == PlayerState.WHITE) candidateView.setImage(whiteCandidate);
+				else if (player == PlayerState.BLACK) candidateView.setImage(blackCandidate);
+				candidateAnimation.setRate(1.0);
+				candidateAnimation.play();
+				isCandidateShown = true;
 			}
 		}
 
 		void hideCandidate() {
-			candidateView.setVisible(false);
+			if (!isCandidateShown) return;
+			candidateAnimation.setRate(-1.0);
+			candidateAnimation.play();
+			isCandidateShown = false;
 		}
 
 		void setRotationAxis(Point3D axis) {
@@ -172,16 +206,20 @@ public class AbstractGameBoardController {
 		void show(PlayerState player) {
 			if (player == PlayerState.NONE) hide();
 			else {
+				if (isShown) return;
 				if (player == PlayerState.WHITE) view.setImage(whitePiece);
 				else if (player == PlayerState.BLACK) view.setImage(blackPiece);
 				showAnimation.setRate(1.0);
 				showAnimation.play();
+				isShown = true;
 			}
 		}
 
 		void hide() {
+			if (!isShown) return;
 			showAnimation.setRate(-1.0);
 			showAnimation.play();
+			isShown = false;
 		}
 
 		void flip() {
@@ -189,22 +227,21 @@ public class AbstractGameBoardController {
 		}
 	}
 
-	BoardPiece[][] boardPieces = new BoardPiece[N][N];
+	private BoardPiece[][] boardPieces = new BoardPiece[N][N];
 
 	protected GameManager manager;
-	protected LocalPlayer player1, player2;
+	protected AbstractPlayer player1, player2;
+
+	protected abstract void initPlayersAndControls();
 
 	@PostConstruct
 	public void init() {
-		JFXDepthManager.setDepth(rootPane, 1);
-		chatDialog.setText("1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
-		BackgroundColorAnimator.applyAnimation(sendChatButton);
+		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
+		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
 
+		JFXDepthManager.setDepth(rootPane, 1);
+		BackgroundColorAnimator.applyAnimation(sendChatButton);
 		buttonsPane.getChildren().forEach(BackgroundColorAnimator::applyAnimation);
-		undoButton.setOnAction(e -> {
-			LocalPlayer player = (LocalPlayer) manager.getPlayer();
-			TaskScheduler.singleShot(1, player::requestUndo);
-		});
 
 		gameBoard.setOnMouseClicked(this::gameBoardClicked);
 		infoDialog.setDialogContainer(__rootPane);
@@ -216,18 +253,51 @@ public class AbstractGameBoardController {
 				gameBoard.getChildren().add(boardPieces[i][j].container);
 			}
 
+		player1 = new LocalPlayer("果皇·天气晴朗", "honoka.jpg");
+		player2 = new LocalPlayer("Naïve!", "ha.gif");
 		manager = new GameManager();
-		player1 = new LocalPlayer();
-		player2 = new LocalPlayer();
 		manager.init(player1, player2);
 		manager.setDropPieceHandler(this::dropPiece);
+		manager.setGameOverHandler(this::gameOver);
+		manager.setExitHandler(() -> ((Runnable) context.getRegisteredObject("returnToHome")).run());
+		manager.setNewGameHandler(this::newGame);
 
-		player1.setConfirmDialogCaller(this::showConfirmDialog);
-		player1.setInfoDialogCaller(this::showInfoDialog);
-		player2.setConfirmDialogCaller(this::showConfirmDialog);
-		player2.setInfoDialogCaller(this::showInfoDialog);
+		initPlayersAndControls();
+		readyButton.disableProperty().bind(manager.gameStartedProperty());
+		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not());
+		drawButton.disableProperty().bind(manager.gameStartedProperty().not());
+		saveLoadButton.setDisable(true);
 
-		manager.newGame();
+		player1Pane.setName(player1.getProfileName());
+		player1Pane.setIcon(player1.getAvatarID());
+		player1Pane.scoreProperty().bind(manager.p1ScoreProperty());
+		player1Pane.remainingTimeProperty().bind(manager.p1RemainingTimeProperty());
+		player1Pane.stateProperty().bind(manager.p1StateProperty());
+		player2Pane.setName(player2.getProfileName());
+		player2Pane.setIcon(player2.getAvatarID());
+		player2Pane.scoreProperty().bind(manager.p2ScoreProperty());
+		player2Pane.remainingTimeProperty().bind(manager.p2RemainingTimeProperty());
+		player2Pane.stateProperty().bind(manager.p2StateProperty());
+
+		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
+			BiConsumer<Boolean, PlayerTimerPane> toggleShadow = (hasShadow, pane) -> {
+				if (!hasShadow && pane.getEffect() != null) {
+					Timeline animation = new Timeline(new KeyFrame(Duration.millis(300),
+							e -> pane.setEffect(null),
+							new KeyValue(((DropShadow) pane.getEffect()).radiusProperty(), 0, Interpolator.EASE_IN),
+							new KeyValue(((DropShadow) pane.getEffect()).offsetYProperty(), 0, Interpolator.EASE_OUT)));
+					animation.play();
+				} else if (hasShadow && pane.getEffect() == null) {
+					pane.setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 0, 0.26, 0, 0));
+					Timeline animation = new Timeline(new KeyFrame(Duration.millis(300),
+							new KeyValue(((DropShadow) pane.getEffect()).radiusProperty(), 10, Interpolator.EASE_OUT),
+							new KeyValue(((DropShadow) pane.getEffect()).offsetYProperty(), 2, Interpolator.EASE_IN)));
+					animation.play();
+				}
+			};
+			toggleShadow.accept(newValue == manager.getP1State(), player1Pane);
+			toggleShadow.accept(newValue == manager.getP2State(), player2Pane);
+		});
 	}
 
 	private class BoardAnimationManager {
@@ -257,7 +327,10 @@ public class AbstractGameBoardController {
 
 	private BoardAnimationManager animationManager = new BoardAnimationManager();
 
-	private void dropPiece(Point point, PlayerState player, Collection<Point> flippedPositions) {
+	/**
+	 * Handlers
+	 */
+	protected void dropPiece(Point point, PlayerState player, Collection<Point> flippedPositions) {
 		hideCandidates();
 		Timeline animation = new Timeline();
 		ArrayList<Point>[] pointDist = new ArrayList[N];
@@ -305,6 +378,41 @@ public class AbstractGameBoardController {
 		animationManager.add(animation);
 	}
 
+	protected void newGame() {
+		hideCandidates();
+		hidePieces();
+	}
+
+	protected void gameOver(PlayerState state) {
+		Timeline animation = new Timeline(
+				new KeyFrame(Duration.ZERO,
+						new KeyValue(bannerText.visibleProperty(), true),
+						new KeyValue(bannerText.opacityProperty(), 0.0),
+						new KeyValue(bannerText.translateYProperty(), 40)),
+				new KeyFrame(Duration.millis(800),
+						new KeyValue(bannerText.opacityProperty(), 1.0, Interpolator.EASE_OUT)),
+				new KeyFrame(Duration.millis(1600),
+						new KeyValue(bannerText.opacityProperty(), 1.0)),
+				new KeyFrame(Duration.millis(2400),
+						new KeyValue(bannerText.visibleProperty(), false),
+						new KeyValue(bannerText.opacityProperty(), 0.0, Interpolator.EASE_IN),
+						new KeyValue(bannerText.translateYProperty(), -100)));
+		Platform.runLater(() -> {
+			switch (state) {
+				case BLACK:
+					bannerText.setText("Black Wins!");
+					break;
+				case WHITE:
+					bannerText.setText("White Wins!");
+					break;
+				case NONE:
+					bannerText.setText("Draw");
+					break;
+			}
+		});
+		animation.play();
+	}
+
 	public void drawCandidatePositions() {
 		Collection<Point> positions = manager.getCandidatePositions();
 		for (Point point : positions)
@@ -317,6 +425,12 @@ public class AbstractGameBoardController {
 				boardPieces[i][j].hideCandidate();
 	}
 
+	public void hidePieces() {
+		for (int i = 0; i < N; ++i)
+			for (int j = 0; j < N; ++j)
+				boardPieces[i][j].hide();
+	}
+
 	private Point getCell(double mouseX, double mouseY) {
 		Point2D upperLeft = gameBoard.getChildren().get(0).getLocalToParentTransform().transform(0, 0);
 		int row = (int) Math.floor((mouseX - upperLeft.getX() - boardOffsetX) / boardGridLength);
@@ -327,10 +441,10 @@ public class AbstractGameBoardController {
 	}
 
 	protected void gameBoardClicked(MouseEvent mouseEvent) {
+		if (!(manager.getPlayer() instanceof LocalPlayer)) return;
+		LocalPlayer player = ((LocalPlayer) manager.getPlayer());
 		Point point = getCell(mouseEvent.getX(), mouseEvent.getY());
 		if (point.x == -1) return;
-		boolean success = false;
-		if (manager.getCurrentPlayer() == PlayerState.BLACK) success = player1.dropPiece(point);
-		else if (manager.getCurrentPlayer() == PlayerState.WHITE) success = player2.dropPiece(point);
+		boolean success = player.dropPiece(point);
 	}
 }

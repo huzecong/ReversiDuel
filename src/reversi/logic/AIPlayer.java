@@ -7,6 +7,11 @@ package logic;
 import java.awt.*;
 
 public class AIPlayer extends AbstractPlayer {
+
+	public AIPlayer(String profileName, String avatarID) {
+		super(profileName, avatarID);
+	}
+
 	@Override
 	public void newGame(PlayerState state) {
 
@@ -40,5 +45,9 @@ public class AIPlayer extends AbstractPlayer {
 	@Override
 	public boolean exitRequested() {
 		return false;
+	}
+
+	public void ready() {
+		manager.ready();
 	}
 }

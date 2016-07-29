@@ -5,17 +5,18 @@
 package logic;
 
 
+import javafx.beans.property.*;
 import util.Pair;
+import util.TaskScheduler;
 
 import java.awt.*;
 import java.util.*;
+import java.util.function.Consumer;
 
 public class GameManager {
 	private static final int N = 8;
 	private PlayerState[][] gameBoard;
-	private PlayerState currentPlayer;
 	private int roundCount;
-	private boolean gameStarted;
 
 	/**
 	 * Helper functions
@@ -27,17 +28,23 @@ public class GameManager {
 	}
 
 	public AbstractPlayer getPlayer() {
-		return players.get(currentPlayer);
+		return getPlayer(getCurrentPlayer());
+	}
+
+	public AbstractPlayer getPlayer(PlayerState player) {
+		return players.get(player);
 	}
 
 	/**
 	 * UI events
 	 */
 	public interface DropPieceHandler {
-		public void handle(Point point, PlayerState player, Collection<Point> flippedPositions);
+		void handle(Point point, PlayerState player, Collection<Point> flippedPositions);
 	}
-
 	private DropPieceHandler dropPieceHandler;
+	private Consumer<PlayerState> gameOverHandler;
+	private Runnable exitHandler;
+	private Runnable newGameHandler;
 
 	public DropPieceHandler getDropPieceHandler() {
 		return dropPieceHandler;
@@ -45,6 +52,126 @@ public class GameManager {
 
 	public void setDropPieceHandler(DropPieceHandler dropPieceHandler) {
 		this.dropPieceHandler = dropPieceHandler;
+	}
+
+	public Consumer<PlayerState> getGameOverHandler() {
+		return gameOverHandler;
+	}
+
+	public void setGameOverHandler(Consumer<PlayerState> gameOverHandler) {
+		this.gameOverHandler = gameOverHandler;
+	}
+
+	public Runnable getExitHandler() {
+		return exitHandler;
+	}
+
+	public void setExitHandler(Runnable exitHandler) {
+		this.exitHandler = exitHandler;
+	}
+
+	public Runnable getNewGameHandler() {
+		return newGameHandler;
+	}
+
+	public void setNewGameHandler(Runnable newGameHandler) {
+		this.newGameHandler = newGameHandler;
+	}
+
+	class PlayerData {
+		IntegerProperty score, remainingTime;
+		ObjectProperty<PlayerState> state;
+
+		PlayerData() {
+			score = new SimpleIntegerProperty(0);
+			remainingTime = new SimpleIntegerProperty(0);
+			state = new SimpleObjectProperty<>(PlayerState.NONE);
+		}
+	}
+	private PlayerData p1Data, p2Data;
+	private PlayerProperty<PlayerData> playerData;
+
+	public int getP1Score() {
+		return p1ScoreProperty().get();
+	}
+
+	public IntegerProperty p1ScoreProperty() {
+		return p1Data.score;
+	}
+
+	public void setP1Score(int p1Score) {
+		p1ScoreProperty().set(p1Score);
+	}
+
+	public int getP2Score() {
+		return p2ScoreProperty().get();
+	}
+
+	public IntegerProperty p2ScoreProperty() {
+		return p2Data.score;
+	}
+
+	public void setP2Score(int p2Score) {
+		p2ScoreProperty().set(p2Score);
+	}
+
+	public int getP1RemainingTime() {
+		return p1RemainingTimeProperty().get();
+	}
+
+	public IntegerProperty p1RemainingTimeProperty() {
+		return p1Data.remainingTime;
+	}
+
+	public void setP1RemainingTime(int p1RemainingTime) {
+		p1RemainingTimeProperty().set(p1RemainingTime);
+	}
+
+	public int getP2RemainingTime() {
+		return p2RemainingTimeProperty().get();
+	}
+
+	public IntegerProperty p2RemainingTimeProperty() {
+		return p2Data.remainingTime;
+	}
+
+	public void setP2RemainingTime(int p2RemainingTime) {
+		p2RemainingTimeProperty().set(p2RemainingTime);
+	}
+
+	public PlayerState getP1State() {
+		return p1StateProperty().get();
+	}
+
+	public ObjectProperty<PlayerState> p1StateProperty() {
+		return p1Data.state;
+	}
+
+	public PlayerState getP2State() {
+		return p2StateProperty().get();
+	}
+
+	public ObjectProperty<PlayerState> p2StateProperty() {
+		return p2Data.state;
+	}
+
+	private ObjectProperty<PlayerState> currentPlayer;
+	private BooleanProperty gameStarted;
+
+	public PlayerState getCurrentPlayer() {
+		return currentPlayer.get();
+	}
+
+	public ObjectProperty<PlayerState> currentPlayerProperty() {
+		return currentPlayer;
+	}
+
+	public boolean gameStarted() {
+		return gameStartedProperty().get();
+	}
+
+	public BooleanProperty gameStartedProperty() {
+		return gameStarted;
 	}
 
 	/**
@@ -61,30 +188,39 @@ public class GameManager {
 		black.setManager(interfaces.getBlack());
 		white.setManager(interfaces.getWhite());
 		roundCount = 0;
-		gameStarted = false;
+		gameStarted = new SimpleBooleanProperty(false);
+		p1Data = new PlayerData();
+		p2Data = new PlayerData();
+		playerData = new PlayerProperty<>(p1Data, p2Data);
+		playerData.getBlack().state.set(PlayerState.BLACK);
+		playerData.getWhite().state.set(PlayerState.WHITE);
+		currentPlayer = new SimpleObjectProperty<>(PlayerState.NONE);
 	}
 
 	public void newGame() {
 		++roundCount;
 		moves = new ArrayList<>();
-		currentPlayer = PlayerState.BLACK;
+		currentPlayer.set(PlayerState.BLACK);
 		gameBoard = new PlayerState[N][N];
 		for (int i = 0; i < N; ++i)
 			Arrays.fill(gameBoard[i], PlayerState.NONE);
 		candidatePositions.clear();
+		newGameHandler.run();
 
-		gameBoard[3][3] = PlayerState.WHITE;
-		gameBoard[3][4] = PlayerState.BLACK;
-		gameBoard[4][3] = PlayerState.BLACK;
-		gameBoard[4][4] = PlayerState.WHITE;
-		dropPieceHandler.handle(new Point(3, 3), PlayerState.WHITE, new ArrayList<>());
-		dropPieceHandler.handle(new Point(3, 4), PlayerState.BLACK, new ArrayList<>());
-		dropPieceHandler.handle(new Point(4, 3), PlayerState.BLACK, new ArrayList<>());
-		updateCandidatePositions();
-		dropPieceHandler.handle(new Point(4, 4), PlayerState.WHITE, new ArrayList<>());
-		gameStarted = true;
-		players.getBlack().newGame(PlayerState.BLACK);
-		players.getWhite().newGame(PlayerState.WHITE);
+		TaskScheduler.singleShot(200, () -> {
+			gameBoard[3][3] = PlayerState.WHITE;
+			gameBoard[3][4] = PlayerState.BLACK;
+			gameBoard[4][3] = PlayerState.BLACK;
+			gameBoard[4][4] = PlayerState.WHITE;
+			dropPieceHandler.handle(new Point(3, 3), PlayerState.WHITE, new ArrayList<>());
+			dropPieceHandler.handle(new Point(3, 4), PlayerState.BLACK, new ArrayList<>());
+			dropPieceHandler.handle(new Point(4, 3), PlayerState.BLACK, new ArrayList<>());
+			updateCandidatePositions();
+			dropPieceHandler.handle(new Point(4, 4), PlayerState.WHITE, new ArrayList<>());
+			gameStarted.set(true);
+			players.getBlack().newGame(PlayerState.BLACK);
+			players.getWhite().newGame(PlayerState.WHITE);
+		});
 	}
 
 	private ArrayList<Point> candidatePositions = new ArrayList<>();
@@ -128,11 +264,11 @@ public class GameManager {
 	}
 
 	private void updateCandidatePositions() {
-		updateCandidatePositions(currentPlayer);
+		updateCandidatePositions(getCurrentPlayer());
 	}
 
 	public void dropPiece(int x, int y, PlayerState player) {
-		if (currentPlayer != player) return;
+		if (getCurrentPlayer() != player) return;
 		gameBoard[x][y] = player;
 
 		ArrayList<Point> flipped = new ArrayList<>();
@@ -170,7 +306,7 @@ public class GameManager {
 
 		Optional<PlayerState> winner = checkWinner();
 		if (!winner.isPresent()) {
-			currentPlayer = flip(currentPlayer);
+			currentPlayer.set(flip(getCurrentPlayer()));
 			// candidate positions already updated in checkWinner()
 			boolean isSkipped = candidatePositions.size() == 0;
 			players.get(flip(player)).informOpponentMove(point, isSkipped);
@@ -181,15 +317,22 @@ public class GameManager {
 	}
 
 	private void gameOver(PlayerState result) {
-		gameStarted = false;
+		gameStarted.set(false);
 		players.getBlack().gameOver(result == PlayerState.BLACK, result == PlayerState.NONE);
 		players.getWhite().gameOver(result == PlayerState.WHITE, result == PlayerState.NONE);
+		currentPlayer.set(PlayerState.NONE);
+		gameOverHandler.accept(result);
+		if (result != PlayerState.NONE) {
+			PlayerData winner = playerData.get(result);
+			winner.score.set(winner.score.get() + 1);
+		}
 
-		AbstractPlayer _tmp = players.getBlack();
-		players.setBlack(players.getWhite());
-		players.setWhite(_tmp);
+		players.swap();
 		players.getBlack().setManager(interfaces.getBlack());
 		players.getWhite().setManager(interfaces.getWhite());
+		playerData.swap();
+		playerData.getBlack().state.set(PlayerState.BLACK);
+		playerData.getWhite().state.set(PlayerState.WHITE);
 		isReady.setBlack(false);
 		isReady.setWhite(false);
 	}
@@ -198,7 +341,7 @@ public class GameManager {
 		boolean gameOver = true;
 		updateCandidatePositions();
 		if (candidatePositions.size() > 0) gameOver = false;
-		updateCandidatePositions(flip(currentPlayer));
+		updateCandidatePositions(flip(getCurrentPlayer()));
 		if (candidatePositions.size() > 0) gameOver = false;
 		if (!gameOver) return Optional.empty();
 
@@ -211,10 +354,6 @@ public class GameManager {
 	/**
 	 * Player interactions
 	 */
-	public PlayerState getCurrentPlayer() {
-		return currentPlayer;
-	}
-
 	public boolean canDrop(int x, int y) {
 		return gameBoard[x][y] == PlayerState.NONE && candidatePositions.contains(new Point(x, y));
 	}
@@ -247,7 +386,7 @@ public class GameManager {
 	}
 
 	public void ready(PlayerState player) {
-		if (gameStarted) return;
+		if (gameStarted.get()) return;
 		isReady.set(player, true);
 		if (isReady.getBlack() && isReady.getWhite()) newGame();
 	}
@@ -270,8 +409,6 @@ public class GameManager {
 
 		if (!players.get(flip(player)).undoRequested()) return false;
 
-		System.out.println(lastPos);
-
 		for (int i = moves.size() - 1; i >= lastPos; --i) {
 			Pair<Pair<Point, PlayerState>, Collection<Point>> move = moves.remove(i);
 			gameBoard[move.fst.fst.x][move.fst.fst.y] = PlayerState.NONE;
@@ -280,6 +417,24 @@ public class GameManager {
 			dropPieceHandler.handle(move.fst.fst, PlayerState.NONE, move.snd);
 		}
 		updateCandidatePositions(player);
+		return true;
+	}
+
+	public boolean requestDraw(PlayerState player) {
+		if (!players.get(flip(player)).drawRequested()) return false;
+		gameOver(PlayerState.NONE);
+		return true;
+	}
+
+	public boolean requestSurrender(PlayerState player) {
+		if (!players.get(flip(player)).surrenderRequested()) return false;
+		gameOver(flip(player));
+		return true;
+	}
+
+	public boolean requestExit(PlayerState player) {
+		if (!players.get(flip(player)).exitRequested()) return false;
+		exitHandler.run();
 		return true;
 	}
 }
