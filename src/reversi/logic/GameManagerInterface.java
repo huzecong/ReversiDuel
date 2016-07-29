@@ -4,6 +4,9 @@
 
 package logic;
 
+import javafx.beans.property.BooleanProperty;
+import util.Synchronous;
+
 public class GameManagerInterface {
 	private GameManager manager;
 	private PlayerState player;
@@ -13,12 +16,36 @@ public class GameManagerInterface {
 		this.player = player;
 	}
 
+	public void sendChat(String message) {
+
+	}
+
+	public boolean isReady() {
+		return manager.isReady(player);
+	}
+
+	public void ready() {
+		manager.ready(player);
+	}
+
+	public boolean canUndo() {
+		return false;
+	}
+
 	public boolean requestUndo() {
+		return manager.requestUndo(player);
+	}
+
+	public boolean requestDraw() {
 		return false;
 	}
 
 	public boolean requestSurrender() {
 		return true;
+	}
+
+	public boolean requestExit() {
+		return false;
 	}
 
 	public boolean canDrop(int x, int y) {

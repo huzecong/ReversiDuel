@@ -9,9 +9,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TaskScheduler {
-	private static Timer timer = new Timer();
 
 	public static void singleShot(Duration delay, Runnable task) {
+		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
@@ -21,6 +21,7 @@ public class TaskScheduler {
 	}
 
 	public static void singleShot(long delayMillis, Runnable task) {
+		Timer timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {

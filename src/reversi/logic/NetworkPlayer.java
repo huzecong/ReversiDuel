@@ -7,18 +7,39 @@ package logic;
 import java.awt.*;
 
 public class NetworkPlayer extends AbstractPlayer {
+
 	@Override
-	protected void newGame() {
+	public void newGame(PlayerState state) {
 
 	}
 
 	@Override
-	protected void informOpponentMove(Point point) {
+	public void informOpponentMove(Point point, boolean isSkipped) {
 
 	}
 
 	@Override
-	protected void gameOver(boolean isWinner, boolean isTie) {
+	public void gameOver(boolean isWinner, boolean isTie) {
 
+	}
+
+	@Override
+	public boolean undoRequested() {
+		return false;
+	}
+
+	@Override
+	public boolean drawRequested() {
+		return false;
+	}
+
+	@Override
+	public boolean surrenderRequested() {
+		return false;
+	}
+
+	@Override
+	public boolean exitRequested() {
+		return false;
 	}
 }

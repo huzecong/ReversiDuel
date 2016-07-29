@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import override.CustomDialog;
 import util.BackgroundColorAnimator;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
@@ -23,12 +24,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import util.Synchronous;
 import util.TaskScheduler;
 
 import java.io.IOException;
 import java.util.Timer;
 
-public class ConfirmationDialog extends JFXDialog {
+public class ConfirmationDialog extends CustomDialog {
 	@FXML
 	private Label heading;
 
@@ -40,6 +42,8 @@ public class ConfirmationDialog extends JFXDialog {
 
 	private ObjectProperty<EventHandler<JFXDialogEvent>> onAccepted, onDeclined;
 
+	private Synchronous<Boolean> dialogResult;
+
 	public ConfirmationDialog() {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/ConfirmationDialog.fxml"));
 		loader.setRoot(this);
@@ -50,25 +54,30 @@ public class ConfirmationDialog extends JFXDialog {
 			e.printStackTrace();
 		}
 
+		dialogResult = new Synchronous<>();
 		onAccepted = new SimpleObjectProperty<>(null);
 		onDeclined = new SimpleObjectProperty<>(null);
 		BackgroundColorAnimator.applyAnimation(acceptButton);
 		BackgroundColorAnimator.applyAnimation(declineButton);
 		acceptButton.setOnAction(e -> {
 			if (onAccepted.get() != null) {
-				setOnDialogClosed(onAccepted.get());
-			} else {
 				setOnDialogClosed(event -> {
+					dialogResult.setValue(true);
+					onAccepted.get().handle(event);
 				});
+			} else {
+				setOnDialogClosed(event -> dialogResult.setValue(true));
 			}
 			close();
 		});
 		declineButton.setOnAction(e -> {
 			if (onDeclined.get() != null) {
-				setOnDialogClosed(onDeclined.get());
-			} else {
 				setOnDialogClosed(event -> {
+					dialogResult.setValue(false);
+					onDeclined.get().handle(event);
 				});
+			} else {
+				setOnDialogClosed(event -> dialogResult.setValue(false));
 			}
 			close();
 		});
@@ -81,20 +90,17 @@ public class ConfirmationDialog extends JFXDialog {
 				acceptButton.fire();
 		});
 		setOverlayClose(false);
-		onDeclinedProperty().addListener(((observable, oldValue, newValue) -> setOnDialogClosed(newValue)));
+		setOnDialogClosed(e -> dialogResult.setValue(false));
+		onDeclinedProperty().addListener(((observable, oldValue, newValue) -> setOnDialogClosed(e -> {
+			dialogResult.setValue(false);
+			newValue.handle(e);
+		})));
 	}
 
-	@Override
-	public void show(StackPane dialogContainer) {
-		super.show(dialogContainer);
-		// focus must be requested after a short delay... dunno why
-		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
-	}
-
-	@Override
-	public void show() {
-		super.show();
-		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
+	public boolean showAndWaitResult() {
+		dialogResult.reset();
+		show();
+		return dialogResult.getValue();
 	}
 
 	public String getHeading() {

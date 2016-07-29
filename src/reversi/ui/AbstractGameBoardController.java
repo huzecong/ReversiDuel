@@ -6,17 +6,19 @@ package ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.effects.JFXDepthManager;
+import com.sun.javafx.tk.Toolkit;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.beans.property.DoubleProperty;
+import javafx.application.Platform;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
@@ -25,31 +27,29 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Material;
-import javafx.scene.shape.*;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 import logic.GameManager;
 import logic.LocalPlayer;
 import logic.PlayerState;
 import org.datafx.controller.FXMLController;
+import ui.controls.ConfirmationDialog;
+import ui.controls.InformationDialog;
 import ui.controls.PlayerTimerPane;
 import util.BackgroundColorAnimator;
 import util.TaskScheduler;
 
 import javax.annotation.PostConstruct;
-import java.awt.*;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Random;
 
 @FXMLController(value = "fxml/GameBoard.fxml", title = "Duel!")
 public class AbstractGameBoardController {
 	@FXML
-	protected AnchorPane __rootPane, rootPane;
+	protected AnchorPane rootPane;
 
 	@FXML
-	protected StackPane gameBoard;
+	protected StackPane __rootPane, gameBoard;
 
 	@FXML
 	protected PlayerTimerPane player1Pane, player2Pane;
@@ -69,6 +69,33 @@ public class AbstractGameBoardController {
 	@FXML
 	protected JFXButton readyButton, undoButton, drawButton, surrenderButton, saveLoadButton, exitButton;
 
+	@FXML
+	protected InformationDialog infoDialog;
+
+	@FXML
+	protected ConfirmationDialog confirmDialog;
+
+	@FXML
+	protected Label confirmDialogContents;
+
+	public void showInfoDialog(String heading, String contents) {
+		Platform.runLater(() -> {
+			infoDialog.setHeading(heading);
+			infoDialog.setContents(contents);
+		});
+		infoDialog.showAndWait();
+	}
+
+	public boolean showConfirmDialog(String heading, String contents) {
+		Platform.runLater(() -> {
+			confirmDialog.setHeading(heading);
+			confirmDialogContents.setText(contents);
+		});
+		boolean result = confirmDialog.showAndWaitResult();
+		System.out.println(result);
+		return result;
+	}
+
 	protected final static int N = 8;
 	protected final static double boardOffsetX = 39.5;
 	protected final static double boardOffsetY = 35;
@@ -76,7 +103,7 @@ public class AbstractGameBoardController {
 	protected final static double boardLength = 774;
 
 	static class BoardPiece {
-		static double imageLength = boardGridLength * 0.8;
+		static double imageLength = 70;
 		static Image blackPiece = new Image("image/black.png", imageLength, imageLength, true, false);
 		static Image whitePiece = new Image("image/white.png", imageLength, imageLength, true, false);
 
@@ -96,9 +123,10 @@ public class AbstractGameBoardController {
 			container.getChildren().add(view);
 
 			candidateView = new ImageView();
+			candidateView.setSmooth(true);
 			candidateView.setFitHeight(imageLength / 2);
 			candidateView.setFitWidth(imageLength / 2);
-			candidateView.setOpacity(0.5);
+			candidateView.setOpacity(0.75);
 			candidateView.setVisible(false);
 			container.getChildren().add(candidateView);
 
@@ -137,6 +165,10 @@ public class AbstractGameBoardController {
 			candidateView.setVisible(false);
 		}
 
+		void setRotationAxis(Point3D axis) {
+			view.setRotationAxis(axis);
+		}
+
 		void show(PlayerState player) {
 			if (player == PlayerState.NONE) hide();
 			else {
@@ -164,45 +196,19 @@ public class AbstractGameBoardController {
 
 	@PostConstruct
 	public void init() {
-		manager = new GameManager();
-		player1 = new LocalPlayer();
-		player2 = new LocalPlayer();
-		manager.init(player1, player2);
-		manager.setDropPieceHandler(pair -> {
-			boardPieces[pair.fst.x][pair.fst.y].show(pair.snd);
-			Collection<Point> flippedPosition = manager.getFlippedPositions();
-			if (flippedPosition.size() == 0) {
-				drawCandidatePositions();
-				return;
-			}
-			Timeline animation = new Timeline();
-			ArrayList<Point>[] pointDist = new ArrayList[N];
-			for (int i = 0; i < N; ++i)
-				pointDist[i] = new ArrayList<Point>();
-			for (Point point : flippedPosition) {
-				int dist = Math.max(Math.abs(point.x - pair.fst.x), Math.abs(point.y - pair.fst.y));
-				pointDist[dist - 1].add(point);
-			}
-			IntegerProperty ignored = new SimpleIntegerProperty(0);
-			for (int i = 0; i < N; ++i) {
-				final int index = i;
-				if (pointDist[index].size() == 0) break;
-				animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * index), event -> {
-					for (Point point : pointDist[index])
-						boardPieces[point.x][point.y].flip();
-				}, new KeyValue(ignored, index + 1)));
-			}
-			animation.setOnFinished(e -> TaskScheduler.singleShot(300, this::drawCandidatePositions));
-			animation.play();
-		});
-
 		JFXDepthManager.setDepth(rootPane, 1);
 		chatDialog.setText("1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
 		BackgroundColorAnimator.applyAnimation(sendChatButton);
 
 		buttonsPane.getChildren().forEach(BackgroundColorAnimator::applyAnimation);
+		undoButton.setOnAction(e -> {
+			LocalPlayer player = (LocalPlayer) manager.getPlayer();
+			TaskScheduler.singleShot(1, player::requestUndo);
+		});
 
 		gameBoard.setOnMouseClicked(this::gameBoardClicked);
+		infoDialog.setDialogContainer(__rootPane);
+		confirmDialog.setDialogContainer(__rootPane);
 
 		for (int i = 0; i < N; ++i)
 			for (int j = 0; j < N; ++j) {
@@ -210,13 +216,105 @@ public class AbstractGameBoardController {
 				gameBoard.getChildren().add(boardPieces[i][j].container);
 			}
 
+		manager = new GameManager();
+		player1 = new LocalPlayer();
+		player2 = new LocalPlayer();
+		manager.init(player1, player2);
+		manager.setDropPieceHandler(this::dropPiece);
+
+		player1.setConfirmDialogCaller(this::showConfirmDialog);
+		player1.setInfoDialogCaller(this::showInfoDialog);
+		player2.setConfirmDialogCaller(this::showConfirmDialog);
+		player2.setInfoDialogCaller(this::showInfoDialog);
+
 		manager.newGame();
 	}
 
-	private void drawCandidatePositions() {
+	private class BoardAnimationManager {
+		ArrayList<Timeline> animationQueue = new ArrayList<>();
+		Timeline lastAnimation;
+
+		void add(Timeline animation) {
+			animation.setOnFinished(e -> startNext());
+			if (!animationQueue.isEmpty() || lastAnimation != null) {
+				animationQueue.add(animation);
+			} else {
+				lastAnimation = animation;
+				lastAnimation.play();
+			}
+		}
+
+		private void startNext() {
+			lastAnimation = null;
+			if (!animationQueue.isEmpty()) {
+				lastAnimation = animationQueue.remove(0);
+				TaskScheduler.singleShot(200, lastAnimation::play);
+			} else {
+				drawCandidatePositions();
+			}
+		}
+	}
+
+	private BoardAnimationManager animationManager = new BoardAnimationManager();
+
+	private void dropPiece(Point point, PlayerState player, Collection<Point> flippedPositions) {
+		hideCandidates();
+		Timeline animation = new Timeline();
+		ArrayList<Point>[] pointDist = new ArrayList[N];
+		for (int i = 0; i < N; ++i)
+			pointDist[i] = new ArrayList<Point>();
+		int maxDist = 0;
+		for (Point p : flippedPositions) {
+			int dist = Math.max(Math.abs(p.x - point.x), Math.abs(p.y - point.y));
+			maxDist = Math.max(maxDist, dist);
+			pointDist[dist - 1].add(p);
+		}
+
+		if (player != PlayerState.NONE) { // drop piece
+			animation.getKeyFrames().add(new KeyFrame(Duration.ZERO, event -> boardPieces[point.x][point.y].show(player)));
+
+			for (int i = 0; i < maxDist; ++i) {
+				final int index = i;
+				animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * index), event -> {
+					for (Point p : pointDist[index]) {
+						boardPieces[p.x][p.y].setRotationAxis(new Point3D(-(p.y - point.y), p.x - point.x, 0));
+						boardPieces[p.x][p.y].flip();
+					}
+				}));
+			}
+			animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * maxDist), event -> {
+				// mark the end of the whole animation
+			}));
+		} else { // undo
+			for (int i = maxDist - 1; i >= 0; --i) {
+				final int index = i;
+				animation.getKeyFrames().add(new KeyFrame(Duration.millis(300 * (maxDist - index - 1)), event -> {
+					for (Point p : pointDist[index]) {
+						boardPieces[p.x][p.y].setRotationAxis(new Point3D(-(p.y - point.y), p.x - point.x, 0));
+						boardPieces[p.x][p.y].flip();
+					}
+				}));
+			}
+			animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * maxDist), event -> {
+				// mark the end of the whole animation
+			}));
+
+			animation.getKeyFrames().add(new KeyFrame(Duration.millis(300 * maxDist), event -> boardPieces[point.x][point.y].hide()));
+		}
+
+		animationManager.add(animation);
+	}
+
+	public void drawCandidatePositions() {
 		Collection<Point> positions = manager.getCandidatePositions();
 		for (Point point : positions)
 			boardPieces[point.x][point.y].showAsCandidate(manager.getCurrentPlayer());
+	}
+
+	public void hideCandidates() {
+		for (int i = 0; i < N; ++i)
+			for (int j = 0; j < N; ++j)
+				boardPieces[i][j].hideCandidate();
 	}
 
 	private Point getCell(double mouseX, double mouseY) {
@@ -234,10 +332,5 @@ public class AbstractGameBoardController {
 		boolean success = false;
 		if (manager.getCurrentPlayer() == PlayerState.BLACK) success = player1.dropPiece(point);
 		else if (manager.getCurrentPlayer() == PlayerState.WHITE) success = player2.dropPiece(point);
-		if (success) {
-			for (int i = 0; i < N; ++i)
-				for (int j = 0; j < N; ++j)
-					boardPieces[i][j].hideCandidate();
-		}
 	}
 }
