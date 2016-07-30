@@ -10,23 +10,27 @@ import java.util.TimerTask;
 
 public class TaskScheduler {
 
-	public static void singleShot(Duration delay, Runnable task) {
+	public static Timer singleShot(long delayMillis, Runnable task) {
 		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
+		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
 				task.run();
 			}
-		}, delay.toMillis());
+		};
+		timer.schedule(timerTask, delayMillis);
+		return timer;
 	}
 
-	public static void singleShot(long delayMillis, Runnable task) {
+	public static Timer repeated(long periodMillis, Runnable task) {
 		Timer timer = new Timer();
-		timer.schedule(new TimerTask() {
+		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
 				task.run();
 			}
-		}, delayMillis);
+		};
+		timer.scheduleAtFixedRate(timerTask, periodMillis, periodMillis);
+		return timer;
 	}
 }

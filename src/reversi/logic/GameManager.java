@@ -11,6 +11,7 @@ import util.TaskScheduler;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class GameManager {
@@ -21,7 +22,7 @@ public class GameManager {
 	/**
 	 * Helper functions
 	 */
-	public static PlayerState flip(PlayerState player) {
+	private static PlayerState flip(PlayerState player) {
 		if (player == PlayerState.NONE) return PlayerState.NONE;
 		if (player == PlayerState.BLACK) return PlayerState.WHITE;
 		return PlayerState.BLACK;
@@ -39,8 +40,9 @@ public class GameManager {
 	 * UI events
 	 */
 	public interface DropPieceHandler {
-		void handle(Point point, PlayerState player, Collection<Point> flippedPositions);
+		void handle(Point point, PlayerState player, List<Point> flippedPositions);
 	}
+
 	private DropPieceHandler dropPieceHandler;
 	private Consumer<PlayerState> gameOverHandler;
 	private Runnable exitHandler;
@@ -78,7 +80,8 @@ public class GameManager {
 		this.newGameHandler = newGameHandler;
 	}
 
-	class PlayerData {
+	private class PlayerData {
+		int timeLimit;
 		IntegerProperty score, remainingTime;
 		ObjectProperty<PlayerState> state;
 
@@ -88,8 +91,25 @@ public class GameManager {
 			state = new SimpleObjectProperty<>(PlayerState.NONE);
 		}
 	}
+
 	private PlayerData p1Data, p2Data;
 	private PlayerProperty<PlayerData> playerData;
+
+	public int getP1TimeLimit() {
+		return p1Data.timeLimit;
+	}
+
+	public void setP1TimeLimit(int timeLimit) {
+		p1Data.timeLimit = timeLimit;
+	}
+
+	public int getP2TimeLimit() {
+		return p2Data.timeLimit;
+	}
+
+	public void setP2TimeLimit(int timeLimit) {
+		p2Data.timeLimit = timeLimit;
+	}
 
 	public int getP1Score() {
 		return p1ScoreProperty().get();
@@ -180,24 +200,29 @@ public class GameManager {
 	private PlayerProperty<AbstractPlayer> players = new PlayerProperty<>();
 	private PlayerProperty<GameManagerInterface> interfaces = new PlayerProperty<>();
 
-	public void init(AbstractPlayer black, AbstractPlayer white) {
-		players.setBlack(black);
-		players.setWhite(white);
+	public void init(AbstractPlayer p1, int p1TimeLimit, AbstractPlayer p2, int p2TimeLimit) {
+		players.setBlack(p1);
+		players.setWhite(p2);
 		interfaces.setBlack(new GameManagerInterface(this, PlayerState.BLACK));
 		interfaces.setWhite(new GameManagerInterface(this, PlayerState.WHITE));
-		black.setManager(interfaces.getBlack());
-		white.setManager(interfaces.getWhite());
+		p1.setManager(interfaces.getBlack());
+		p2.setManager(interfaces.getWhite());
+		currentPlayer = new SimpleObjectProperty<>(PlayerState.NONE);
+
 		roundCount = 0;
 		gameStarted = new SimpleBooleanProperty(false);
 		p1Data = new PlayerData();
 		p2Data = new PlayerData();
+		p1Data.timeLimit = p1TimeLimit;
+		p2Data.timeLimit = p2TimeLimit;
 		playerData = new PlayerProperty<>(p1Data, p2Data);
 		playerData.getBlack().state.set(PlayerState.BLACK);
 		playerData.getWhite().state.set(PlayerState.WHITE);
-		currentPlayer = new SimpleObjectProperty<>(PlayerState.NONE);
+		playerTimer = new PlayerProperty<>();
+		remainingTimeUpdateTimer = new PlayerProperty<>();
 	}
 
-	public void newGame() {
+	private void newGame() {
 		++roundCount;
 		moves = new ArrayList<>();
 		currentPlayer.set(PlayerState.BLACK);
@@ -220,12 +245,47 @@ public class GameManager {
 			gameStarted.set(true);
 			players.getBlack().newGame(PlayerState.BLACK);
 			players.getWhite().newGame(PlayerState.WHITE);
+
+			startTurn(PlayerState.BLACK);
 		});
+	}
+
+	private PlayerProperty<Timer> playerTimer, remainingTimeUpdateTimer;
+
+	private void startTurn(PlayerState player) {
+		assert player == currentPlayer.get();
+		int timeLimit = playerData.get(player).timeLimit;
+		playerTimer.set(player, TaskScheduler.singleShot(timeLimit * 1000, () -> timeOut(player)));
+		long now = new Date().getTime();
+		remainingTimeUpdateTimer.set(player, TaskScheduler.repeated(100, () ->
+			playerData.get(player).remainingTime.set(timeLimit - (int) Math.ceil((new Date().getTime() - now) / 1000))));
+	}
+
+	private void endTurn(PlayerState player) {
+		Timer timer = playerTimer.get(player);
+		if (timer != null) {
+			timer.cancel();
+			timer.purge();
+		}
+		timer = remainingTimeUpdateTimer.get(player);
+		if (timer != null) {
+			timer.cancel();
+			timer.purge();
+		}
+		playerData.get(player).remainingTime.set(0);
+	}
+
+	private void timeOut(PlayerState player) {
+		endTurn(player);
+		if (player != getCurrentPlayer()) return;
+		// make a random move
+		Point move = candidatePositions.get(new Random().nextInt(candidatePositions.size()));
+		dropPiece(move.x, move.y, player);
 	}
 
 	private ArrayList<Point> candidatePositions = new ArrayList<>();
 
-	public Collection<Point> getCandidatePositions() {
+	public List<Point> getCandidatePositions() {
 		return Collections.unmodifiableList(candidatePositions);
 	}
 
@@ -267,10 +327,41 @@ public class GameManager {
 		updateCandidatePositions(getCurrentPlayer());
 	}
 
-	public void dropPiece(int x, int y, PlayerState player) {
+	void dropPiece(int x, int y, PlayerState player) {
 		if (getCurrentPlayer() != player) return;
+
+		endTurn(player);
 		gameBoard[x][y] = player;
 
+		Point point = new Point(x, y);
+		List<Point> flippedPositions = getFlippedPositions(x, y, player);
+		for (Point p : flippedPositions)
+			gameBoard[p.x][p.y] = flip(gameBoard[p.x][p.y]);
+		dropPieceHandler.handle(point, player, flippedPositions);
+		moves.add(Pair.of(Pair.of(point, player), flippedPositions));
+
+		Optional<PlayerState> winner = checkWinner();
+		if (!winner.isPresent()) {
+			// candidate positions already updated in checkWinner()
+			boolean isSkipped = candidatePositions.size() == 0;
+			if (isSkipped) {
+				players.get(flip(player)).informOpponentMove(point, true);
+				updateCandidatePositions(player); // should not be empty
+				assert candidatePositions.size() > 0;
+				startTurn(currentPlayer.get());
+				players.get(player).informOpponentMove(null, false);
+			} else {
+				currentPlayer.set(flip(getCurrentPlayer()));
+				startTurn(currentPlayer.get());
+				players.get(flip(player)).informOpponentMove(point, false);
+			}
+		} else {
+			PlayerState result = winner.get();
+			gameOver(result);
+		}
+	}
+
+	List<Point> getFlippedPositions(int x, int y, PlayerState player) {
 		ArrayList<Point> flipped = new ArrayList<>();
 		for (int dx = -1; dx <= 1; ++dx)
 			for (int dy = -1; dy <= 1; ++dy) {
@@ -292,31 +383,16 @@ public class GameManager {
 				}
 				if (!existsPiece) shouldFlip = false;
 				if (shouldFlip) {
-					for (int i = x + dx, j = y + dy; i != tx || j != ty; i += dx, j += dy) {
-						gameBoard[i][j] = flip(gameBoard[i][j]);
+					for (int i = x + dx, j = y + dy; i != tx || j != ty; i += dx, j += dy)
 						flipped.add(new Point(i, j));
-					}
 				}
 			}
-
-		Point point = new Point(x, y);
-		Collection<Point> flippedPositions = Collections.unmodifiableList(flipped);
-		dropPieceHandler.handle(point, player, flippedPositions);
-		moves.add(Pair.of(Pair.of(point, player), flippedPositions));
-
-		Optional<PlayerState> winner = checkWinner();
-		if (!winner.isPresent()) {
-			currentPlayer.set(flip(getCurrentPlayer()));
-			// candidate positions already updated in checkWinner()
-			boolean isSkipped = candidatePositions.size() == 0;
-			players.get(flip(player)).informOpponentMove(point, isSkipped);
-		} else {
-			PlayerState result = winner.get();
-			gameOver(result);
-		}
+		return Collections.unmodifiableList(flipped);
 	}
 
 	private void gameOver(PlayerState result) {
+		endTurn(PlayerState.BLACK);
+		endTurn(PlayerState.WHITE);
 		gameStarted.set(false);
 		players.getBlack().gameOver(result == PlayerState.BLACK, result == PlayerState.NONE);
 		players.getWhite().gameOver(result == PlayerState.WHITE, result == PlayerState.NONE);
@@ -354,7 +430,7 @@ public class GameManager {
 	/**
 	 * Player interactions
 	 */
-	public boolean canDrop(int x, int y) {
+	boolean canDrop(int x, int y) {
 		return gameBoard[x][y] == PlayerState.NONE && candidatePositions.contains(new Point(x, y));
 	}
 
@@ -381,27 +457,26 @@ public class GameManager {
 
 	private PlayerProperty<Boolean> isReady = new PlayerProperty<>(false, false);
 
-	public boolean isReady(PlayerState player) {
+	boolean isReady(PlayerState player) {
 		return isReady.get(player);
 	}
 
-	public void ready(PlayerState player) {
+	void ready(PlayerState player) {
 		if (gameStarted.get()) return;
 		isReady.set(player, true);
 		if (isReady.getBlack() && isReady.getWhite()) newGame();
 	}
 
-	private ArrayList<Pair<Pair<Point, PlayerState>, Collection<Point>>> moves;
+	private ArrayList<Pair<Pair<Point, PlayerState>, List<Point>>> moves;
 
-	public boolean canUndo(PlayerState player) {
+	boolean canUndo(PlayerState player) {
 		int lastPos;
 		for (lastPos = moves.size() - 1; lastPos >= 0; --lastPos)
 			if (moves.get(lastPos).fst.snd == player) break;
-		if (lastPos < 0) return false;
-		return true;
+		return lastPos >= 0;
 	}
 
-	public boolean requestUndo(PlayerState player) {
+	boolean requestUndo(PlayerState player) {
 		int lastPos;
 		for (lastPos = moves.size() - 1; lastPos >= 0; --lastPos)
 			if (moves.get(lastPos).fst.snd == player) break;
@@ -410,7 +485,7 @@ public class GameManager {
 		if (!players.get(flip(player)).undoRequested()) return false;
 
 		for (int i = moves.size() - 1; i >= lastPos; --i) {
-			Pair<Pair<Point, PlayerState>, Collection<Point>> move = moves.remove(i);
+			Pair<Pair<Point, PlayerState>, List<Point>> move = moves.remove(i);
 			gameBoard[move.fst.fst.x][move.fst.fst.y] = PlayerState.NONE;
 			for (Point point : move.snd)
 				gameBoard[point.x][point.y] = flip(gameBoard[point.x][point.y]);
@@ -420,20 +495,21 @@ public class GameManager {
 		return true;
 	}
 
-	public boolean requestDraw(PlayerState player) {
+	boolean requestDraw(PlayerState player) {
 		if (!players.get(flip(player)).drawRequested()) return false;
 		gameOver(PlayerState.NONE);
 		return true;
 	}
 
-	public boolean requestSurrender(PlayerState player) {
+	boolean requestSurrender(PlayerState player) {
 		if (!players.get(flip(player)).surrenderRequested()) return false;
 		gameOver(flip(player));
 		return true;
 	}
 
-	public boolean requestExit(PlayerState player) {
+	boolean requestExit(PlayerState player) {
 		if (!players.get(flip(player)).exitRequested()) return false;
+		gameOver(flip(player));
 		exitHandler.run();
 		return true;
 	}

@@ -8,6 +8,11 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import util.Synchronous;
 
+import java.awt.Point;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+
 public class GameManagerInterface {
 	private GameManager manager;
 	private PlayerState player;
@@ -70,5 +75,17 @@ public class GameManagerInterface {
 		manager.dropPiece(x, y, player);
 		canUndo.set(canUndo());
 		return true;
+	}
+
+	public PlayerState getState(int x, int y) {
+		return manager.getState(x, y);
+	}
+
+	public List<Point> getCandidatePositions() {
+		return manager.getCandidatePositions();
+	}
+
+	public List<Point> getFlippedPositions(int x, int y) {
+		return manager.getFlippedPositions(x, y, player);
 	}
 }

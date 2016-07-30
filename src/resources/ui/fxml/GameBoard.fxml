@@ -12,6 +12,7 @@
 <?import javafx.scene.effect.DropShadow?>
 <?import javafx.scene.shape.Rectangle?>
 <?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import javafx.scene.effect.BoxBlur?>
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
 	<AnchorPane>
 		<StackPane fx:id="gameBoard" AnchorPane.topAnchor="30" AnchorPane.leftAnchor="30">

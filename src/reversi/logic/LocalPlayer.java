@@ -26,12 +26,12 @@ public class LocalPlayer extends AbstractPlayer {
 
 	@Override
 	public void newGame(PlayerState state) {
-
+		// does nothing
 	}
 
 	@Override
 	public void informOpponentMove(Point point, boolean isSkipped) {
-
+		// does nothing
 	}
 
 	@Override

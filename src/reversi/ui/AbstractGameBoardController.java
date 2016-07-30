@@ -34,10 +34,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import logic.AbstractPlayer;
-import logic.GameManager;
-import logic.LocalPlayer;
-import logic.PlayerState;
+import logic.*;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
@@ -127,10 +124,10 @@ public abstract class AbstractGameBoardController {
 	static class BoardPiece {
 		static double imageLength = 70;
 		static double candidateLength = 35;
-		static Image blackPiece = new Image("image/black.png", imageLength, imageLength, true, false);
-		static Image whitePiece = new Image("image/white.png", imageLength, imageLength, true, false);
-		static Image blackCandidate = new Image("image/black_candidate.png", candidateLength, candidateLength, true, false);
-		static Image whiteCandidate = new Image("image/white_candidate.png", candidateLength, candidateLength, true, false);
+		static Image blackPiece = new Image("image/black.png", imageLength, imageLength, true, true);
+		static Image whitePiece = new Image("image/white.png", imageLength, imageLength, true, true);
+		static Image blackCandidate = new Image("image/black_candidate.png", candidateLength, candidateLength, true, true);
+		static Image whiteCandidate = new Image("image/white_candidate.png", candidateLength, candidateLength, true, true);
 
 		StackPane container;
 		ImageView view, candidateView;
@@ -231,13 +228,23 @@ public abstract class AbstractGameBoardController {
 
 	protected GameManager manager;
 	protected AbstractPlayer player1, player2;
+	protected int p1TimeLimit, p2TimeLimit;
 
 	protected abstract void initPlayersAndControls();
 
 	@PostConstruct
 	public void init() {
-		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
-		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
+//		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
+//		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
+//		p1TimeLimit = (Integer) context.getRegisteredObject("p1TimeLimit");
+//		p2TimeLimit = (Integer) context.getRegisteredObject("p12imeLimit");
+//		player1 = new LocalPlayer("果皇·天气晴朗", "honoka.jpg");
+//		player2 = new LocalPlayer("Naïve!", "ha.gif");
+		player1 = new AIPlayer("粗糙的计算机", "rabbit.jpg", 0);
+		player2 = new AIPlayer("普通的计算机", "sillyb.jpg", 1);
+
+		p1TimeLimit = 20;
+		p2TimeLimit = 1;
 
 		JFXDepthManager.setDepth(rootPane, 1);
 		BackgroundColorAnimator.applyAnimation(sendChatButton);
@@ -253,10 +260,8 @@ public abstract class AbstractGameBoardController {
 				gameBoard.getChildren().add(boardPieces[i][j].container);
 			}
 
-		player1 = new LocalPlayer("果皇·天气晴朗", "honoka.jpg");
-		player2 = new LocalPlayer("Naïve!", "ha.gif");
 		manager = new GameManager();
-		manager.init(player1, player2);
+		manager.init(player1, p1TimeLimit, player2, p2TimeLimit);
 		manager.setDropPieceHandler(this::dropPiece);
 		manager.setGameOverHandler(this::gameOver);
 		manager.setExitHandler(() -> ((Runnable) context.getRegisteredObject("returnToHome")).run());
@@ -330,7 +335,7 @@ public abstract class AbstractGameBoardController {
 	/**
 	 * Handlers
 	 */
-	protected void dropPiece(Point point, PlayerState player, Collection<Point> flippedPositions) {
+	private void dropPiece(Point point, PlayerState player, Collection<Point> flippedPositions) {
 		hideCandidates();
 		Timeline animation = new Timeline();
 		ArrayList<Point>[] pointDist = new ArrayList[N];
