@@ -11,6 +11,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import org.datafx.controller.FXMLController;
@@ -27,6 +28,9 @@ import java.util.HashMap;
 public class MainMenuController {
 	@FXMLViewFlowContext
 	private ViewFlowContext context;
+
+	@FXML
+	private StackPane __rootPane;
 
 	@FXML
 	private VBox rootPane;
@@ -62,6 +66,7 @@ public class MainMenuController {
 			}
 		});
 
+		dialog.setDialogContainer(__rootPane);
 		profileButton.setOnMouseClicked(e -> dialog.show(PreferenceLoader.loadFromPreferences("p1")));
 		dialog.setOnAccepted(e -> PreferenceLoader.saveToPreferences(dialog.getPlayerProperties(), "p1"));
 	}

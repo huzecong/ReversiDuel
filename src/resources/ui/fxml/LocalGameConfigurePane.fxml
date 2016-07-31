@@ -53,7 +53,8 @@
 		</VBox>
 
 		<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
-			<Label fx:id="duelButton" text="DUEL!" style="-fx-text-alignment: center; -fx-font-family: 'Bank Gothic Light BT'"/>
+			<Label fx:id="duelButton"  textAlignment="CENTER" alignment="CENTER" prefWidth="700" text="DUEL!"
+			       style="-fx-font-size: 30px; -fx-font-family: 'Bank Gothic Light BT'; -fx-text-fill: #2196f3"/>
 		</JFXListView>
 	</AnchorPane>
 

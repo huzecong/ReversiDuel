@@ -39,3 +39,27 @@ sourceSets {
         }
     }
 }
+
+version = '1.0'
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'Reversi Duel',
+                'Implementation-Version': version,
+                'Main-Class': "$mainClassName"
+    }
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+task copyJar(type: Copy, dependsOn: jar) {
+    from jar
+    into rootDir.absolutePath
+}
+
+task fixJarBuild(type: Exec, dependsOn: copyJar) {
+    commandLine './fix-jar-build.sh', 'ReversiDuel-' + version + '.jar'
+}
+
+task buildApp(dependsOn: [clean, jar, copyJar, fixJarBuild])

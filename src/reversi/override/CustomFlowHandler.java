@@ -4,17 +4,24 @@
 
 package override;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.ButtonBase;
-import org.datafx.controller.flow.Flow;
-import org.datafx.controller.flow.FlowException;
-import org.datafx.controller.flow.FlowHandler;
+import org.datafx.controller.context.ViewContext;
+import org.datafx.controller.flow.*;
+import org.datafx.controller.flow.action.FlowLink;
 import org.datafx.controller.flow.context.ViewFlowContext;
 import org.datafx.controller.util.VetoException;
 
+import java.util.UUID;
+
 public class CustomFlowHandler extends FlowHandler {
+	private ObservableList<ViewHistoryDefinition<?>> controllerHistory;
+
 	public CustomFlowHandler(Flow flow, ViewFlowContext flowContext) {
 		super(flow, flowContext);
+		controllerHistory = FXCollections.observableArrayList();
 	}
 
 	@Override
@@ -42,6 +49,29 @@ public class CustomFlowHandler extends FlowHandler {
 		} else {
 			node.setOnMouseClicked((e) -> handleBackActionWithExceptionHandler());
 		}
+	}
+
+	@Override
+	public <U> ViewContext<U> setNewView(FlowView<U> newView, boolean addOldToHistory)
+			throws FlowException {
+		if (getCurrentView() != null && addOldToHistory) {
+			ViewHistoryDefinition<?> historyDefinition = new ViewHistoryDefinition(getCurrentView().getViewContext().getController().getClass(), "", null);
+			controllerHistory.add(0, historyDefinition);
+		}
+		return super.setNewView(newView, addOldToHistory);
+	}
+
+	@Override
+	public void navigateToHistoryIndex(int index) throws VetoException, FlowException {
+		Class<?> controllerClass = controllerHistory.remove(index).getControllerClass();
+		for (int i = 0; i < index; ++i)
+			controllerHistory.remove(i);
+		handle(new FlowLink(controllerClass, false), "backAction-" + UUID.randomUUID().toString());
+	}
+
+	@Override
+	public ObservableList<ViewHistoryDefinition<?>> getControllerHistory() {
+		return FXCollections.unmodifiableObservableList(controllerHistory);
 	}
 
 	private void handleActionWithExceptionHandler(String id) {

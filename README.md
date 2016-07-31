@@ -15,3 +15,15 @@ gradle run
 ```
 And this should do the job. I think.
 (Gradle processes could take really long, please have patience and make sure you aren't blocked by firewalls)
+
+To compile a JAR executable, run
+```bash
+gradle buildApp
+```
+The compiled JAR will be copied to project root, and then patched using script `fix-jar-build.sh`.
+The patch step is necessary due to errors in the manifest file for DataFX.
+ 
+You can run the JAR executable by
+```bash
+java -jar <JAR file>
+```
