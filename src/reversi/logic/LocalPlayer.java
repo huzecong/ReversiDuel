@@ -29,7 +29,7 @@ public class LocalPlayer extends AbstractPlayer {
 	}
 
 	@Override
-	public void informOpponentMove(Point point, boolean isSkipped) {
+	public void informOpponentMove(Point point, boolean isSkipped, boolean isTimeout) {
 		// does nothing
 	}
 

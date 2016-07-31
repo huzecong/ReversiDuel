@@ -49,7 +49,7 @@ public class NetworkPlayer extends AbstractPlayer {
 					if (message == null) { // connection broken
 						break;
 					}
-					if (this.message.getState()) {
+					if (this.message.isSet()) {
 						this.message.setValue(message);
 						handleMessage(message);
 					} else { // let the process calling "read()" handle it
@@ -72,15 +72,26 @@ public class NetworkPlayer extends AbstractPlayer {
 			}
 		}
 
-		// Synchronous read
-		String read() {
+		/**
+		 * Synchronous read.
+		 * @param timeout
+		 *     Timeout for read operation. If {@code timeout = 0}, operation does not time out.
+		 * @return
+		 *     If timed out, returns {@code null}. Otherwise returns the read message.
+		 */
+		String read(int timeout) {
 			message.reset();
-			return message.getValue();
+			return message.getValue(timeout);
+		}
+
+		String read() {
+			return read(0);
 		}
 	}
 
 	private void handleConnectionBroken() {
 		System.err.println("connection broken");
+		manager.forceExit("Connection broken: your opponent may have gone offline");
 	}
 
 	public NetworkPlayer(HostData myData, HostData hostData, Socket socket) {
@@ -98,13 +109,22 @@ public class NetworkPlayer extends AbstractPlayer {
 	}
 
 	private static final List<String> qualifiers = Arrays.asList(
-			"undo", "surrender", "exit", "draw", "load", "save",
+			"undo", "surrender", "exit", "draw", "load", "save", "timeout",
 			"accept", "refuse",
 			"chat", "ready", "dropPiece"
 	);
 	private static final List<String> requestQualifiers = Arrays.asList(
 			"undo", "surrender", "exit", "draw", "load", "save"
 	);
+
+	private Synchronous<Point> timeoutResponse = new Synchronous<>();
+
+	@Override
+	public Point timeOut() {
+		Point point = timeoutResponse.getValue(2000);
+		timeoutResponse.reset();
+		return point;
+	}
 
 	private void sendMessage(String message) {
 		out.println(SignaturedMessageFactory.createSignaturedMessage(myData, message));
@@ -123,11 +143,12 @@ public class NetworkPlayer extends AbstractPlayer {
 			} else if (parts[0].equals("chat")) {
 				if (parts.length < 2) throw new InvalidFormatException();
 				manager.sendChat(message.substring(5)); // skip the prefix "chat "
-			} else if (parts[0].equals("dropPiece")) {
+			} else if (parts[0].equals("dropPiece") || parts[0].equals("timeout")) {
 				if (parts.length != 3) throw new InvalidFormatException();
 				int x = Integer.parseInt(parts[1]);
 				int y = Integer.parseInt(parts[2]);
-				manager.dropPiece(x, y);
+				if (parts[0].equals("dropPiece")) manager.dropPiece(x, y);
+				else timeoutResponse.setValue(new Point(x, y));
 			} else if (requestQualifiers.contains(parts[0])) {
 				boolean result = false;
 				if (parts[0].equals("undo")) result = manager.requestUndo();
@@ -147,8 +168,8 @@ public class NetworkPlayer extends AbstractPlayer {
 	}
 
 	@Override
-	public void informOpponentMove(Point point, boolean isSkipped) {
-		if (point != null) sendMessage("dropPiece " + point.x + " " + point.y);
+	public void informOpponentMove(Point point, boolean isSkipped, boolean isTimeout) {
+		if (point != null) sendMessage((isTimeout ? "timeout" : "dropPiece") + " " + point.x + " " + point.y);
 	}
 
 	@Override

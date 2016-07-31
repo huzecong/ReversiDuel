@@ -14,7 +14,7 @@ public class Synchronous<T> {
 		hasSet = new AtomicBoolean(false);
 	}
 
-	public boolean getState() {
+	public boolean isSet() {
 		return hasSet.get();
 	}
 
@@ -27,27 +27,35 @@ public class Synchronous<T> {
 		hasSet.set(true);
 	}
 
-	public T getValue() {
-		Thread thread = new Thread(new Helper(hasSet));
+	public T getValue(int timeout) {
+		Thread thread = new Thread(new Helper(hasSet, timeout));
 		thread.start();
 		try {
 			thread.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		if (!hasSet.get()) return null;
 		return value;
+	}
+
+	public T getValue() {
+		return getValue(0);
 	}
 
 	private class Helper implements Runnable {
 		AtomicBoolean watchValue;
+		int timeout;
 
-		Helper(AtomicBoolean watchValue) {
+		Helper(AtomicBoolean watchValue, int timeout) {
 			this.watchValue = watchValue;
+			this.timeout = timeout;
 		}
 
 		@Override
 		public void run() {
-			while (!watchValue.get()) {
+			long time = System.currentTimeMillis();
+			while (!watchValue.get() && (timeout == 0 || System.currentTimeMillis() - time <= timeout)) {
 				try {
 					Thread.sleep(10);
 				} catch (InterruptedException e) {

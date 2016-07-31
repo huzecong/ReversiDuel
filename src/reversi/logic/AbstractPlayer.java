@@ -7,6 +7,8 @@ package logic;
 import javafx.beans.property.BooleanProperty;
 
 import java.awt.Point;
+import java.util.List;
+import java.util.Random;
 
 public abstract class AbstractPlayer {
 	protected GameManagerInterface manager;
@@ -54,14 +56,26 @@ public abstract class AbstractPlayer {
 	 *     Note that if opponent was skipped, {@code point} is {@code null}, so make sure to check it.
 	 * @param isSkipped
 	 *     Whether the player is skipped due to having no playable moves.
+	 * @param isTimeout
+	 *     Whether opponent's move was a time out move
 	 */
-	public abstract void informOpponentMove(Point point, boolean isSkipped);
+	public abstract void informOpponentMove(Point point, boolean isSkipped, boolean isTimeout);
 
 	/**
 	 * Declares the end of game, and informs results.
 	 * Note that next game does not start until {@code newGame()} is called.
 	 */
 	public abstract void gameOver(boolean isWinner, boolean isTie);
+
+	/**
+	 * The player has run out of time, and should return a drop position immediately.
+	 * Overridden implementation should guarantee the above behavior.
+	 */
+	public Point timeOut() {
+		// make a random move
+		List<Point> candidatePositions = manager.getCandidatePositions();
+		return candidatePositions.get(new Random().nextInt(candidatePositions.size()));
+	}
 
 	/**
 	 * Tear down method called before game is terminated

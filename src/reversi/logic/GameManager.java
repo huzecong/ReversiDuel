@@ -47,6 +47,7 @@ public class GameManager {
 	private Runnable exitHandler;
 	private Runnable newGameHandler;
 	private Consumer<String> dialogHandler;
+	private Consumer<String> exceptionHandler;
 
 	public DropPieceHandler getDropPieceHandler() {
 		return dropPieceHandler;
@@ -86,6 +87,14 @@ public class GameManager {
 
 	public void setDialogHandler(Consumer<String> dialogHandler) {
 		this.dialogHandler = dialogHandler;
+	}
+
+	public Consumer<String> getExceptionHandler() {
+		return exceptionHandler;
+	}
+
+	public void setExceptionHandler(Consumer<String> exceptionHandler) {
+		this.exceptionHandler = exceptionHandler;
 	}
 
 	private class PlayerData {
@@ -286,9 +295,8 @@ public class GameManager {
 	private void timeOut(PlayerState player) {
 		endTurn(player);
 		if (player != getCurrentPlayer()) return;
-		// make a random move
-		Point move = candidatePositions.get(new Random().nextInt(candidatePositions.size()));
-		dropPiece(move.x, move.y, player);
+		Point move = getPlayer(player).timeOut();
+		dropPiece(move.x, move.y, player, true);
 	}
 
 	private ArrayList<Point> candidatePositions = new ArrayList<>();
@@ -335,7 +343,7 @@ public class GameManager {
 		updateCandidatePositions(getCurrentPlayer());
 	}
 
-	void dropPiece(int x, int y, PlayerState player) {
+	void dropPiece(int x, int y, PlayerState player, boolean isTimeout) {
 		if (getCurrentPlayer() != player) return;
 
 		endTurn(player);
@@ -353,15 +361,15 @@ public class GameManager {
 			// candidate positions already updated in checkWinner()
 			boolean isSkipped = candidatePositions.size() == 0;
 			if (isSkipped) {
-				players.get(flip(player)).informOpponentMove(point, true);
+				players.get(flip(player)).informOpponentMove(point, true, isTimeout);
 				updateCandidatePositions(player); // should not be empty
 				assert candidatePositions.size() > 0;
 				startTurn(currentPlayer.get());
-				players.get(player).informOpponentMove(null, false);
+				players.get(player).informOpponentMove(null, false, false);
 			} else {
 				currentPlayer.set(flip(getCurrentPlayer()));
 				startTurn(currentPlayer.get());
-				players.get(flip(player)).informOpponentMove(point, false);
+				players.get(flip(player)).informOpponentMove(point, false, isTimeout);
 			}
 		} else {
 			PlayerState result = winner.get();
@@ -438,6 +446,14 @@ public class GameManager {
 	/**
 	 * Player interactions
 	 */
+	public void forceExit(String message) {
+		TaskScheduler.singleShot(50, () -> {
+			players.getBlack().purge();
+			players.getWhite().purge();
+			exceptionHandler.accept(message);
+		});
+	}
+
 	boolean canDrop(int x, int y) {
 		return gameBoard[x][y] == PlayerState.NONE && candidatePositions.contains(new Point(x, y));
 	}

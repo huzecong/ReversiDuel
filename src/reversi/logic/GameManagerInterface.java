@@ -19,6 +19,11 @@ public class GameManagerInterface {
 		this.player = player;
 	}
 
+	// call at your own risk
+	public void forceExit(String message) {
+		manager.forceExit(message);
+	}
+
 	public void sendChat(String message) {
 
 	}
@@ -69,7 +74,7 @@ public class GameManagerInterface {
 
 	public boolean dropPiece(int x, int y) {
 		if (!isMyTurn() || !canDrop(x, y)) return false;
-		manager.dropPiece(x, y, player);
+		manager.dropPiece(x, y, player, false);
 		canUndo.set(canUndo());
 		return true;
 	}

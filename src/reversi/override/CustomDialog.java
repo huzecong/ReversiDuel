@@ -52,6 +52,10 @@ public class CustomDialog extends JFXDialog {
 		boolean ignored = isClosed.getValue(); // wait for close
 	}
 
+	/**
+	 * Width and height of dialog pane.
+	 * Implementation used a dirty trick to get past accessibility restrictions.
+	 */
 	private DoubleProperty fixedWidth = new SimpleDoubleProperty(Region.USE_PREF_SIZE);
 	private DoubleProperty fixedHeight = new SimpleDoubleProperty(Region.USE_PREF_SIZE);
 

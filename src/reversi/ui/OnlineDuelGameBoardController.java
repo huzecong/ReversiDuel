@@ -20,9 +20,6 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 
 	@Override
 	protected void initPlayersAndControls() {
-		p1TimeLimit = 1;
-		p2TimeLimit = 1;
-
 		AbstractPlayer localPlayer, networkPlayer;
 		if (!(player1 instanceof NetworkPlayer)) {
 			localPlayer = player1;
