@@ -71,8 +71,6 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 
 		isLocalPlayer = new SimpleBooleanProperty(false);
 		undoButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
-		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
-		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		saveLoadButton.setDisable(true);
 		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue == PlayerState.NONE || !(manager.getPlayer(newValue) instanceof LocalPlayer)) {

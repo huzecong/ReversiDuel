@@ -157,9 +157,11 @@ public class ConnectPageController {
 
 		connectToHostDialog.setOnAccepted(e -> connectionManager.abortConnectionToHost());
 
-		String[] avatarNames = {"gomoku.jpg", "gumi.jpg", "ha.gif", "honoka.jpg", "monkey.gif", "nanami.jpg", "rabbit.jpg", "sillyb.jpg", "think.gif", "xsk.gif", "young.jpg"};
-		String thisAvatarName = avatarNames[Math.abs(new Random().nextInt()) % avatarNames.length];
-		connectionManager = new ConnectionManager(InetAddress.getLocalHost().getHostName() + " " + thisAvatarName, thisAvatarName, new Random().nextInt());
+		Properties playerProperties = PreferenceLoader.loadFromPreferences("p1");
+		connectionManager = new ConnectionManager(
+				playerProperties.getProperty("profileName"),
+				playerProperties.getProperty("avatarID"),
+				Integer.parseInt(playerProperties.getProperty("uniqueID")));
 		connectionManager.setOnAddToHostList(hostData -> {
 			HostDataListCell newItem = new HostDataListCell();
 			newItem.setUsingHostData(hostData);

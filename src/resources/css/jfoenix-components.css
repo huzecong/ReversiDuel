@@ -15,7 +15,6 @@
 
 .jfx-tool-bar {
     -fx-background-color: WHITE;
-    -fx-pref-width: 100%;
     -fx-pref-height: 64px;
 }
 
@@ -103,6 +102,11 @@
     -fx-min-height: 40px;
     -fx-pref-height: 40px;
     -fx-max-height: 40px;
+}
+
+.jfx-radio-button .dot {
+    -fx-fill: #2196f3;
+    -fx-border-radius: 100;
 }
 
 /*******************************************************************************

@@ -2,8 +2,8 @@
 <?import com.jfoenix.controls.JFXDialog?>
 <?import com.jfoenix.controls.JFXDialogLayout?>
 <?import com.jfoenix.controls.JFXButton?>
-
 <?import javafx.scene.layout.HBox?>
+
 <fx:root type="JFXDialog" xmlns:fx="http://javafx.com/fxml">
 	<JFXDialogLayout fx:id="content">
 		<heading>

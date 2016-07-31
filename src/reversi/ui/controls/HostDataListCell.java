@@ -29,7 +29,6 @@ public class HostDataListCell extends AnchorPane {
 	private HostData hostData;
 
 	public HostDataListCell() {
-		super();
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/HostDataListCell.fxml"));
 		loader.setRoot(this);
 		loader.setController(this);
@@ -43,7 +42,7 @@ public class HostDataListCell extends AnchorPane {
 	public void setUsingHostData(HostData hostData) {
 		this.hostData = hostData;
 		setName(hostData.getProfileName());
-		setIP(hostData.getIP());
+		setIP("IP: " + hostData.getIP());
 		setIcon(hostData.getAvatarID());
 	}
 
@@ -85,7 +84,7 @@ public class HostDataListCell extends AnchorPane {
 	}
 
 	public void setIP(String value) {
-		IPProperty().set("IP: " + value);
+		IPProperty().set(value);
 	}
 
 	public StringProperty IPProperty() {

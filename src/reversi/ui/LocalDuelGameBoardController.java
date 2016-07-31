@@ -60,9 +60,7 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 			}
 		}));
 
-
 		isLocalPlayer = new SimpleBooleanProperty(false);
-		readyButton.disableProperty().bind(manager.gameStartedProperty());
 		undoButton.setDisable(true);
 		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));

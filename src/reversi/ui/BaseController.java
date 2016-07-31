@@ -32,8 +32,10 @@ import org.datafx.controller.flow.context.ViewFlowContext;
 import org.datafx.controller.util.VetoException;
 import override.*;
 import ui.controls.ConfirmationDialog;
+import ui.controls.PlayerProfileDialog;
 
 import javax.annotation.PostConstruct;
+import java.util.Properties;
 import java.util.function.Consumer;
 
 @FXMLController(value = "fxml/Base.fxml", title = "Reversi Duel")
@@ -68,7 +70,7 @@ public class BaseController {
 	@PostConstruct
 	public void init() throws FlowException {
 		Flow innerFlow = new Flow(MainMenuController.class)
-				.withLink(MainMenuController.class, "singlePlayer", LocalDuelGameBoardController.class)
+				.withLink(MainMenuController.class, "singlePlayer", LocalGameConfigurePageController.class)
 				.withLink(MainMenuController.class, "networkDuel", ConnectPageController.class)
 				.withLink(MainMenuController.class, "profile", ProfilePageController.class);
 		EventHandler<Event> closeHandler = event -> closeDialog.show(__rootPane);
@@ -76,13 +78,18 @@ public class BaseController {
 		CustomAnimatedFlowContainer container = new CustomAnimatedFlowContainer(Duration.millis(400));
 		context.register("closeHandler", closeHandler);
 		context.register("returnToHome", (Runnable) () -> Platform.runLater(() -> {
-			while (!container.isIsInitialView()) {
-				try {
-					flowHandler.navigateBack();
-				} catch (VetoException | FlowException e) {
-					e.printStackTrace();
-				}
+			try {
+				flowHandler.navigateToHistoryIndex(flowHandler.getControllerHistory().size() - 1);
+			} catch (VetoException | FlowException e) {
+				e.printStackTrace();
 			}
+//			while (!container.isIsInitialView()) {
+//				try {
+//					flowHandler.navigateBack();
+//				} catch (VetoException | FlowException e) {
+//					e.printStackTrace();
+//				}
+//			}
 		}));
 
 		stage.titleProperty().unbind();

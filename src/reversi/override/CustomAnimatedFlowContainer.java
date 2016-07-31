@@ -96,8 +96,10 @@ public class CustomAnimatedFlowContainer implements FlowContainer<StackPane> {
 		animation = new Timeline();
 
 		Integer hash = context.getController().getClass().hashCode();
-		if (historyViews.size() > 1 && hash.equals(historyViews.get(historyViews.size() - 2))) {
-			historyViews.pop();
+		int pos = historyViews.indexOf(hash);
+		if (historyViews.size() > 1 && pos != -1 && pos < historyViews.size() - 1) {
+			for (int i = historyViews.size() - 1; i > pos; --i)
+				historyViews.remove(i);
 			animation.getKeyFrames().addAll(SWIPE_RIGHT.apply(this));
 		} else {
 			animation.getKeyFrames().addAll(SWIPE_LEFT.apply(this));

@@ -8,6 +8,8 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.*;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.geometry.*;
 import javafx.scene.control.*;
@@ -222,12 +224,6 @@ public abstract class AbstractGameBoardController {
 		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
 		p1TimeLimit = (Integer) context.getRegisteredObject("p1TimeLimit");
 		p2TimeLimit = (Integer) context.getRegisteredObject("p2TimeLimit");
-//		player1 = new LocalPlayer("果皇·天气晴朗", "honoka.jpg");
-//		player2 = new LocalPlayer("Naïve!", "ha.gif");
-//		player1 = new AIPlayer("粗糙的计算机", "rabbit.jpg", 0);
-//		player2 = new AIPlayer("普通的计算机", "sillyb.jpg", 1);
-//		p1TimeLimit = 1;
-//		p2TimeLimit = 1;
 
 		JFXDepthManager.setDepth(rootPane, 1);
 		BackgroundColorAnimator.applyAnimation(sendChatButton);
@@ -256,6 +252,7 @@ public abstract class AbstractGameBoardController {
 			((Runnable) context.getRegisteredObject("returnToHome")).run();
 		});
 
+		readyButton.disableProperty().bind(manager.gameStartedProperty().or(animationManager.isEmptyProperty().not()));
 		initPlayersAndControls();
 
 		player1Pane.setName(player1.getProfileName());
@@ -293,9 +290,11 @@ public abstract class AbstractGameBoardController {
 	private class BoardAnimationManager {
 		ArrayList<Timeline> animationQueue = new ArrayList<>();
 		Timeline lastAnimation;
+		BooleanProperty isEmpty = new SimpleBooleanProperty(true);
 
 		void add(Timeline animation) {
 			animation.setOnFinished(e -> startNext());
+			isEmpty.set(false);
 			if (!animationQueue.isEmpty() || lastAnimation != null) {
 				animationQueue.add(animation);
 			} else {
@@ -310,9 +309,14 @@ public abstract class AbstractGameBoardController {
 				lastAnimation = animationQueue.remove(0);
 				TaskScheduler.singleShot(200, lastAnimation::play);
 			} else {
+				isEmpty.set(true);
 				if (manager.getPlayer() instanceof LocalPlayer)
 					drawCandidatePositions();
 			}
+		}
+
+		public BooleanProperty isEmptyProperty() {
+			return isEmpty;
 		}
 	}
 
@@ -401,7 +405,10 @@ public abstract class AbstractGameBoardController {
 					break;
 			}
 		});
-		animation.play();
+		// this should not cause a problem (showing candidates), since by the time this animation is played,
+		// currentPlayer would be NONE
+		animationManager.add(animation);
+//		animation.play();
 	}
 
 	public void drawCandidatePositions() {

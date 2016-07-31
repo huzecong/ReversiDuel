@@ -1,0 +1,61 @@
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import ui.controls.HostDataListCell?>
+<?import ui.controls.PlayerProfileDialog?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import com.jfoenix.controls.JFXListView?>
+<StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
+	<AnchorPane fx:id="rootPane" styleClass="page-center-pane" style="-fx-max-width: 720;">
+		<VBox spacing="40" AnchorPane.topAnchor="40">
+			<VBox spacing="10">
+				<Label text="  Player 1 Profile" styleClass="sublist-header"/>
+				<GridPane alignment="CENTER" style="-fx-background-color: WHITE"
+				          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+					<columnConstraints>
+						<ColumnConstraints prefWidth="570" halignment="CENTER"/>
+						<ColumnConstraints prefWidth="150" halignment="CENTER"/>
+					</columnConstraints>
+					<HostDataListCell fx:id="player1Pane" glyphVisible="false" prefWidth="530" maxWidth="530"
+					                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+						<padding>
+							<Insets top="10" bottom="10"/>
+						</padding>
+					</HostDataListCell>
+					<JFXButton fx:id="player1ChangeButton" text="CONFIGURE" style="-fx-text-fill: #2196f3"
+					           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+				</GridPane>
+			</VBox>
+			<VBox spacing="10">
+				<Label text="  Player 2 Profile" styleClass="sublist-header"/>
+				<GridPane alignment="CENTER" style="-fx-background-color: WHITE"
+				          AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+					<columnConstraints>
+						<ColumnConstraints prefWidth="570" halignment="CENTER"/>
+						<ColumnConstraints prefWidth="150" halignment="CENTER"/>
+					</columnConstraints>
+					<HostDataListCell fx:id="player2Pane" glyphVisible="false" prefWidth="530" maxWidth="530"
+					                  GridPane.rowIndex="0" GridPane.columnIndex="0">
+						<padding>
+							<Insets top="10" bottom="10"/>
+						</padding>
+					</HostDataListCell>
+					<JFXButton fx:id="player2ChangeButton" text="CONFIGURE" style="-fx-text-fill: #2196f3"
+					           GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+				</GridPane>
+			</VBox>
+		</VBox>
+
+		<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<Label fx:id="duelButton" text="DUEL!" style="-fx-text-alignment: center; -fx-font-family: 'Bank Gothic Light BT'"/>
+		</JFXListView>
+	</AnchorPane>
+
+	<PlayerProfileDialog fx:id="dialog"/>
+</StackPane>

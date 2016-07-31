@@ -1,0 +1,69 @@
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXDialogLayout?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import javafx.scene.layout.HBox?>
+<?import ui.controls.ConfirmationDialog?>
+
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import com.jfoenix.controls.JFXRadioButton?>
+<?import javafx.beans.property.BooleanProperty?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import java.lang.Boolean?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import override.CustomRadioButton?>
+<?import com.jfoenix.validation.NumberValidator?>
+<fx:root type="ConfirmationDialog" xmlns:fx="http://javafx.com/fxml"
+         acceptButtonText="OK" declineButtonText="CANCEL">
+	<body>
+		<GridPane hgap="10" vgap="20">
+			<columnConstraints>
+				<ColumnConstraints prefWidth="130" halignment="LEFT"/>
+				<ColumnConstraints prefWidth="340"/>
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints valignment="BASELINE"/>
+				<RowConstraints valignment="BASELINE"/>
+				<RowConstraints valignment="TOP"/>
+				<RowConstraints valignment="BASELINE"/>
+			</rowConstraints>
+			<Label text="Player type:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+			<HBox alignment="BASELINE_LEFT" spacing="20" GridPane.rowIndex="0" GridPane.columnIndex="1"
+			      style="-fx-font-size: 18px">
+				<fx:define>
+					<ToggleGroup fx:id="playerTypeToggleGroup"/>
+				</fx:define>
+				<CustomRadioButton userData="local" text="User" toggleGroup="$playerTypeToggleGroup"/>
+				<CustomRadioButton userData="AI" text="AI" toggleGroup="$playerTypeToggleGroup"/>
+			</HBox>
+
+			<fx:define>
+				<Boolean fx:id="localSelected" fx:value="true"/>
+			</fx:define>
+
+			<Label visible="${!localSelected}" text="AI strength:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+			<JFXComboBox visible="${!localSelected}" fx:id="AIStrengthComboBox" GridPane.rowIndex="1"
+			             GridPane.columnIndex="1">
+			</JFXComboBox>
+
+			<Label text="Profile name:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+			<JFXTextField fx:id="profileNameText" GridPane.rowIndex="1" GridPane.columnIndex="1"
+			              minWidth="250" prefWidth="250" maxWidth="250" style="-fx-font-size: 18px"/>
+
+			<Label text="Avatar:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+			<GridPane fx:id="avatarList" GridPane.rowIndex="2" GridPane.columnIndex="1" hgap="20" vgap="20"/>
+
+			<Label text="Time limit:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+			<HBox spacing="10" alignment="BASELINE_CENTER" GridPane.rowIndex="3" GridPane.columnIndex="1">
+				<JFXTextField fx:id="timeLimitText" alignment="BASELINE_RIGHT"
+				              GridPane.rowIndex="1" GridPane.columnIndex="1"
+				              minWidth="150" prefWidth="150" maxWidth="150" style="-fx-font-size: 18px"/>
+				<Label text="seconds"/>
+			</HBox>
+		</GridPane>
+	</body>
+</fx:root>
