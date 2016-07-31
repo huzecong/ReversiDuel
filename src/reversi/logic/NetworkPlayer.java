@@ -56,7 +56,7 @@ public class NetworkPlayer extends AbstractPlayer {
 						this.message.setValue(message);
 					}
 				} catch (SocketTimeoutException e) {
-					System.out.println("timeout");
+//					System.out.println("timeout");
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -196,9 +196,9 @@ public class NetworkPlayer extends AbstractPlayer {
 
 	private boolean processRequest(String message) {
 		sendMessage(message);
-		String response = in.read();
+		String responseMessage = in.read();
 		try {
-			if (response == null) throw new InvalidFormatException("Empty response");
+			String response = SignaturedMessageFactory.parseSignaturedMessageWithException(responseMessage, hostData);
 			switch (response) {
 				case "accept":
 					return true;

@@ -373,6 +373,8 @@ public class GameManager {
 			}
 		} else {
 			PlayerState result = winner.get();
+			// still need to inform opponent, but should prevent opponent from making a move
+			players.get(flip(player)).informOpponentMove(point, true, isTimeout);
 			gameOver(result);
 		}
 	}

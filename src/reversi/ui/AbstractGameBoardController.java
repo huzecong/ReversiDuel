@@ -226,8 +226,8 @@ public abstract class AbstractGameBoardController {
 //		player2 = new LocalPlayer("Naïve!", "ha.gif");
 //		player1 = new AIPlayer("粗糙的计算机", "rabbit.jpg", 0);
 //		player2 = new AIPlayer("普通的计算机", "sillyb.jpg", 1);
-		p1TimeLimit = 1;
-		p2TimeLimit = 1;
+//		p1TimeLimit = 1;
+//		p2TimeLimit = 1;
 
 		JFXDepthManager.setDepth(rootPane, 1);
 		BackgroundColorAnimator.applyAnimation(sendChatButton);
@@ -251,6 +251,10 @@ public abstract class AbstractGameBoardController {
 		manager.setNewGameHandler(this::newGame);
 		manager.setDialogHandler(message ->
 				chatDialog.appendText(chatDialog.getText() + "<p>" + message + "</p>\n"));
+		manager.setExceptionHandler(message -> {
+			showInfoDialog("Error occurred", message);
+			((Runnable) context.getRegisteredObject("returnToHome")).run();
+		});
 
 		initPlayersAndControls();
 

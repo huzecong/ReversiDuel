@@ -42,7 +42,7 @@ public class CustomDialog extends JFXDialog {
 	}
 
 	public void showAndWait() {
-		show();
+		Platform.runLater(this::show);
 		Synchronous<Boolean> isClosed = new Synchronous<>();
 		super.setOnDialogClosed(e -> {
 			isClosed.setValue(true);
