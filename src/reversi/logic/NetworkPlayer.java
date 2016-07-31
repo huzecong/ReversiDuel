@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,8 +52,10 @@ public class NetworkPlayer extends AbstractPlayer {
 					} else { // let the process calling "read()" handle it
 						this.message.setValue(message);
 					}
-				} catch (IOException e) {
+				} catch (SocketTimeoutException e) {
 					System.out.println("timeout");
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
 			}
 			try {

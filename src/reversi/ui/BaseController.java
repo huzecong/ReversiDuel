@@ -14,6 +14,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.effect.BlurType;
@@ -21,6 +22,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.datafx.controller.FXMLController;
@@ -227,6 +229,9 @@ public class BaseController {
 		};
 		stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
 			newValue.rootProperty().addListener(ob -> windowResizer.run());
+			// initialize window to appropriate size
+			Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+			stage.setWidth(aspectRatio * Math.min(maxHeight, primaryScreenBounds.getHeight() - 150));
 			windowResizer.run();
 		});
 		stage.widthProperty().addListener(ob -> windowResizer.run());

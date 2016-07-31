@@ -218,7 +218,7 @@ public abstract class AbstractGameBoardController {
 		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
 		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
 		p1TimeLimit = (Integer) context.getRegisteredObject("p1TimeLimit");
-		p2TimeLimit = (Integer) context.getRegisteredObject("p12imeLimit");
+		p2TimeLimit = (Integer) context.getRegisteredObject("p2TimeLimit");
 //		player1 = new LocalPlayer("果皇·天气晴朗", "honoka.jpg");
 //		player2 = new LocalPlayer("Naïve!", "ha.gif");
 //		player1 = new AIPlayer("粗糙的计算机", "rabbit.jpg", 0);
