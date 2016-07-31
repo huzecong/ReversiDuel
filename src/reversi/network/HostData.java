@@ -8,11 +8,11 @@ import java.net.InetAddress;
 import java.util.Date;
 
 public class HostData {
-	String profileName;
-	String avatarID;
-	int uniqueID;
-	InetAddress IP;
-	Date date;
+	private String profileName;
+	private String avatarID;
+	private int uniqueID;
+	private InetAddress IP;
+	private Date date;
 
 	public String getProfileName() {
 		return profileName;
@@ -32,6 +32,10 @@ public class HostData {
 
 	public Date getDate() {
 		return date;
+	}
+
+	void setDate(Date date) {
+		this.date = date;
 	}
 
 	public HostData(String profileName, String avatarID, int uniqueID, InetAddress IP, Date date) {

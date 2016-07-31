@@ -8,6 +8,7 @@ import java.io.IOException;
 
 public class InvalidFormatException extends IOException {
 	public InvalidFormatException() {
+		super("Invalid format");
 	}
 
 	public InvalidFormatException(String message) {

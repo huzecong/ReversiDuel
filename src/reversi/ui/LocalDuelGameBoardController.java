@@ -4,19 +4,19 @@
 
 package ui;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
-import javafx.stage.Stage;
-import logic.AIPlayer;
-import logic.LocalPlayer;
-import logic.PlayerState;
+import logic.*;
 import org.datafx.controller.FXMLController;
 import util.TaskScheduler;
 
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.*;
 
 @FXMLController(value = "fxml/GameBoard.fxml", title = "Reversi Duel")
 public class LocalDuelGameBoardController extends AbstractGameBoardController {
+	private BooleanProperty isLocalPlayer;
+
 	@Override
 	protected void initPlayersAndControls() {
 		chatDialog.setMaxHeight(chatDialog.getMaxHeight() + 50);
@@ -60,14 +60,27 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 			else ((AIPlayer) player2).ready();
 		});
 
+		isLocalPlayer = new SimpleBooleanProperty(false);
+		readyButton.disableProperty().bind(manager.gameStartedProperty());
 		undoButton.setDisable(true);
+		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
+		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
+		saveLoadButton.setDisable(true);
 		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
 			undoButton.disableProperty().unbind();
 			if (newValue == PlayerState.NONE) {
 				undoButton.setDisable(true);
+				isLocalPlayer.setValue(false);
 			} else {
-				undoButton.disableProperty().bind(manager.gameStartedProperty().not()
-						.or(manager.getPlayer(newValue).canUndoProperty().not()));
+				AbstractPlayer player = manager.getPlayer(newValue);
+				if (!(player instanceof LocalPlayer)) {
+					undoButton.setDisable(true);
+					isLocalPlayer.setValue(false);
+				} else {
+					undoButton.disableProperty().bind(manager.gameStartedProperty().not()
+							.or(manager.getPlayer(newValue).canUndoProperty().not()));
+					isLocalPlayer.setValue(true);
+				}
 			}
 		});
 	}

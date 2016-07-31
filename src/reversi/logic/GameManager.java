@@ -9,9 +9,8 @@ import javafx.beans.property.*;
 import util.Pair;
 import util.TaskScheduler;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.*;
-import java.util.List;
 import java.util.function.Consumer;
 
 public class GameManager {
@@ -47,6 +46,7 @@ public class GameManager {
 	private Consumer<PlayerState> gameOverHandler;
 	private Runnable exitHandler;
 	private Runnable newGameHandler;
+	private Consumer<String> dialogHandler;
 
 	public DropPieceHandler getDropPieceHandler() {
 		return dropPieceHandler;
@@ -78,6 +78,14 @@ public class GameManager {
 
 	public void setNewGameHandler(Runnable newGameHandler) {
 		this.newGameHandler = newGameHandler;
+	}
+
+	public Consumer<String> getDialogHandler() {
+		return dialogHandler;
+	}
+
+	public void setDialogHandler(Consumer<String> dialogHandler) {
+		this.dialogHandler = dialogHandler;
 	}
 
 	private class PlayerData {
@@ -509,8 +517,13 @@ public class GameManager {
 
 	boolean requestExit(PlayerState player) {
 		if (!players.get(flip(player)).exitRequested()) return false;
-		gameOver(flip(player));
-		exitHandler.run();
+		// purge after request is responded
+		TaskScheduler.singleShot(50, () -> {
+			gameOver(flip(player));
+			players.getBlack().purge();
+			players.getWhite().purge();
+			exitHandler.run();
+		});
 		return true;
 	}
 }

@@ -9,7 +9,7 @@ import java.net.*;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-public class MulticastManager {
+class MulticastManager {
 
 	/**
 	 * groupIP           : address multicast group address
@@ -77,19 +77,19 @@ public class MulticastManager {
 	/**
 	 * Broadcast control
 	 */
-	public void startHost() {
+	void startHost() {
 		transceiverThread = new Thread(transceiver);
 		transceiverThread.start();
 	}
 
-	public void abortHost() {
+	void abortHost() {
 		transceiverThread.interrupt();
 	}
 
 	/**
 	 * Thread listening for incoming data, runs constantly
 	 */
-	class MulticastReceiver implements Runnable {
+	private class MulticastReceiver implements Runnable {
 		private MulticastSocket socket;
 		private InetAddress group;
 		private int port;
@@ -105,11 +105,11 @@ public class MulticastManager {
 
 		private Consumer<String> onReceiveData;
 
-		public Consumer<String> getOnReceiveData() {
+		Consumer<String> getOnReceiveData() {
 			return onReceiveData;
 		}
 
-		public void setOnReceiveData(Consumer<String> onReceiveData) {
+		void setOnReceiveData(Consumer<String> onReceiveData) {
 			this.onReceiveData = onReceiveData;
 		}
 
@@ -145,7 +145,7 @@ public class MulticastManager {
 	/**
 	 * Thread sending outgoing data, can be stopped
 	 */
-	class MulticastTransceiver implements Runnable {
+	private class MulticastTransceiver implements Runnable {
 		private MulticastSocket socket;
 		private InetAddress group;
 		private int port;
@@ -163,11 +163,11 @@ public class MulticastManager {
 
 		private Callable<String> sendDataProvider;
 
-		public Callable<String> getSendDataProvider() {
+		Callable<String> getSendDataProvider() {
 			return sendDataProvider;
 		}
 
-		public void setSendDataProvider(Callable<String> sendDataProvider) {
+		void setSendDataProvider(Callable<String> sendDataProvider) {
 			this.sendDataProvider = sendDataProvider;
 		}
 

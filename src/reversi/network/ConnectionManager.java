@@ -7,8 +7,8 @@ package network;
 import util.InvalidFormatException;
 import util.Pair;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.*;
+import util.TaskScheduler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,33 +16,17 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 
 public class ConnectionManager {
-	MulticastManager manager;
-	InetAddress localIP;
+	private MulticastManager manager;
+	private InetAddress localIP;
 
 	private static int UDPTimeoutInterval = 2000;       // milliseconds
 	private static int TCPPort = 41013;
 	private static int TCPTimeoutInterval = 10000;
 	private static int HostListRefreshInterval = 500;
 
-	private Timer hostListRefreshTimer;
-
-	private class RefreshListTask extends TimerTask {
-
-		Runnable task;
-		RefreshListTask(Runnable task) {
-			this.task = task;
-		}
-
-		@Override
-		public void run() {
-			task.run();
-		}
-
-	}
 	private HostTCPManager hostTCPManager;
 
 	private ClientTCPManager clientTCPManager;
@@ -62,9 +46,7 @@ public class ConnectionManager {
 		}
 
 		this.hostList = new ArrayList<>();
-		this.hostListRefreshTimer = new Timer();
-		this.hostListRefreshTimer.scheduleAtFixedRate(new RefreshListTask(this::updateHostList),
-				new Date(), ConnectionManager.HostListRefreshInterval);
+		TaskScheduler.repeated(ConnectionManager.HostListRefreshInterval, this::updateHostList);
 
 		this.manager = new MulticastManager(data -> {
 			Optional<HostData> result = SignaturedMessageFactory.parseSignaturedMessage(data, "create");
@@ -75,24 +57,28 @@ public class ConnectionManager {
 		this.hostTCPManager.setOnTimeout(e -> onCancelConnection.accept(e.getLocalizedMessage()));
 		this.hostTCPManager.setOnNewClientJoined(hostData -> onNewClientJoined.apply(hostData));
 		this.hostTCPManager.setOnClientAborted(e -> onCancelConnection.accept(e.getLocalizedMessage()));
-		this.hostTCPManager.setOnConnectionConfirmed(hostData -> onConnectionConfirmed.accept(hostData));
+		this.hostTCPManager.setOnConnectionConfirmed((hostData, socket, isHost) -> onConnectionConfirmed.accept(hostData, socket, isHost));
 
 		this.clientTCPManager = new ClientTCPManager();
 		this.clientTCPManager.setOnTimeout(e -> onCancelConnection.accept(e.getLocalizedMessage()));
 		this.clientTCPManager.setOnRequestRefused(e -> onCancelConnection.accept(e.getLocalizedMessage()));
-		this.clientTCPManager.setOnConnectionConfirmed(hostData -> onConnectionConfirmed.accept(hostData));
+		this.clientTCPManager.setOnConnectionConfirmed((hostData, socket, isHost) -> onConnectionConfirmed.accept(hostData, socket, isHost));
 		this.clientTCPManager.setOnHostDataReceived(hostData -> onHostDataReceived.accept(hostData));
 	}
 
 	/**
 	 * GUI handlers
 	 */
+	public interface ConnectionConfirmedHandler {
+		void accept(HostData hostData, Socket socket, boolean isHost);
+	}
+
 	// void onCancelConnection(String message);  [blocked]
 	private Consumer<String> onCancelConnection;
 	// boolean onNewClientJoined(HostData clientData);  [blocked]
 	private Function<HostData, Boolean> onNewClientJoined;
-	// void onConnectionConfirmed(HostData opponentData);  [async]
-	private Consumer<HostData> onConnectionConfirmed;
+	// void onConnectionConfirmed(HostData opponentData, Socket socket);  [async]
+	private ConnectionConfirmedHandler onConnectionConfirmed;
 	// void onHostDataReceived(HostData hostData);  [async]
 	private Consumer<HostData> onHostDataReceived;
 
@@ -112,11 +98,11 @@ public class ConnectionManager {
 		this.onNewClientJoined = onNewClientJoined;
 	}
 
-	public Consumer<HostData> getOnConnectionConfirmed() {
+	public ConnectionConfirmedHandler getOnConnectionConfirmed() {
 		return onConnectionConfirmed;
 	}
 
-	public void setOnConnectionConfirmed(Consumer<HostData> onConnectionConfirmed) {
+	public void setOnConnectionConfirmed(ConnectionConfirmedHandler onConnectionConfirmed) {
 		this.onConnectionConfirmed = onConnectionConfirmed;
 	}
 
@@ -131,10 +117,10 @@ public class ConnectionManager {
 	/**
 	 * List of available hosts, and update functions and callbacks
 	 */
-	ArrayList<HostData> hostList;
+	private ArrayList<HostData> hostList;
 
-	Consumer<Integer> onRemoveHostListIndex;
-	Consumer<HostData> onAddToHostList;
+	private Consumer<Integer> onRemoveHostListIndex;
+	private Consumer<HostData> onAddToHostList;
 
 	public Consumer<Integer> getOnRemoveHostListIndex() {
 		return onRemoveHostListIndex;
@@ -156,7 +142,7 @@ public class ConnectionManager {
 		Date current = new Date();
 		for (int index = 0; index < hostList.size(); ++index) {
 			HostData host = hostList.get(index);
-			if (current.getTime() - host.date.getTime() > ConnectionManager.UDPTimeoutInterval) {
+			if (current.getTime() - host.getDate().getTime() > ConnectionManager.UDPTimeoutInterval) {
 				onRemoveHostListIndex.accept(index);
 				hostList.remove(index--);
 			}
@@ -170,7 +156,7 @@ public class ConnectionManager {
 		for (HostData host : hostList)
 			if (host.equals(hostData)) {
 				exist = true;
-				host.date = hostData.date;
+				host.setDate(hostData.getDate());
 				break;
 			}
 		updateHostList();
@@ -183,7 +169,7 @@ public class ConnectionManager {
 	/**
 	 * Host related
 	 */
-	BooleanProperty isHost;
+	private BooleanProperty isHost;
 
 	public boolean isHost() {
 		return isHost.get();
@@ -251,7 +237,7 @@ public class ConnectionManager {
 		Consumer<Exception> onTimeout;
 		Function<HostData, Boolean> onNewClientJoined;
 		Consumer<Exception> onClientAborted;
-		Consumer<HostData> onConnectionConfirmed;
+		ConnectionConfirmedHandler onConnectionConfirmed;
 
 		void setOnTimeout(Consumer<Exception> onTimeout) {
 			this.onTimeout = onTimeout;
@@ -265,25 +251,27 @@ public class ConnectionManager {
 			this.onClientAborted = onClientAborted;
 		}
 
-		void setOnConnectionConfirmed(Consumer<HostData> onConnectionConfirmed) {
+		void setOnConnectionConfirmed(ConnectionConfirmedHandler onConnectionConfirmed) {
 			this.onConnectionConfirmed = onConnectionConfirmed;
 		}
 
 		@Override
 		public void run() {
+			boolean connectionConfirmed = false;
+			Socket socket = null;
+			HostData clientData = null;
 			try {
-				if (serverSocket != null) serverSocket.close();
 				serverSocket = new ServerSocket(ConnectionManager.TCPPort);
 				serverSocket.setSoTimeout(500);
-				Socket socket = null;
-				while (!Thread.interrupted()) {
+				while (!Thread.currentThread().isInterrupted()) {
 					try {
+						if (socket != null) socket.close();
 						socket = null;
 						while (socket == null) {
 							try {
 								socket = serverSocket.accept();
 							} catch (SocketTimeoutException e) {
-								if (Thread.interrupted()) {
+								if (Thread.currentThread().isInterrupted()) {
 									serverSocket.close();
 									return;
 								}
@@ -293,37 +281,47 @@ public class ConnectionManager {
 						PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 						BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-						if (Thread.interrupted()) break;
+						if (Thread.currentThread().isInterrupted()) break;
 						Pair<HostData, String> clientResult = SignaturedMessageFactory.parseSignaturedMessageWithException(in.readLine());
 						if (clientResult.snd.equals("manual_join")) {
 							out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, "host_data"));
 						} else if (!clientResult.snd.equals("join")) {
 							throw new InvalidFormatException("Client's first message was neither \"join\" nor \"manual_join\"");
 						}
-						HostData clientData = clientResult.fst;
+						clientData = clientResult.fst;
 						boolean accepted = onNewClientJoined.apply(clientData);
 						out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, accepted ? "accept" : "refuse"));
-						if (Thread.interrupted()) break;
+						if (Thread.currentThread().isInterrupted()) break;
 						if (accepted) {
 							String message = SignaturedMessageFactory.parseSignaturedMessageWithException(in.readLine(), clientData);
 							if (!message.equals("confirm"))
 								throw new InvalidFormatException("Client should confirm instead of sending " + message);
-							Platform.runLater(() -> onConnectionConfirmed.accept(clientData));
+							connectionConfirmed = true;
 							Thread.currentThread().interrupt();
 						}
-						socket.close();
 					} catch (InvalidFormatException e) {
 						onClientAborted.accept(e);
 					} catch (IOException e) {
 						onTimeout.accept(e);
-					} finally {
-						if (socket != null) socket.close();
 					}
 				}
-				if (socket != null) socket.close();
-				serverSocket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
+			} finally {
+				try {
+					if (connectionConfirmed) {
+						HostData finalClientData = clientData;
+						Socket finalSocket = socket;
+						Platform.runLater(() -> onConnectionConfirmed.accept(finalClientData, finalSocket, true));
+					} else {
+						assert socket != null;
+						socket.close();
+					}
+					serverSocket.close();
+					serverSocket = null;
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -337,7 +335,7 @@ public class ConnectionManager {
 
 		Consumer<Exception> onTimeout;
 		Consumer<Exception> onRequestRefused;
-		Consumer<HostData> onConnectionConfirmed;
+		ConnectionConfirmedHandler onConnectionConfirmed;
 		Consumer<HostData> onHostDataReceived;  // for manual connections only
 
 		void setManual(boolean manual) {
@@ -364,7 +362,7 @@ public class ConnectionManager {
 			this.onRequestRefused = onRequestRefused;
 		}
 
-		void setOnConnectionConfirmed(Consumer<HostData> onConnectionConfirmed) {
+		void setOnConnectionConfirmed(ConnectionConfirmedHandler onConnectionConfirmed) {
 			this.onConnectionConfirmed = onConnectionConfirmed;
 		}
 
@@ -374,10 +372,11 @@ public class ConnectionManager {
 
 		@Override
 		public void run() {
+			boolean connectionConfirmed = false;
 			if (manual) {
 				if (address == null) {
 					Platform.runLater(() -> onTimeout.accept(new UnknownHostException("IP address invalid")));
-					return ;
+					return;
 				}
 				hostData = new HostData("", "", 0, address, new Date());
 			}
@@ -389,20 +388,20 @@ public class ConnectionManager {
 				PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 				BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-				if (!Thread.interrupted() && manual) {
+				if (!Thread.currentThread().isInterrupted() && manual) {
 					out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, "manual_join"));
 					hostData = SignaturedMessageFactory.parseSignaturedMessageWithException(in.readLine(), "host_data");
 					Platform.runLater(() -> onHostDataReceived.accept(hostData));
 				} else {
 					out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, "join"));
 				}
-				if (!Thread.interrupted()) {
+				if (!Thread.currentThread().isInterrupted()) {
 					String message = SignaturedMessageFactory.parseSignaturedMessageWithException(in.readLine(), hostData);
-					if (!Thread.interrupted()) {
+					if (!Thread.currentThread().isInterrupted()) {
 						switch (message) {
 							case "accept":
 								out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, "confirm"));
-								Platform.runLater(() -> onConnectionConfirmed.accept(hostData));
+								connectionConfirmed = true;
 								break;
 							case "refuse":
 								throw new InvalidFormatException("Host refused match");
@@ -411,16 +410,20 @@ public class ConnectionManager {
 						}
 					}
 				}
-				socket.close();
 			} catch (InvalidFormatException e) {
 				Platform.runLater(() -> onRequestRefused.accept(e));
 			} catch (IOException e) {
 				Platform.runLater(() -> onTimeout.accept(e));
 			} finally {
-				if (socket != null) try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
+				if (connectionConfirmed) {
+					Platform.runLater(() -> onConnectionConfirmed.accept(hostData, socket, false));
+				} else {
+					if (socket != null) try {
+						socket.close();
+						socket = null;
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

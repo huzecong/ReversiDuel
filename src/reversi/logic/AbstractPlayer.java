@@ -6,7 +6,7 @@ package logic;
 
 import javafx.beans.property.BooleanProperty;
 
-import java.awt.*;
+import java.awt.Point;
 
 public abstract class AbstractPlayer {
 	protected GameManagerInterface manager;
@@ -25,7 +25,7 @@ public abstract class AbstractPlayer {
 		return avatarID;
 	}
 
-	public void setManager(GameManagerInterface manager) {
+	void setManager(GameManagerInterface manager) {
 		this.manager = manager;
 	}
 
@@ -64,6 +64,11 @@ public abstract class AbstractPlayer {
 	public abstract void gameOver(boolean isWinner, boolean isTie);
 
 	/**
+	 * Tear down method called before game is terminated
+	 */
+	public abstract void purge();
+
+	/**
 	 * Called when the opponent sent out corresponding requests.
 	 * @return Whether the player accepts the request.
 	 */
@@ -74,4 +79,6 @@ public abstract class AbstractPlayer {
 	public abstract boolean surrenderRequested();
 
 	public abstract boolean exitRequested();
+
+	public abstract void receivedChat(String message);
 }

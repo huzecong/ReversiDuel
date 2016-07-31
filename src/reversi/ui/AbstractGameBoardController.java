@@ -6,48 +6,29 @@ package ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.effects.JFXDepthManager;
-import com.sun.javafx.tk.Toolkit;
-import javafx.animation.Interpolator;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
+import javafx.animation.*;
 import javafx.application.Platform;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.fxml.FXML;
-import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.geometry.*;
+import javafx.scene.control.*;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
-import javafx.scene.effect.Reflection;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import logic.*;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
-import ui.controls.ConfirmationDialog;
-import ui.controls.InformationDialog;
-import ui.controls.PlayerTimerPane;
-import util.BackgroundColorAnimator;
-import util.TaskScheduler;
+import ui.controls.*;
+import util.*;
 
 import javax.annotation.PostConstruct;
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 @FXMLController("fxml/GameBoard.fxml")
@@ -234,17 +215,16 @@ public abstract class AbstractGameBoardController {
 
 	@PostConstruct
 	public void init() {
-//		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
-//		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
-//		p1TimeLimit = (Integer) context.getRegisteredObject("p1TimeLimit");
-//		p2TimeLimit = (Integer) context.getRegisteredObject("p12imeLimit");
+		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
+		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
+		p1TimeLimit = (Integer) context.getRegisteredObject("p1TimeLimit");
+		p2TimeLimit = (Integer) context.getRegisteredObject("p12imeLimit");
 //		player1 = new LocalPlayer("果皇·天气晴朗", "honoka.jpg");
 //		player2 = new LocalPlayer("Naïve!", "ha.gif");
-		player1 = new AIPlayer("粗糙的计算机", "rabbit.jpg", 0);
-		player2 = new AIPlayer("普通的计算机", "sillyb.jpg", 1);
-
-		p1TimeLimit = 20;
-		p2TimeLimit = 1;
+//		player1 = new AIPlayer("粗糙的计算机", "rabbit.jpg", 0);
+//		player2 = new AIPlayer("普通的计算机", "sillyb.jpg", 1);
+//		p1TimeLimit = 20;
+//		p2TimeLimit = 1;
 
 		JFXDepthManager.setDepth(rootPane, 1);
 		BackgroundColorAnimator.applyAnimation(sendChatButton);
@@ -266,12 +246,10 @@ public abstract class AbstractGameBoardController {
 		manager.setGameOverHandler(this::gameOver);
 		manager.setExitHandler(() -> ((Runnable) context.getRegisteredObject("returnToHome")).run());
 		manager.setNewGameHandler(this::newGame);
+		manager.setDialogHandler(message ->
+				chatDialog.appendText(chatDialog.getText() + "<p>" + message + "</p>\n"));
 
 		initPlayersAndControls();
-		readyButton.disableProperty().bind(manager.gameStartedProperty());
-		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not());
-		drawButton.disableProperty().bind(manager.gameStartedProperty().not());
-		saveLoadButton.setDisable(true);
 
 		player1Pane.setName(player1.getProfileName());
 		player1Pane.setIcon(player1.getAvatarID());

@@ -69,7 +69,12 @@ public class AIPlayer extends AbstractPlayer {
 
 	@Override
 	public void gameOver(boolean isWinner, boolean isTie) {
+		// does nothing
+	}
 
+	@Override
+	public void purge() {
+		// does nothing
 	}
 
 	private boolean allowUndo;
@@ -95,6 +100,15 @@ public class AIPlayer extends AbstractPlayer {
 	@Override
 	public boolean exitRequested() {
 		return true;
+	}
+
+	@Override
+	public void receivedChat(String message) {
+		// does nothing
+	}
+
+	public boolean requestExit() {
+		return manager.requestExit();
 	}
 
 	public void ready() {

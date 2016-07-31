@@ -5,4 +5,5 @@
 package ui;
 
 public class ProfilePageController {
+
 }

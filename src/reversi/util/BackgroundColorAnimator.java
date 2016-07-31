@@ -4,13 +4,8 @@
 
 package util;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.animation.*;
+import javafx.beans.property.*;
 import javafx.scene.Node;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;

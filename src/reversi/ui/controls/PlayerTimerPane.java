@@ -4,7 +4,6 @@
 
 package ui.controls;
 
-import com.jfoenix.effects.JFXDepthManager;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.fxml.FXML;

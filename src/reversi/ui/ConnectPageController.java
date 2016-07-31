@@ -4,34 +4,36 @@
 
 package ui;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import logic.LocalPlayer;
+import logic.NetworkPlayer;
 import network.ConnectionManager;
 import network.HostData;
 import org.datafx.controller.FXMLController;
-import ui.controls.ConfirmationDialog;
-import ui.controls.HostDataListCell;
-import ui.controls.InformationDialog;
-import util.BackgroundColorAnimator;
-import util.Synchronous;
+import org.datafx.controller.flow.FlowException;
+import org.datafx.controller.flow.context.*;
+import org.datafx.controller.util.VetoException;
+import ui.controls.*;
+import util.*;
 
 import javax.annotation.PostConstruct;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Random;
+import java.net.*;
+import java.util.*;
 
 @FXMLController(value = "fxml/ConnectPage.fxml", title = "Select Opponent")
 public class ConnectPageController {
+	@FXMLViewFlowContext
+	private ViewFlowContext context;
+
+	@ActionHandler
+	private FlowActionHandler actionHandler;
+
 	@FXML
 	private AnchorPane rootPane;
 
@@ -89,6 +91,26 @@ public class ConnectPageController {
 	private JFXTextField IPText;
 	@FXML
 	private GridPane numbersPane;
+
+	private void connectionConfirmed(HostData hostData, Socket socket, boolean isHost) {
+		System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP());
+		LocalPlayer localPlayer = new LocalPlayer(connectionManager.getPlayerData().getProfileName(), connectionManager.getPlayerData().getAvatarID());
+		NetworkPlayer networkPlayer = new NetworkPlayer(hostData, socket);
+		context.register("p1TimeLimit", 20);
+		context.register("p2TimeLimit", 20);
+		if (isHost) {
+			context.register("player1", localPlayer);
+			context.register("player2", networkPlayer);
+		} else {
+			context.register("player1", networkPlayer);
+			context.register("player2", localPlayer);
+		}
+		try {
+			actionHandler.navigate(OnlineDuelGameBoardController.class);
+		} catch (VetoException | FlowException e) {
+			e.printStackTrace();
+		}
+	}
 
 	@PostConstruct
 	public void init() throws UnknownHostException {
@@ -158,8 +180,7 @@ public class ConnectPageController {
 			currentDialog = newClientDialog;
 			return accepted.getValue();
 		});
-		connectionManager.setOnConnectionConfirmed(hostData ->
-				System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP()));
+		connectionManager.setOnConnectionConfirmed(this::connectionConfirmed);
 		connectionManager.setOnHostDataReceived(hostData -> hostDataItem.setUsingHostData(hostData));
 
 		for (int i = 0; i < 10; ++i) {
@@ -186,11 +207,5 @@ public class ConnectPageController {
 			}
 			manualConnectToHost(address);
 		});
-
-		for (int i = 0; i < 10; ++i) {
-			HostDataListCell item = new HostDataListCell();
-			item.setName("Item " + (i + 1));
-			matchList.getItems().add(item);
-		}
 	}
 }

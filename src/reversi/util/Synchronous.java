@@ -14,6 +14,10 @@ public class Synchronous<T> {
 		hasSet = new AtomicBoolean(false);
 	}
 
+	public boolean getState() {
+		return hasSet.get();
+	}
+
 	public void reset() {
 		hasSet.set(false);
 	}

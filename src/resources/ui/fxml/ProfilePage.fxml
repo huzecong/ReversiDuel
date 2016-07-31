@@ -1,0 +1,28 @@
+<?import com.jfoenix.controls.*?>
+<?import ui.controls.*?>
+<?import de.jensd.fx.glyphs.materialicons.MaterialIconView?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml">
+	<AnchorPane fx:id="rootPane" styleClass="page-center-pane" style="-fx-max-width: 720;">
+		<VBox AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+			<JFXListView AnchorPane.topAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+				<Label text="Create match..." onMouseClicked="#createMatch"/>
+			</JFXListView>
+			<Label text="  Available matches" styleClass="sublist-header"/>
+			<StackPane>
+				<JFXListView fx:id="matchList" styleClass="os-x-scrollbar" focusTraversable="true">
+					<placeholder>
+						<Label fx:id="noMatchLabel" text="    Searching for online matches..."
+						       styleClass="sublist-header" style="-fx-font-size: 20px"/>
+					</placeholder>
+				</JFXListView>
+			</StackPane>
+		</VBox>
+		<JFXListView AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0">
+			<Label text="Manually connect..." onMouseClicked="#manualIP"/>
+		</JFXListView>
+	</AnchorPane>
+</StackPane>

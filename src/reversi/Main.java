@@ -1,5 +1,3 @@
-import ui.AbstractGameBoardController;
-import ui.BaseController;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -10,6 +8,7 @@ import org.datafx.controller.flow.Flow;
 import org.datafx.controller.flow.FlowHandler;
 import org.datafx.controller.flow.container.DefaultFlowContainer;
 import org.datafx.controller.flow.context.ViewFlowContext;
+import ui.BaseController;
 
 public class Main extends Application {
 

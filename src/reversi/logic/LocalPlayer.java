@@ -4,13 +4,12 @@
 
 package logic;
 
-import java.awt.*;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
+import java.awt.Point;
+import java.util.function.*;
 
 public class LocalPlayer extends AbstractPlayer {
-	BiConsumer<String, String> infoDialogCaller;
-	BiFunction<String, String, Boolean> confirmDialogCaller;
+	private BiConsumer<String, String> infoDialogCaller;
+	private BiFunction<String, String, Boolean> confirmDialogCaller;
 
 	public LocalPlayer(String profileName, String avatarID) {
 		super(profileName, avatarID);
@@ -39,6 +38,11 @@ public class LocalPlayer extends AbstractPlayer {
 		// does nothing
 	}
 
+	@Override
+	public void purge() {
+		// does nothing
+	}
+
 	public void ready() {
 		manager.ready();
 	}
@@ -59,6 +63,10 @@ public class LocalPlayer extends AbstractPlayer {
 		manager.requestExit();
 	}
 
+	public void sendChat(String message) {
+		manager.sendChat(message);
+	}
+
 	@Override
 	public boolean undoRequested() {
 		return confirmDialogCaller.apply("Confirm request", "Your opponent wants to undo last move");
@@ -77,6 +85,11 @@ public class LocalPlayer extends AbstractPlayer {
 	@Override
 	public boolean exitRequested() {
 		return confirmDialogCaller.apply("Confirm request", "Your opponent wants to quit this match");
+	}
+
+	@Override
+	public void receivedChat(String message) {
+		// give it to UI
 	}
 
 	public boolean dropPiece(Point point) {
