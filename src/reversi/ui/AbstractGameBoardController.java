@@ -211,6 +211,9 @@ public abstract class AbstractGameBoardController {
 	protected AbstractPlayer player1, player2;
 	protected int p1TimeLimit, p2TimeLimit;
 
+	/**
+	 * Make sure all calls to AbstractPlayers are run in another thread!
+	 */
 	protected abstract void initPlayersAndControls();
 
 	@PostConstruct
@@ -303,7 +306,8 @@ public abstract class AbstractGameBoardController {
 				lastAnimation = animationQueue.remove(0);
 				TaskScheduler.singleShot(200, lastAnimation::play);
 			} else {
-				drawCandidatePositions();
+				if (manager.getPlayer() instanceof LocalPlayer)
+					drawCandidatePositions();
 			}
 		}
 	}

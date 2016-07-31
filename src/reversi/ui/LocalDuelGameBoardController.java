@@ -45,20 +45,21 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 				TaskScheduler.singleShot(1, function.apply(player)); // make sure function is called on another thread!
 			});
 		};
-		setAction.accept(undoButton, p -> p::requestUndo);
-		setAction.accept(surrenderButton, p -> p::requestSurrender);
-		setAction.accept(drawButton, p -> p::requestDraw);
-		exitButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
-			if (showConfirmDialog("Confirm request", "Quit match and return to main menu?", "YES", "NO"))
-				((Runnable) context.getRegisteredObject("returnToHome")).run();
-		}));
-
-		readyButton.setOnAction(e -> {
+		readyButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
 			if (player1 instanceof LocalPlayer) ((LocalPlayer) player1).ready();
 			else ((AIPlayer) player1).ready();
 			if (player2 instanceof LocalPlayer) ((LocalPlayer) player2).ready();
 			else ((AIPlayer) player2).ready();
-		});
+		}));
+		setAction.accept(undoButton, p -> p::requestUndo);
+		setAction.accept(surrenderButton, p -> p::requestSurrender);
+		setAction.accept(drawButton, p -> p::requestDraw);
+		exitButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
+			if (showConfirmDialog("Confirm request", "Quit match and return to main menu?", "YES", "NO")) {
+				((Runnable) context.getRegisteredObject("returnToHome")).run();
+			}
+		}));
+
 
 		isLocalPlayer = new SimpleBooleanProperty(false);
 		readyButton.disableProperty().bind(manager.gameStartedProperty());
