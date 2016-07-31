@@ -81,7 +81,7 @@ public class ConnectPageController {
 
 	private void manualConnectToHost(InetAddress address) {
 		connectionManager.manualConnectToHost(address);
-		hostDataItem.setUsingHostData(new HostData("<Unknown>", "gomoku.jpg", -1, address, new Date()));
+		hostDataItem.setUsingHostData(new HostData("<Unknown>", "gomoku.jpg", -1, address, 0, new Date()));
 		connectToHostDialog.show(__rootPane);
 		currentDialog = connectToHostDialog;
 	}
@@ -97,8 +97,8 @@ public class ConnectPageController {
 		System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP());
 		LocalPlayer localPlayer = new LocalPlayer(connectionManager.getPlayerData().getProfileName(), connectionManager.getPlayerData().getAvatarID());
 		NetworkPlayer networkPlayer = new NetworkPlayer(connectionManager.getPlayerData(), hostData, socket);
-		context.register("p1TimeLimit", 20);
-		context.register("p2TimeLimit", 20);
+		context.register("p1TimeLimit", hostData.getTimeLimit());
+		context.register("p2TimeLimit", hostData.getTimeLimit());
 		if (isHost) {
 			context.register("player1", localPlayer);
 			context.register("player2", networkPlayer);
@@ -161,7 +161,8 @@ public class ConnectPageController {
 		connectionManager = new ConnectionManager(
 				playerProperties.getProperty("profileName"),
 				playerProperties.getProperty("avatarID"),
-				Integer.parseInt(playerProperties.getProperty("uniqueID")));
+				Integer.parseInt(playerProperties.getProperty("uniqueID")),
+				Integer.parseInt(playerProperties.getProperty("timeLimit")));
 		connectionManager.setOnAddToHostList(hostData -> {
 			HostDataListCell newItem = new HostDataListCell();
 			newItem.setUsingHostData(hostData);

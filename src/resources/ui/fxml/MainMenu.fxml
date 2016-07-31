@@ -4,6 +4,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.VBox?>
 
+<?import ui.controls.PlayerProfileDialog?>
 <VBox fx:id="rootPane"
       xmlns:fx="http://javafx.com/fxml" alignment="center">
 	<VBox alignment="center">
@@ -22,4 +23,6 @@
 		<Label fx:id="exitButton" text="Exit" styleClass="main-menu-item"
 		       onMouseClicked="#exitButtonClicked"/>
 	</VBox>
+
+	<PlayerProfileDialog fx:id="dialog"/>
 </VBox>

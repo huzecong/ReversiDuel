@@ -31,10 +31,10 @@ public class ConnectionManager {
 
 	private ClientTCPManager clientTCPManager;
 
-	public ConnectionManager(String profileName, String avatarID, int uniqueID) {
+	public ConnectionManager(String profileName, String avatarID, int uniqueID, int timeLimit) {
 		this.isHost = new SimpleBooleanProperty(false);
 		try {
-			this.playerData = new HostData(profileName, avatarID, uniqueID, InetAddress.getLocalHost(), new Date());
+			this.playerData = new HostData(profileName, avatarID, uniqueID, InetAddress.getLocalHost(), timeLimit, new Date());
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
@@ -378,7 +378,7 @@ public class ConnectionManager {
 					Platform.runLater(() -> onTimeout.accept(new UnknownHostException("IP address invalid")));
 					return;
 				}
-				hostData = new HostData("", "", 0, address, new Date());
+				hostData = new HostData("", "", 0, address, -1, new Date());
 			}
 
 			try {

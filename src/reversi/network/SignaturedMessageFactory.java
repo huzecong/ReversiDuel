@@ -17,7 +17,7 @@ public class SignaturedMessageFactory {
 
 	public static String createSignaturedMessage(HostData data, String message) {
 		return new Date().getTime() + separator + data.getProfileName() + separator + data.getAvatarID() + separator
-				+ data.getUniqueID() + separator + data.getIP() + separator + message + separator + "ReversiDuel";
+				+ (data.getUniqueID() + " " + data.getTimeLimit()) + separator + data.getIP() + separator + message + separator + "ReversiDuel";
 	}
 
 
@@ -28,7 +28,7 @@ public class SignaturedMessageFactory {
 
 		String profileName, avatarID;
 		InetAddress IP;
-		int uniqueID;
+		int uniqueID, timeLimit;
 		Date date;
 
 		if (!parts[6].equals("ReversiDuel")) return Optional.empty();
@@ -36,13 +36,14 @@ public class SignaturedMessageFactory {
 			date = new Date(Long.parseLong(parts[0]));
 			profileName = parts[1];
 			avatarID = parts[2];
-			uniqueID = Integer.parseInt(parts[3]);
+			uniqueID = Integer.parseInt(parts[3].split(" ")[0]);
+			timeLimit = Integer.parseInt(parts[3].split(" ")[1]);
 			IP = InetAddress.getByName(parts[4]);
 		} catch (Exception e) {
 			return Optional.empty();
 		}
 
-		return Optional.of(Pair.of(new HostData(profileName, avatarID, uniqueID, IP, date), parts[5]));
+		return Optional.of(Pair.of(new HostData(profileName, avatarID, uniqueID, IP, timeLimit, date), parts[5]));
 	}
 
 	public static Optional<HostData> parseSignaturedMessage(String data, String message) {

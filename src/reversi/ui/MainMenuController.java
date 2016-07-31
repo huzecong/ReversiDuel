@@ -17,6 +17,8 @@ import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.action.ActionTrigger;
 import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
+import ui.controls.PlayerProfileDialog;
+import util.PreferenceLoader;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -41,11 +43,13 @@ public class MainMenuController {
 	public Label networkDuelButton;
 
 	@FXML
-	@ActionTrigger("profile")
 	public Label profileButton;
 
 	@FXML
 	private Label exitButton;
+
+	@FXML
+	private PlayerProfileDialog dialog;
 
 	@PostConstruct
 	public void init() {
@@ -57,6 +61,9 @@ public class MainMenuController {
 				label.setOnMouseExited(this::buttonMouseExited);
 			}
 		});
+
+		profileButton.setOnMouseClicked(e -> dialog.show(PreferenceLoader.loadFromPreferences("p1")));
+		dialog.setOnAccepted(e -> PreferenceLoader.saveToPreferences(dialog.getPlayerProperties(), "p1"));
 	}
 
 	@FXML

@@ -13,6 +13,7 @@ public class HostData {
 	private int uniqueID;
 	private InetAddress IP;
 	private Date date;
+	private int timeLimit;
 
 	public String getProfileName() {
 		return profileName;
@@ -38,11 +39,16 @@ public class HostData {
 		this.date = date;
 	}
 
-	public HostData(String profileName, String avatarID, int uniqueID, InetAddress IP, Date date) {
+	public int getTimeLimit() {
+		return timeLimit;
+	}
+
+	public HostData(String profileName, String avatarID, int uniqueID, InetAddress IP, int timeLimit, Date date) {
 		this.profileName = profileName;
 		this.IP = IP;
 		this.avatarID = avatarID;
 		this.uniqueID = uniqueID;
+		this.timeLimit = timeLimit;
 		this.date = date;
 	}
 
@@ -53,6 +59,7 @@ public class HostData {
 		return this.profileName.equals(rhs.profileName)
 				&& this.IP.equals(rhs.IP)
 				&& this.avatarID.equals(rhs.avatarID)
-				&& this.uniqueID == rhs.uniqueID;
+				&& this.uniqueID == rhs.uniqueID
+				&& this.timeLimit == rhs.timeLimit;
 	}
 }
