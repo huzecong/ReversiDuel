@@ -231,7 +231,8 @@ public class BaseController {
 			newValue.rootProperty().addListener(ob -> windowResizer.run());
 			// initialize window to appropriate size
 			Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
-			stage.setWidth(aspectRatio * Math.min(maxHeight, primaryScreenBounds.getHeight() - 150));
+			stage.setHeight(Math.min(maxHeight, primaryScreenBounds.getHeight() - 150));
+			stage.setWidth(aspectRatio * stage.getHeight());
 			windowResizer.run();
 		});
 		stage.widthProperty().addListener(ob -> windowResizer.run());

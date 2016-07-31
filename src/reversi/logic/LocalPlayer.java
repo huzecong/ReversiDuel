@@ -43,6 +43,11 @@ public class LocalPlayer extends AbstractPlayer {
 		// does nothing
 	}
 
+	@Override
+	public void opponentIsReady() {
+		// does nothing
+	}
+
 	public void ready() {
 		manager.ready();
 	}

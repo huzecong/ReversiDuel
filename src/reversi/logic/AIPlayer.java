@@ -77,6 +77,11 @@ public class AIPlayer extends AbstractPlayer {
 		// does nothing
 	}
 
+	@Override
+	public void opponentIsReady() {
+		// does nothing
+	}
+
 	private boolean allowUndo;
 
 	@Override

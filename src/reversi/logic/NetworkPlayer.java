@@ -23,7 +23,7 @@ public class NetworkPlayer extends AbstractPlayer {
 
 	private final static int TCPPort = 41013;
 
-	private HostData hostData;
+	private HostData myData, hostData;
 	private Socket socket;
 	private PortListener in;
 	private PrintWriter out;
@@ -46,6 +46,9 @@ public class NetworkPlayer extends AbstractPlayer {
 			while (!Thread.currentThread().isInterrupted()) {
 				try {
 					String message = in.readLine();
+					if (message == null) { // connection broken
+						break;
+					}
 					if (this.message.getState()) {
 						this.message.setValue(message);
 						handleMessage(message);
@@ -58,10 +61,14 @@ public class NetworkPlayer extends AbstractPlayer {
 					e.printStackTrace();
 				}
 			}
+			message.setValue(null);
 			try {
 				in.close();
 			} catch (IOException e) {
 				e.printStackTrace();
+			}
+			if (!Thread.currentThread().isInterrupted()) {
+				handleConnectionBroken();
 			}
 		}
 
@@ -72,8 +79,13 @@ public class NetworkPlayer extends AbstractPlayer {
 		}
 	}
 
-	public NetworkPlayer(HostData hostData, Socket socket) {
+	private void handleConnectionBroken() {
+		System.err.println("connection broken");
+	}
+
+	public NetworkPlayer(HostData myData, HostData hostData, Socket socket) {
 		super(hostData.getProfileName(), hostData.getAvatarID());
+		this.myData = myData;
 		this.hostData = hostData;
 		this.socket = socket;
 		try {
@@ -95,10 +107,12 @@ public class NetworkPlayer extends AbstractPlayer {
 	);
 
 	private void sendMessage(String message) {
-		out.println(SignaturedMessageFactory.createSignaturedMessage(hostData, message));
+		out.println(SignaturedMessageFactory.createSignaturedMessage(myData, message));
 	}
 
 	private void handleMessage(String receivedMessage) {
+		System.out.println("received: " + receivedMessage);
+		System.out.println(SignaturedMessageFactory.createSignaturedMessage(hostData, " "));
 		try {
 			String message = SignaturedMessageFactory.parseSignaturedMessageWithException(receivedMessage, hostData);
 			String[] parts = message.split(" ");
@@ -154,10 +168,16 @@ public class NetworkPlayer extends AbstractPlayer {
 		}
 	}
 
+	@Override
+	public void opponentIsReady() {
+		sendMessage("ready");
+	}
+
 	private boolean processRequest(String message) {
 		sendMessage(message);
 		String response = in.read();
 		try {
+			if (response == null) throw new InvalidFormatException("Empty response");
 			switch (response) {
 				case "accept":
 					return true;

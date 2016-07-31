@@ -472,6 +472,7 @@ public class GameManager {
 	void ready(PlayerState player) {
 		if (gameStarted.get()) return;
 		isReady.set(player, true);
+		getPlayer(flip(player)).opponentIsReady();
 		if (isReady.getBlack() && isReady.getWhite()) newGame();
 	}
 

@@ -72,6 +72,8 @@ public abstract class AbstractPlayer {
 	 * Called when the opponent sent out corresponding requests.
 	 * @return Whether the player accepts the request.
 	 */
+	public abstract void opponentIsReady();
+
 	public abstract boolean undoRequested();
 
 	public abstract boolean drawRequested();
