@@ -310,12 +310,12 @@ public class ConnectionManager {
 			} finally {
 				try {
 					if (connectionConfirmed) {
+						assert socket != null && !socket.isClosed();
 						HostData finalClientData = clientData;
 						Socket finalSocket = socket;
 						Platform.runLater(() -> onConnectionConfirmed.accept(finalClientData, finalSocket, true));
 					} else {
-						assert socket != null;
-						socket.close();
+						if (socket != null) socket.close();
 					}
 					serverSocket.close();
 					serverSocket = null;

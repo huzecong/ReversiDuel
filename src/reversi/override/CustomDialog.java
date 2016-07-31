@@ -9,6 +9,7 @@ import com.jfoenix.controls.events.JFXDialogEvent;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.event.EventHandler;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import util.Synchronous;
 import util.TaskScheduler;
@@ -49,5 +50,34 @@ public class CustomDialog extends JFXDialog {
 			super.setOnDialogClosed(getOnDialogClosed());
 		});
 		boolean ignored = isClosed.getValue(); // wait for close
+	}
+
+	private DoubleProperty fixedWidth = new SimpleDoubleProperty(Region.USE_PREF_SIZE);
+	private DoubleProperty fixedHeight = new SimpleDoubleProperty(Region.USE_PREF_SIZE);
+
+	public double getFixedWidth() {
+		return fixedWidth.get();
+	}
+
+	public DoubleProperty fixedWidthProperty() {
+		return fixedWidth;
+	}
+
+	public void setFixedWidth(double fixedWidth) {
+		this.fixedWidth.set(fixedWidth);
+		((StackPane) getContent().getParent()).setMaxWidth(fixedWidth);
+	}
+
+	public double getFixedHeight() {
+		return fixedHeight.get();
+	}
+
+	public DoubleProperty fixedHeightProperty() {
+		return fixedHeight;
+	}
+
+	public void setFixedHeight(double fixedHeight) {
+		this.fixedHeight.set(fixedHeight);
+		((StackPane) getContent().getParent()).setMaxHeight(fixedHeight);
 	}
 }

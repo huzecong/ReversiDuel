@@ -8,13 +8,14 @@
 <?import javafx.scene.layout.*?>
 
 <StackPane fx:id="__rootPane" xmlns:fx="http://javafx.com/fxml"
-           maxWidth="1200" prefWidth="1200" minWidth="1200"
-           maxHeight="900" prefHeight="900" minHeight="900">
-	<ImageView fitWidth="${__rootPane.width}" fitHeight="${__rootPane.height}">
+           minWidth="800" prefWidth="1200" maxWidth="1200"
+           minHeight="600" prefHeight="900" maxHeight="900">
+	<ImageView fitWidth="1200" fitHeight="900">
 		<Image url="image/background.jpg"/>
 	</ImageView>
 
-	<BorderPane>
+	<BorderPane minWidth="1200" prefWidth="1200" maxWidth="1200"
+	            minHeight="900" prefHeight="900" maxHeight="900">
 		<center>
 			<AnchorPane fx:id="borderShadows">
 				<StackPane fx:id="mainPane" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0"
@@ -49,7 +50,9 @@
 		</top>
 	</BorderPane>
 
-	<ConfirmationDialog fx:id="closeDialog" heading="Confirm quit" overlayClose="true">
+	<ConfirmationDialog fx:id="closeDialog" heading="Confirm quit" overlayClose="true"
+	                    minWidth="1200" prefWidth="1200" maxWidth="1200"
+	                    minHeight="900" prefHeight="900" maxHeight="900">
 		<body>
 			<Label text="Are you sure you want to quit?"/>
 		</body>

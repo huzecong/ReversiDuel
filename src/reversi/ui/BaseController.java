@@ -7,9 +7,14 @@ package ui;
 import com.jfoenix.controls.JFXToolbar;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.application.Platform;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
@@ -27,6 +32,7 @@ import override.*;
 import ui.controls.ConfirmationDialog;
 
 import javax.annotation.PostConstruct;
+import java.util.function.Consumer;
 
 @FXMLController(value = "fxml/Base.fxml", title = "Reversi Duel")
 public class BaseController {
@@ -51,9 +57,11 @@ public class BaseController {
 	@FXML
 	private Label titleLabel;
 
-	private double xOffset, yOffset;
-
 	private FlowHandler flowHandler;
+
+	private static double maxWidth = 1200, minWidth = 800;
+	private static double maxHeight = 900, minHeight = 600;
+	private static double aspectRatio = maxWidth / maxHeight;
 
 	@PostConstruct
 	public void init() throws FlowException {
@@ -110,21 +118,117 @@ public class BaseController {
 			closeHandler.handle(event);
 		});
 
-		// custom mouse event handlers for title toolbar
-		toolbar.setOnMousePressed(mouseEvent -> {
-			xOffset = mouseEvent.getSceneX();
-			yOffset = mouseEvent.getSceneY();
-		});
-		titleLabel.setOnMousePressed(toolbar.getOnMousePressed());
+		// make tool bar draggable
+		{
+			final DoubleProperty xOffset = new SimpleDoubleProperty(-1);
+			final DoubleProperty yOffset = new SimpleDoubleProperty(-1);
+			toolbar.setOnMousePressed(mouseEvent -> {
+				xOffset.set(mouseEvent.getSceneX());
+				yOffset.set(mouseEvent.getSceneY());
+			});
+			titleLabel.setOnMousePressed(toolbar.getOnMousePressed());
 
-		toolbar.setOnMouseDragged(mouseEvent -> {
-			if (!mouseEvent.isPrimaryButtonDown()
-					|| (xOffset == -1 && yOffset == -1)
-					|| mouseEvent.isStillSincePress()) return;
-			stage.setX(mouseEvent.getScreenX() - xOffset);
-			stage.setY(mouseEvent.getScreenY() - yOffset);
-			mouseEvent.consume();
+			toolbar.setOnMouseDragged(mouseEvent -> {
+				if (!mouseEvent.isPrimaryButtonDown()
+						|| xOffset.get() == -1 || yOffset.get() == -1
+						|| mouseEvent.isStillSincePress()) return;
+				stage.setX(mouseEvent.getScreenX() - xOffset.get());
+				stage.setY(mouseEvent.getScreenY() - yOffset.get());
+				mouseEvent.consume();
+			});
+			titleLabel.setOnMouseDragged(toolbar.getOnMouseDragged());
+		}
+
+		// make left side resizable
+		{
+			final DoubleProperty xOffset = new SimpleDoubleProperty(-1);
+			final DoubleProperty xSceneOffset = new SimpleDoubleProperty(-1);
+			final DoubleProperty width = new SimpleDoubleProperty(-1);
+			borderShadows.getChildren().get(1).setOnMouseMoved(mouseEvent -> {
+				if (mouseEvent.getSceneX() >= 0) stage.getScene().setCursor(Cursor.H_RESIZE);
+				else stage.getScene().setCursor(Cursor.DEFAULT);
+			});
+			borderShadows.getChildren().get(1).setOnMouseExited(e ->
+					stage.getScene().setCursor(Cursor.DEFAULT));
+			borderShadows.getChildren().get(1).setOnMousePressed(mouseEvent -> {
+				xOffset.set(mouseEvent.getScreenX());
+				xSceneOffset.set(mouseEvent.getSceneX());
+				width.setValue(stage.getWidth());
+			});
+			borderShadows.getChildren().get(1).setOnMouseDragged(mouseEvent -> {
+				if (!mouseEvent.isPrimaryButtonDown()
+						|| xOffset.get() == -1 || xSceneOffset.get() == -1 || width.get() == -1
+						|| mouseEvent.isStillSincePress()) return;
+				double curWidth = width.get() + (xOffset.get() - mouseEvent.getScreenX());
+				curWidth = Math.min(Math.max(curWidth, minWidth), maxWidth);
+				stage.setX(width.get() - curWidth + xOffset.get() - xSceneOffset.get());
+				stage.setWidth(curWidth);
+				stage.setHeight(curWidth / aspectRatio);
+			});
+		}
+
+		// make right side resizable
+		{
+			final DoubleProperty xOffset = new SimpleDoubleProperty(-1);
+			final DoubleProperty width = new SimpleDoubleProperty(-1);
+			borderShadows.getChildren().get(2).setOnMouseMoved(mouseEvent -> {
+				if (mouseEvent.getSceneX() <= stage.getWidth()) stage.getScene().setCursor(Cursor.H_RESIZE);
+				else stage.getScene().setCursor(Cursor.DEFAULT);
+			});
+			borderShadows.getChildren().get(2).setOnMouseExited(e ->
+					stage.getScene().setCursor(Cursor.DEFAULT));
+			borderShadows.getChildren().get(2).setOnMousePressed(mouseEvent -> {
+				xOffset.set(mouseEvent.getScreenX());
+				width.setValue(stage.getWidth());
+			});
+			borderShadows.getChildren().get(2).setOnMouseDragged(mouseEvent -> {
+				if (!mouseEvent.isPrimaryButtonDown()
+						|| xOffset.get() == -1 || width.get() == -1
+						|| mouseEvent.isStillSincePress()) return;
+				double curWidth = width.get() + (mouseEvent.getScreenX() - xOffset.get());
+				curWidth = Math.min(Math.max(curWidth, minWidth), maxWidth);
+				stage.setWidth(curWidth);
+				stage.setHeight(curWidth / aspectRatio);
+			});
+		}
+
+		// make lower side resizable
+		{
+			final DoubleProperty yOffset = new SimpleDoubleProperty(-1);
+			final DoubleProperty height = new SimpleDoubleProperty(-1);
+			borderShadows.getChildren().get(3).setOnMouseMoved(mouseEvent -> {
+				if (mouseEvent.getSceneY() <= stage.getHeight()) stage.getScene().setCursor(Cursor.V_RESIZE);
+				else stage.getScene().setCursor(Cursor.DEFAULT);
+			});
+			borderShadows.getChildren().get(3).setOnMouseExited(e ->
+					stage.getScene().setCursor(Cursor.DEFAULT));
+			borderShadows.getChildren().get(3).setOnMousePressed(mouseEvent -> {
+				yOffset.set(mouseEvent.getScreenY());
+				height.setValue(stage.getHeight());
+			});
+			borderShadows.getChildren().get(3).setOnMouseDragged(mouseEvent -> {
+				if (!mouseEvent.isPrimaryButtonDown()
+						|| yOffset.get() == -1 || height.get() == -1
+						|| mouseEvent.isStillSincePress()) return;
+				double curHeight = height.get() + (mouseEvent.getScreenY() - yOffset.get());
+				curHeight = Math.min(Math.max(curHeight, minHeight), maxHeight);
+				stage.setHeight(curHeight);
+				stage.setWidth(curHeight * aspectRatio);
+			});
+		}
+
+		// resize base elements on window size change
+
+		Runnable windowResizer = () -> {
+			double width = stage.getWidth();
+			double scale = width / maxWidth;
+			stage.getScene().getRoot().setScaleX(scale);
+			stage.getScene().getRoot().setScaleY(scale);
+		};
+		stage.sceneProperty().addListener((observable, oldValue, newValue) -> {
+			newValue.rootProperty().addListener(ob -> windowResizer.run());
+			windowResizer.run();
 		});
-		titleLabel.setOnMouseDragged(toolbar.getOnMouseDragged());
+		stage.widthProperty().addListener(ob -> windowResizer.run());
 	}
 }

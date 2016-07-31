@@ -19,6 +19,7 @@ import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.FlowException;
 import org.datafx.controller.flow.context.*;
 import org.datafx.controller.util.VetoException;
+import org.omg.CORBA.MARSHAL;
 import ui.controls.*;
 import util.*;
 
@@ -195,6 +196,7 @@ public class ConnectPageController {
 		}
 		numbersPane.getChildren().forEach(BackgroundColorAnimator::applyAnimation);
 
+		manualIPDialog.setOnDialogOpened(e -> IPText.requestFocus());
 		manualIPDialog.setOnAccepted(event -> {
 			InetAddress address;
 			try {

@@ -57,14 +57,15 @@
 	</ConfirmationDialog>
 
 	<ConfirmationDialog fx:id="manualIPDialog" heading="Input opponent address"
-	                    acceptButtonText="OK" declineButtonText="CANCEL">
+	                    acceptButtonText="OK" declineButtonText="CANCEL" fixedWidth="350">
 		<body>
 			<VBox spacing="10" alignment="CENTER">
 				<padding>
 					<Insets bottom="20"/>
 				</padding>
 				<JFXTextField fx:id="IPText" style="-fx-font-size: 20px; -fx-font-family: Consolas"
-				              promptText="Opponent IP"/>
+				              promptText="Opponent IP"
+				              maxWidth="300" prefWidth="300" minWidth="300"/>
 				<GridPane fx:id="numbersPane" hgap="10" vgap="10" alignment="CENTER">
 					<JFXButton styleClass="ip-dial-button" onAction="moveCaretLeft()"
 					           GridPane.rowIndex="2" GridPane.columnIndex="0" focusTraversable="false">
