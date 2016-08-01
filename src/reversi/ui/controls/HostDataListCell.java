@@ -21,7 +21,7 @@ public class HostDataListCell extends AnchorPane {
 	private ImageView imageView;
 
 	@FXML
-	private Label name, ip;
+	private Label name, caption;
 
 	@FXML
 	private MaterialIconView glyph;
@@ -42,7 +42,7 @@ public class HostDataListCell extends AnchorPane {
 	public void setUsingHostData(HostData hostData) {
 		this.hostData = hostData;
 		setName(hostData.getProfileName());
-		setIP("IP: " + hostData.getIP() + "\nTime Limit = " + hostData.getTimeLimit() + " seconds");
+		setCaption("IP: " + hostData.getIP() + "\nTime Limit = " + hostData.getTimeLimit() + " seconds");
 		setIcon(hostData.getAvatarID());
 	}
 
@@ -79,16 +79,16 @@ public class HostDataListCell extends AnchorPane {
 		return name.textProperty();
 	}
 
-	public String getIP() {
-		return IPProperty().get();
+	public String getCaption() {
+		return captionProperty().get();
 	}
 
-	public void setIP(String value) {
-		IPProperty().set(value);
+	public void setCaption(String value) {
+		captionProperty().set(value);
 	}
 
-	public StringProperty IPProperty() {
-		return ip.textProperty();
+	public StringProperty captionProperty() {
+		return caption.textProperty();
 	}
 
 	public boolean isGlyphVisible() {

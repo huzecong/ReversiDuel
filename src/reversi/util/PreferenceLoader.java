@@ -24,11 +24,11 @@ public class PreferenceLoader {
 			setProperty("p1playerType", "local");
 			setProperty("p1timeLimit", "20");
 
-			setProperty("p2profileName", "Stupid AI");
-			setProperty("p2avatarID", "think.gif");
+			setProperty("p2profileName", "Life Experience");
+			setProperty("p2avatarID", "ha.gif");
 			setProperty("p2uniqueID", String.valueOf(new Random().nextInt()));
 			setProperty("p2playerType", "AI");
-			setProperty("p2timeLimit", "1");
+			setProperty("p2timeLimit", "+1");
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}

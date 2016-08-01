@@ -10,6 +10,7 @@ org.datafx.controller.injection.InjectResourceType
 org.datafx.controller.flow.context.ViewFlowContextResourceType
 org.datafx.controller.flow.context.ActionHandlerResourceType
 EOT
+rm $jarName
 jar cmf META-INF/MANIFEST.MF ../$jarName .
 cd ..
 rm -rf $folder

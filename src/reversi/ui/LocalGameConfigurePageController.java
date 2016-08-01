@@ -10,9 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
-import logic.AIPlayer;
-import logic.AbstractPlayer;
-import logic.LocalPlayer;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.FlowException;
 import org.datafx.controller.flow.context.ActionHandler;
@@ -32,30 +29,26 @@ import java.util.Properties;
 public class LocalGameConfigurePageController {
 	@FXMLViewFlowContext
 	private ViewFlowContext context;
-
 	@ActionHandler
 	private FlowActionHandler actionHandler;
 
 	@FXML
 	private StackPane __rootPane;
-
 	@FXML
 	private AnchorPane rootPane;
 
 	@FXML
 	private JFXButton player1ChangeButton, player2ChangeButton;
-
-	@FXML
-	private PlayerProfileDialog dialog;
-
 	@FXML
 	private HostDataListCell player1Pane, player2Pane;
 
 	@FXML
 	private Label duelButton;
+	
+	@FXML
+	private PlayerProfileDialog dialog;
 
 	private Properties p1Properties, p2Properties;
-
 
 	@PostConstruct
 	public void init() {
@@ -106,6 +99,6 @@ public class LocalGameConfigurePageController {
 	private void updateProperties(HostDataListCell pane, Properties properties) {
 		pane.setName(properties.getProperty("profileName"));
 		pane.setIcon(properties.getProperty("avatarID"));
-		pane.setIP(properties.getProperty("playerType").equals("AI") ? "AI player" : "Local player");
+		pane.setCaption(properties.getProperty("playerType").equals("AI") ? "AI player" : "Local player");
 	}
 }

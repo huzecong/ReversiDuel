@@ -16,12 +16,10 @@ import java.io.IOException;
 
 public class InformationDialog extends CustomDialog {
 	@FXML
-	private
-	Label heading, body;
+	private Label heading, body;
 
 	@FXML
-	private
-	JFXButton acceptButton;
+	private JFXButton acceptButton;
 
 	public InformationDialog() {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/InformationDialog.fxml"));

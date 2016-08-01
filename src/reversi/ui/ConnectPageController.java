@@ -19,7 +19,6 @@ import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.FlowException;
 import org.datafx.controller.flow.context.*;
 import org.datafx.controller.util.VetoException;
-import org.omg.CORBA.MARSHAL;
 import ui.controls.*;
 import util.*;
 
@@ -31,25 +30,21 @@ import java.util.*;
 public class ConnectPageController {
 	@FXMLViewFlowContext
 	private ViewFlowContext context;
-
 	@ActionHandler
 	private FlowActionHandler actionHandler;
 
 	@FXML
 	private AnchorPane rootPane;
-
 	@FXML
 	private StackPane __rootPane;
 
 	@FXML
 	private Label noMatchLabel;
-
 	@FXML
 	private JFXListView<HostDataListCell> matchList;
 
 	@FXML
 	private InformationDialog connectionCancelledDialog;
-
 	@FXML
 	private ConfirmationDialog newClientDialog, connectToHostDialog, searchClientDialog;
 
@@ -176,7 +171,10 @@ public class ConnectPageController {
 			connectionCancelledDialog.show(__rootPane);
 		}));
 		connectionManager.setOnNewClientJoined(clientData -> {
-			Platform.runLater(() -> newClientDataItem.setUsingHostData(clientData));
+			Platform.runLater(() -> {
+				newClientDataItem.setUsingHostData(clientData);
+				newClientDataItem.setCaption("IP: " + clientData.getIP()); // overwrite
+			});
 			Synchronous<Boolean> accepted = new Synchronous<>();
 			newClientDialog.setOnAccepted(e -> accepted.setValue(true));
 			newClientDialog.setOnDeclined(e -> accepted.setValue(false));

@@ -47,17 +47,15 @@ public class BaseController {
 	private StackPane __rootPane, mainPane;
 
 	@FXML
+	private ConfirmationDialog closeDialog;
+	
+	@FXML
 	private AnchorPane borderShadows;
 
 	@FXML
 	private JFXToolbar toolbar;
-
-	@FXML
-	private ConfirmationDialog closeDialog;
-
 	@FXML
 	private CustomRippler closeButton, backButton;
-
 	@FXML
 	private Label titleLabel;
 
@@ -71,8 +69,7 @@ public class BaseController {
 	public void init() throws FlowException {
 		Flow innerFlow = new Flow(MainMenuController.class)
 				.withLink(MainMenuController.class, "singlePlayer", LocalGameConfigurePageController.class)
-				.withLink(MainMenuController.class, "networkDuel", ConnectPageController.class)
-				.withLink(MainMenuController.class, "profile", ProfilePageController.class);
+				.withLink(MainMenuController.class, "networkDuel", ConnectPageController.class);
 		EventHandler<Event> closeHandler = event -> closeDialog.show(__rootPane);
 		Stage stage = (Stage) context.getRegisteredObject("stage");
 		CustomAnimatedFlowContainer container = new CustomAnimatedFlowContainer(Duration.millis(400));

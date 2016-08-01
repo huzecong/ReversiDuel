@@ -31,24 +31,19 @@ public class MainMenuController {
 
 	@FXML
 	private StackPane __rootPane;
-
 	@FXML
 	private VBox rootPane;
 
 	@FXML
 	private VBox buttonBox;
-
 	@FXML
 	@ActionTrigger("singlePlayer")
 	public Label singlePlayerButton;
-
 	@FXML
 	@ActionTrigger("networkDuel")
 	public Label networkDuelButton;
-
 	@FXML
 	private Label profileButton;
-
 	@FXML
 	private Label exitButton;
 
