@@ -121,7 +121,7 @@ public abstract class AbstractGameBoardController {
 	protected final static double boardGridLength = 86.6;
 	protected final static double boardLength = 774;
 
-	static class BoardPiece {
+	private static class BoardPiece {
 		static double imageLength = 70;
 		static double candidateLength = 35;
 		static Image blackPiece = new Image("image/black.png", imageLength, imageLength, true, true);
@@ -482,6 +482,6 @@ public abstract class AbstractGameBoardController {
 		LocalPlayer player = ((LocalPlayer) manager.getPlayer());
 		Point point = getCell(mouseEvent.getX(), mouseEvent.getY());
 		if (point.x == -1) return;
-		boolean success = player.dropPiece(point);
+		player.dropPiece(point);
 	}
 }

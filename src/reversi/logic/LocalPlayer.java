@@ -4,6 +4,9 @@
 
 package logic;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+
 import java.awt.Point;
 import java.util.function.*;
 
@@ -35,12 +38,12 @@ public class LocalPlayer extends AbstractPlayer {
 
 	@Override
 	public void newGame(PlayerState state) {
-		// does nothing
+		canUndo.set(false);
 	}
 
 	@Override
 	public void informOpponentMove(Point point, boolean isSkipped, boolean isTimeout) {
-		// does nothing
+		canUndo.set(manager.canUndo());
 	}
 
 	@Override
@@ -62,32 +65,47 @@ public class LocalPlayer extends AbstractPlayer {
 		manager.ready();
 	}
 
+	private BooleanProperty canUndo = new SimpleBooleanProperty(false);
+
+	public BooleanProperty canUndoProperty() {
+		return canUndo;
+	}
+
 	public void requestUndo() {
-		waitDialogCaller.accept("Undo requested");
+		if (waitDialogCaller != null) waitDialogCaller.accept("Undo requested");
 		boolean result = manager.requestUndo();
-		waitDialogDismisser.run();
-		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your undo request");
+		if (waitDialogDismisser != null) {
+			waitDialogDismisser.run();
+			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your undo request");
+		}
+		if (result) canUndo.set(manager.canUndo());
 	}
 
 	public void requestDraw() {
-		waitDialogCaller.accept("Draw requested");
+		if (waitDialogCaller != null) waitDialogCaller.accept("Draw requested");
 		boolean result = manager.requestDraw();
-		waitDialogDismisser.run();
-		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your draw request");
+		if (waitDialogDismisser != null) {
+			waitDialogDismisser.run();
+			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your draw request");
+		}
 	}
 
 	public void requestSurrender() {
-		waitDialogCaller.accept("Surrender requested");
+		if (waitDialogCaller != null) waitDialogCaller.accept("Surrender requested");
 		boolean result = manager.requestSurrender();
-		waitDialogDismisser.run();
-		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your surrender request");
+		if (waitDialogDismisser != null) {
+			waitDialogDismisser.run();
+			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your surrender request");
+		}
 	}
 
 	public void requestExit() {
-		waitDialogCaller.accept("Exit requested");
+		if (waitDialogCaller != null) waitDialogCaller.accept("Exit requested");
 		boolean result = manager.requestExit();
-		waitDialogDismisser.run();
-		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your exit request");
+		if (waitDialogDismisser != null) {
+			waitDialogDismisser.run();
+			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your exit request");
+		}
 	}
 
 	public void sendChat(String message) {
@@ -96,7 +114,9 @@ public class LocalPlayer extends AbstractPlayer {
 
 	@Override
 	public boolean undoRequested() {
-		return confirmDialogCaller.apply("Confirm request", "Your opponent wants to undo last move");
+		boolean result = confirmDialogCaller.apply("Confirm request", "Your opponent wants to undo last move");
+		if (result) canUndo.set(manager.canUndo());
+		return result;
 	}
 
 	@Override
@@ -116,10 +136,11 @@ public class LocalPlayer extends AbstractPlayer {
 
 	@Override
 	public void receivedChat(String message) {
-		// give it to UI
+		// does nothing
 	}
 
-	public boolean dropPiece(Point point) {
-		return manager.dropPiece(point.x, point.y);
+	public void dropPiece(Point point) {
+		manager.dropPiece(point.x, point.y);
+		canUndo.set(manager.canUndo());
 	}
 }

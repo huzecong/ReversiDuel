@@ -36,20 +36,12 @@ public class GameManagerInterface {
 		manager.ready(player);
 	}
 
-	private BooleanProperty canUndo = new SimpleBooleanProperty(false);
-
-	public BooleanProperty canUndoProperty() {
-		return canUndo;
-	}
-
 	public boolean canUndo() {
 		return manager.canUndo(player);
 	}
 
 	public boolean requestUndo() {
-		boolean result = manager.requestUndo(player);
-		if (result) canUndo.set(canUndo());
-		return result;
+		return manager.requestUndo(player);
 	}
 
 	public boolean requestDraw() {
@@ -75,7 +67,6 @@ public class GameManagerInterface {
 	public boolean dropPiece(int x, int y) {
 		if (!isMyTurn() || !canDrop(x, y)) return false;
 		manager.dropPiece(x, y, player, false);
-		canUndo.set(canUndo());
 		return true;
 	}
 

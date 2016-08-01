@@ -94,7 +94,7 @@ public class ConnectPageController {
 	private GridPane numbersPane;
 
 	private void connectionConfirmed(HostData hostData, Socket socket, boolean isHost) {
-		System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP());
+//		System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP());
 		LocalPlayer localPlayer = new LocalPlayer(connectionManager.getPlayerData().getProfileName(), connectionManager.getPlayerData().getAvatarID());
 		NetworkPlayer networkPlayer = new NetworkPlayer(connectionManager.getPlayerData(), hostData, socket);
 		context.register("p1TimeLimit", hostData.getTimeLimit());

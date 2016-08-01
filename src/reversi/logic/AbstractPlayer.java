@@ -35,10 +35,6 @@ public abstract class AbstractPlayer {
 		return manager.isMyTurn();
 	}
 
-	public BooleanProperty canUndoProperty() {
-		return manager.canUndoProperty();
-	}
-
 	/**
 	 * Starts a new game.
 	 * Player should initialize self. If the player plays first (i.e. BLACK), it should make its move.

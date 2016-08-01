@@ -8,9 +8,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TaskScheduler {
+	private static Timer timer = new Timer();
 
-	public static Timer singleShot(long delayMillis, Runnable task) {
-		Timer timer = new Timer();
+	public static TimerTask singleShot(long delayMillis, Runnable task) {
 		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
@@ -18,11 +18,10 @@ public class TaskScheduler {
 			}
 		};
 		timer.schedule(timerTask, delayMillis);
-		return timer;
+		return timerTask;
 	}
 
-	public static Timer repeated(long periodMillis, Runnable task) {
-		Timer timer = new Timer();
+	public static TimerTask repeated(long periodMillis, Runnable task) {
 		TimerTask timerTask = new TimerTask() {
 			@Override
 			public void run() {
@@ -30,6 +29,6 @@ public class TaskScheduler {
 			}
 		};
 		timer.scheduleAtFixedRate(timerTask, periodMillis, periodMillis);
-		return timer;
+		return timerTask;
 	}
 }

@@ -95,6 +95,7 @@ public class BaseController {
 		stage.titleProperty().unbind();
 		titleLabel.textProperty().bind(stage.titleProperty());
 
+		__rootPane.widthProperty().addListener(observable -> System.out.println(__rootPane.getParent().getLayoutBounds()));
 		JFXDepthManager.setDepth(toolbar, 1);
 		borderShadows.getChildren().get(1).setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 10, 0.12, 2, 0));
 		borderShadows.getChildren().get(2).setEffect(new DropShadow(BlurType.GAUSSIAN, Color.rgb(0, 0, 0, 0.26), 10, 0.12, -2, 0));
@@ -109,7 +110,6 @@ public class BaseController {
 //		flowHandler.attachBackEventHandler(backButton);  // same for this
 		backButton.setOnMouseReleased(event -> {
 			try {
-//				System.out.println("back");
 				flowHandler.navigateBack();
 			} catch (VetoException | FlowException e) {
 				e.printStackTrace();

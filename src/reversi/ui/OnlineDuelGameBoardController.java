@@ -42,7 +42,7 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 		undoButton.setDisable(true);
 		if (localPlayer instanceof LocalPlayer) {
 			undoButton.disableProperty().bind(manager.gameStartedProperty().not()
-					.or(localPlayer.canUndoProperty().not()));
+					.or(((LocalPlayer) localPlayer).canUndoProperty().not()));
 		}
 
 		readyButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {

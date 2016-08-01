@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.List;
@@ -55,10 +56,9 @@ public class NetworkPlayer extends AbstractPlayer {
 					} else { // let the process calling "read()" handle it
 						this.message.setValue(message);
 					}
-				} catch (SocketTimeoutException e) {
-//					System.out.println("timeout");
-				} catch (IOException e) {
-					e.printStackTrace();
+				} catch (SocketTimeoutException ignored) {
+				} catch (IOException e) { // can be SocketException
+					break;
 				}
 			}
 			message.setValue(null);
@@ -90,7 +90,7 @@ public class NetworkPlayer extends AbstractPlayer {
 	}
 
 	private void handleConnectionBroken() {
-		System.err.println("connection broken");
+//		System.err.println("connection broken");
 		manager.forceExit("Connection broken: your opponent may have gone offline");
 	}
 
@@ -104,7 +104,7 @@ public class NetworkPlayer extends AbstractPlayer {
 			this.in.start();
 			this.out = new PrintWriter(socket.getOutputStream(), true);
 		} catch (IOException e) {
-			e.printStackTrace();
+			manager.forceExit(e.getLocalizedMessage());
 		}
 	}
 
@@ -131,8 +131,8 @@ public class NetworkPlayer extends AbstractPlayer {
 	}
 
 	private void handleMessage(String receivedMessage) {
-		System.out.println("received: " + receivedMessage);
-		System.out.println(SignaturedMessageFactory.createSignaturedMessage(hostData, " "));
+//		System.out.println("received: " + receivedMessage);
+//		System.out.println(SignaturedMessageFactory.createSignaturedMessage(hostData, " "));
 		try {
 			String message = SignaturedMessageFactory.parseSignaturedMessageWithException(receivedMessage, hostData);
 			String[] parts = message.split(" ");
@@ -158,7 +158,7 @@ public class NetworkPlayer extends AbstractPlayer {
 				sendMessage(result ? "accept" : "refuse");
 			} else throw new InvalidFormatException("Received qualifier \"" + message + "\" when it shouldn't");
 		} catch (InvalidFormatException | NumberFormatException e) {
-			e.printStackTrace();
+			manager.forceExit(e.getLocalizedMessage());
 		}
 	}
 
@@ -208,7 +208,7 @@ public class NetworkPlayer extends AbstractPlayer {
 					throw new InvalidFormatException("Response was neither \"accept\" nor \"refuse\"");
 			}
 		} catch (InvalidFormatException e) {
-			e.printStackTrace();
+			manager.forceExit(e.getLocalizedMessage());
 		}
 		return false;
 	}

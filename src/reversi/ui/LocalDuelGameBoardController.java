@@ -77,7 +77,7 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 					isLocalPlayer.setValue(false);
 				} else {
 					undoButton.disableProperty().bind(manager.gameStartedProperty().not()
-							.or(manager.getPlayer(newValue).canUndoProperty().not()));
+							.or(((LocalPlayer) manager.getPlayer(newValue)).canUndoProperty().not()));
 					isLocalPlayer.setValue(true);
 				}
 			}

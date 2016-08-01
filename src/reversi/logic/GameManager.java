@@ -292,7 +292,7 @@ public class GameManager {
 		});
 	}
 
-	private PlayerProperty<Timer> playerTimer, remainingTimeUpdateTimer;
+	private PlayerProperty<TimerTask> playerTimer, remainingTimeUpdateTimer;
 
 	private void startTurn(PlayerState player) {
 		assert player == currentPlayer.get();
@@ -304,16 +304,10 @@ public class GameManager {
 	}
 
 	private void endTurn(PlayerState player) {
-		Timer timer = playerTimer.get(player);
-		if (timer != null) {
-			timer.cancel();
-			timer.purge();
-		}
-		timer = remainingTimeUpdateTimer.get(player);
-		if (timer != null) {
-			timer.cancel();
-			timer.purge();
-		}
+		TimerTask timerTask = playerTimer.get(player);
+		if (timerTask != null) timerTask.cancel();
+		timerTask = remainingTimeUpdateTimer.get(player);
+		if (timerTask != null) timerTask.cancel();
 		playerData.get(player).remainingTime.set(0);
 	}
 

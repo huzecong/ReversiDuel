@@ -47,7 +47,7 @@ public class MainMenuController {
 	public Label networkDuelButton;
 
 	@FXML
-	public Label profileButton;
+	private Label profileButton;
 
 	@FXML
 	private Label exitButton;
