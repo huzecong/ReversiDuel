@@ -48,6 +48,7 @@ public class GameManager {
 	private Runnable newGameHandler;
 	private Consumer<String> dialogHandler;
 	private Consumer<String> exceptionHandler;
+	private Consumer<Runnable> executeAfterAnimationHandler;
 
 	public DropPieceHandler getDropPieceHandler() {
 		return dropPieceHandler;
@@ -95,6 +96,14 @@ public class GameManager {
 
 	public void setExceptionHandler(Consumer<String> exceptionHandler) {
 		this.exceptionHandler = exceptionHandler;
+	}
+
+	public Consumer<Runnable> getExecuteAfterAnimationHandler() {
+		return executeAfterAnimationHandler;
+	}
+
+	public void setExecuteAfterAnimationHandler(Consumer<Runnable> executeAfterAnimationHandler) {
+		this.executeAfterAnimationHandler = executeAfterAnimationHandler;
 	}
 
 	private class PlayerData {
@@ -217,6 +226,8 @@ public class GameManager {
 	private PlayerProperty<AbstractPlayer> players = new PlayerProperty<>();
 	private PlayerProperty<GameManagerInterface> interfaces = new PlayerProperty<>();
 
+	private boolean firstRun;
+
 	public void init(AbstractPlayer p1, int p1TimeLimit, AbstractPlayer p2, int p2TimeLimit) {
 		players.setBlack(p1);
 		players.setWhite(p2);
@@ -237,6 +248,8 @@ public class GameManager {
 		playerData.getWhite().state.set(PlayerState.WHITE);
 		playerTimer = new PlayerProperty<>();
 		remainingTimeUpdateTimer = new PlayerProperty<>();
+
+		firstRun = true;
 	}
 
 	private void newGame() {
@@ -248,6 +261,18 @@ public class GameManager {
 			Arrays.fill(gameBoard[i], PlayerState.NONE);
 		candidatePositions.clear();
 		newGameHandler.run();
+
+		if (!firstRun) {
+			players.swap();
+			players.getBlack().setManager(interfaces.getBlack());
+			players.getWhite().setManager(interfaces.getWhite());
+			playerData.swap();
+			playerData.getBlack().state.set(PlayerState.BLACK);
+			playerData.getWhite().state.set(PlayerState.WHITE);
+			firstRun = false;
+		}
+
+		dialogHandler.accept(String.format("<i>System: Game started, <b>%s</b> goes first</i>", players.getBlack().profileName));
 
 		TaskScheduler.singleShot(200, () -> {
 			gameBoard[3][3] = PlayerState.WHITE;
@@ -275,7 +300,7 @@ public class GameManager {
 		playerTimer.set(player, TaskScheduler.singleShot(timeLimit * 1000, () -> timeOut(player)));
 		long now = new Date().getTime();
 		remainingTimeUpdateTimer.set(player, TaskScheduler.repeated(100, () ->
-			playerData.get(player).remainingTime.set(timeLimit - (int) Math.ceil((new Date().getTime() - now) / 1000))));
+				playerData.get(player).remainingTime.set(timeLimit - (int) Math.ceil((new Date().getTime() - now) / 1000))));
 	}
 
 	private void endTurn(PlayerState player) {
@@ -294,6 +319,7 @@ public class GameManager {
 
 	private void timeOut(PlayerState player) {
 		endTurn(player);
+		dialogHandler.accept(String.format("<i><b>%s</b> timed out</i>", players.get(player).profileName));
 		if (player != getCurrentPlayer()) return;
 		Point move = getPlayer(player).timeOut();
 		dropPiece(move.x, move.y, player, true);
@@ -415,20 +441,19 @@ public class GameManager {
 		players.getBlack().gameOver(result == PlayerState.BLACK, result == PlayerState.NONE);
 		players.getWhite().gameOver(result == PlayerState.WHITE, result == PlayerState.NONE);
 		currentPlayer.set(PlayerState.NONE);
-		gameOverHandler.accept(result);
-		if (result != PlayerState.NONE) {
-			PlayerData winner = playerData.get(result);
-			winner.score.set(winner.score.get() + 1);
-		}
-
-		players.swap();
-		players.getBlack().setManager(interfaces.getBlack());
-		players.getWhite().setManager(interfaces.getWhite());
-		playerData.swap();
-		playerData.getBlack().state.set(PlayerState.BLACK);
-		playerData.getWhite().state.set(PlayerState.WHITE);
 		isReady.setBlack(false);
 		isReady.setWhite(false);
+
+		executeAfterAnimationHandler.accept(() -> {
+			gameOverHandler.accept(result);
+			if (result != PlayerState.NONE) {
+				PlayerData winner = playerData.get(result);
+				winner.score.set(winner.score.get() + 1);
+				dialogHandler.accept(String.format("<u>Game result: <b>%s</b> won</u>", players.get(result).profileName));
+			} else {
+				dialogHandler.accept("<u>Game result: <b>Draw</b></u>");
+			}
+		});
 	}
 
 	private Optional<PlayerState> checkWinner() {
@@ -488,7 +513,8 @@ public class GameManager {
 	}
 
 	void ready(PlayerState player) {
-		if (gameStarted.get()) return;
+		if (gameStarted.get() || isReady(player)) return;
+		dialogHandler.accept(String.format("<i><b>%s</b> is ready</i>", players.get(player).profileName));
 		isReady.set(player, true);
 		getPlayer(flip(player)).opponentIsReady();
 		if (isReady.getBlack() && isReady.getWhite()) newGame();
@@ -509,7 +535,11 @@ public class GameManager {
 			if (moves.get(lastPos).fst.snd == player) break;
 		if (lastPos < 0) return false; // can not undo
 
-		if (!players.get(flip(player)).undoRequested()) return false;
+		dialogHandler.accept(String.format("<i><b>%s</b> sent a request for undoing last move</i>", players.get(player).profileName));
+		boolean result = players.get(flip(player)).undoRequested();
+		dialogHandler.accept(String.format("<i><b>%s</b> %s <b>%s</b>'s undo request</i>",
+				players.get(flip(player)).profileName, result ? "accepted" : "refused", players.get(player).profileName));
+		if (!result) return false;
 
 		for (int i = moves.size() - 1; i >= lastPos; --i) {
 			Pair<Pair<Point, PlayerState>, List<Point>> move = moves.remove(i);
@@ -523,26 +553,45 @@ public class GameManager {
 	}
 
 	boolean requestDraw(PlayerState player) {
-		if (!players.get(flip(player)).drawRequested()) return false;
+		dialogHandler.accept(String.format("<i><b>%s</b> sent a request for declaring a draw</i>", players.get(player).profileName));
+		boolean result = players.get(flip(player)).drawRequested();
+		dialogHandler.accept(String.format("<i><b>%s</b> %s <b>%s</b>'s draw request</i>",
+				players.get(flip(player)).profileName, result ? "accepted" : "refused", players.get(player).profileName));
+		if (!result) return false;
+
 		gameOver(PlayerState.NONE);
 		return true;
 	}
 
 	boolean requestSurrender(PlayerState player) {
-		if (!players.get(flip(player)).surrenderRequested()) return false;
+		dialogHandler.accept(String.format("<i><b>%s</b> sent a request for declaring defeat</i>", players.get(player).profileName));
+		boolean result = players.get(flip(player)).surrenderRequested();
+		dialogHandler.accept(String.format("<i><b>%s</b> %s <b>%s</b>'s surrender request</i>",
+				players.get(flip(player)).profileName, result ? "accepted" : "refused", players.get(player).profileName));
+		if (!result) return false;
+
 		gameOver(flip(player));
 		return true;
 	}
 
 	boolean requestExit(PlayerState player) {
-		if (!players.get(flip(player)).exitRequested()) return false;
+		dialogHandler.accept(String.format("<i><b>%s</b> sent a request for quitting this match</i>", players.get(player).profileName));
+		boolean result = players.get(flip(player)).exitRequested();
+		dialogHandler.accept(String.format("<i><b>%s</b> %s <b>%s</b>'s exit request</i>",
+				players.get(flip(player)).profileName, result ? "accepted" : "refused", players.get(player).profileName));
+		if (!result) return false;
+
 		// purge after request is responded
 		TaskScheduler.singleShot(50, () -> {
-			gameOver(flip(player));
 			players.getBlack().purge();
 			players.getWhite().purge();
 			exitHandler.run();
 		});
 		return true;
+	}
+
+	void sendChat(PlayerState player, String message) {
+		players.get(flip(player)).receivedChat(message);
+		dialogHandler.accept(String.format("<b>%s: </b>%s", players.get(player).profileName, message));
 	}
 }

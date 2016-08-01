@@ -25,7 +25,7 @@ public class GameManagerInterface {
 	}
 
 	public void sendChat(String message) {
-
+		manager.sendChat(player, message);
 	}
 
 	public boolean isReady() {

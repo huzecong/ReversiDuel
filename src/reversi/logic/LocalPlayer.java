@@ -10,6 +10,8 @@ import java.util.function.*;
 public class LocalPlayer extends AbstractPlayer {
 	private BiConsumer<String, String> infoDialogCaller;
 	private BiFunction<String, String, Boolean> confirmDialogCaller;
+	private Consumer<String> waitDialogCaller;
+	private Runnable waitDialogDismisser;
 
 	public LocalPlayer(String profileName, String avatarID) {
 		super(profileName, avatarID);
@@ -21,6 +23,14 @@ public class LocalPlayer extends AbstractPlayer {
 
 	public void setConfirmDialogCaller(BiFunction<String, String, Boolean> confirmDialogCaller) {
 		this.confirmDialogCaller = confirmDialogCaller;
+	}
+
+	public void setWaitDialogCaller(Consumer<String> waitDialogCaller) {
+		this.waitDialogCaller = waitDialogCaller;
+	}
+
+	public void setWaitDialogDismisser(Runnable waitDialogDismisser) {
+		this.waitDialogDismisser = waitDialogDismisser;
 	}
 
 	@Override
@@ -53,19 +63,31 @@ public class LocalPlayer extends AbstractPlayer {
 	}
 
 	public void requestUndo() {
-		manager.requestUndo();
+		waitDialogCaller.accept("Undo requested");
+		boolean result = manager.requestUndo();
+		waitDialogDismisser.run();
+		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your undo request");
 	}
 
 	public void requestDraw() {
-		manager.requestDraw();
+		waitDialogCaller.accept("Draw requested");
+		boolean result = manager.requestDraw();
+		waitDialogDismisser.run();
+		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your draw request");
 	}
 
 	public void requestSurrender() {
-		manager.requestSurrender();
+		waitDialogCaller.accept("Surrender requested");
+		boolean result = manager.requestSurrender();
+		waitDialogDismisser.run();
+		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your surrender request");
 	}
 
 	public void requestExit() {
-		manager.requestExit();
+		waitDialogCaller.accept("Exit requested");
+		boolean result = manager.requestExit();
+		waitDialogDismisser.run();
+		if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your exit request");
 	}
 
 	public void sendChat(String message) {

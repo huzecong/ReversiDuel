@@ -5,13 +5,18 @@
 package ui;
 
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.*;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.*;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
@@ -20,6 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import logic.*;
 import org.datafx.controller.FXMLController;
@@ -40,7 +46,6 @@ public abstract class AbstractGameBoardController {
 
 	@FXML
 	protected AnchorPane rootPane;
-
 	@FXML
 	protected StackPane __rootPane, gameBoard;
 
@@ -49,30 +54,31 @@ public abstract class AbstractGameBoardController {
 
 	@FXML
 	protected HBox chatBox;
-
 	@FXML
-	protected TextArea chatDialog;
-
+	protected WebView chatDialog;
 	@FXML
 	protected TextField chatText;
-
 	@FXML
 	protected JFXButton sendChatButton;
 
 	@FXML
 	protected GridPane buttonsPane;
-
 	@FXML
 	protected JFXButton readyButton, undoButton, drawButton, surrenderButton, saveLoadButton, exitButton;
 
 	@FXML
 	protected InformationDialog infoDialog;
-
 	@FXML
 	protected ConfirmationDialog confirmDialog;
+	@FXML
+	protected Label confirmDialogContents;
+	@FXML
+	protected JFXDialog waitDialog;
+	@FXML
+	protected Label waitDialogHeading;
 
 	@FXML
-	protected Label confirmDialogContents, bannerText;
+	protected Label bannerText;
 
 	public void showInfoDialog(String heading, String contents) {
 		Platform.runLater(() -> {
@@ -96,6 +102,17 @@ public abstract class AbstractGameBoardController {
 			confirmDialog.setDeclineButtonText(declineButtonText);
 		});
 		return showConfirmDialog(heading, contents);
+	}
+
+	public void showWaitDialog(String heading) {
+		Platform.runLater(() -> {
+			waitDialogHeading.setText(heading);
+			waitDialog.show(__rootPane);
+		});
+	}
+
+	public void dismissWaitDialog() {
+		waitDialog.close();
 	}
 
 	protected final static int N = 8;
@@ -245,13 +262,23 @@ public abstract class AbstractGameBoardController {
 		manager.setGameOverHandler(this::gameOver);
 		manager.setExitHandler(() -> ((Runnable) context.getRegisteredObject("returnToHome")).run());
 		manager.setNewGameHandler(this::newGame);
-		manager.setDialogHandler(message ->
-				chatDialog.appendText(chatDialog.getText() + "<p>" + message + "</p>\n"));
 		manager.setExceptionHandler(message -> {
 			showInfoDialog("Error occurred", message);
 			((Runnable) context.getRegisteredObject("returnToHome")).run();
 		});
+		manager.setExecuteAfterAnimationHandler(runnable -> animationManager.executeAfterLastAnimation(runnable));
+		manager.setDialogHandler(message -> Platform.runLater(() -> {
+			chatDialog.getEngine().executeScript("" +
+					"var child = document.createElement('P');" +
+					"child.innerHTML = '" + message.replaceAll("'", "&#39;") + "';" +
+					"document.getElementById('content').appendChild(child);" +
+					"window.scrollTo(0, document.body.scrollHeight);");
+		}));
+		chatDialog.getEngine().loadContent("" +
+				"<div id='content' style='font-family: Helvetica'>" +
+				"</div>");
 
+		// prevent user from starting new game before animation finishes
 		readyButton.disableProperty().bind(manager.gameStartedProperty().or(animationManager.isEmptyProperty().not()));
 		initPlayersAndControls();
 
@@ -300,6 +327,18 @@ public abstract class AbstractGameBoardController {
 			} else {
 				lastAnimation = animation;
 				lastAnimation.play();
+			}
+		}
+
+		void executeAfterLastAnimation(Runnable action) {
+			if (animationQueue.isEmpty()) action.run();
+			else {
+				Timeline animation = animationQueue.get(animationQueue.size() - 1);
+				EventHandler<ActionEvent> handler = animation.getOnFinished();
+				animation.setOnFinished(e -> {
+					handler.handle(e);
+					action.run();
+				});
 			}
 		}
 

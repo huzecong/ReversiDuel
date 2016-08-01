@@ -32,6 +32,8 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 		if (localPlayer instanceof LocalPlayer) {
 			((LocalPlayer) localPlayer).setInfoDialogCaller(this::showInfoDialog);
 			((LocalPlayer) localPlayer).setConfirmDialogCaller(this::showConfirmDialog);
+			((LocalPlayer) localPlayer).setWaitDialogCaller(this::showWaitDialog);
+			((LocalPlayer) localPlayer).setWaitDialogDismisser(this::dismissWaitDialog);
 		}
 
 		assert localPlayer instanceof LocalPlayer || localPlayer instanceof AIPlayer;
