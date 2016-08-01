@@ -4,13 +4,16 @@
 
 package ui;
 
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.Button;
+import javafx.stage.FileChooser;
 import logic.*;
 import org.datafx.controller.FXMLController;
 import util.TaskScheduler;
 
+import java.io.File;
 import java.util.function.*;
 
 @FXMLController(value = "fxml/GameBoard.fxml", title = "Reversi Duel")
@@ -64,7 +67,29 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 		undoButton.setDisable(true);
 		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
-		saveLoadButton.setDisable(true);
+		Runnable enableSave = () -> {
+			saveLoadButton.setText("SAVE");
+			saveLoadButton.setOnAction(e -> {
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Save Game State");
+				File file = fileChooser.showSaveDialog(saveLoadButton.getScene().getWindow());
+				if (file != null) manager.saveGame(file.getAbsolutePath());
+			});
+		};
+		Runnable enableLoad = () -> {
+			saveLoadButton.setText("LOAD");
+			saveLoadButton.setOnAction(e -> {
+				FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Load Game State");
+				File file = fileChooser.showOpenDialog(saveLoadButton.getScene().getWindow());
+				if (file != null) manager.loadGame(file.getAbsolutePath());
+			});
+		};
+		enableLoad.run();
+		manager.gameStartedProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> {
+			if (newValue) enableSave.run();
+			else enableLoad.run();
+		}));
 		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
 			undoButton.disableProperty().unbind();
 			if (newValue == PlayerState.NONE) {

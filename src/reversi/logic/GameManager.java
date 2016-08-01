@@ -5,11 +5,13 @@
 package logic;
 
 
+import javafx.application.Platform;
 import javafx.beans.property.*;
 import util.Pair;
 import util.TaskScheduler;
 
 import java.awt.Point;
+import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -121,32 +123,12 @@ public class GameManager {
 	private PlayerData p1Data, p2Data;
 	private PlayerProperty<PlayerData> playerData;
 
-	public int getP1TimeLimit() {
-		return p1Data.timeLimit;
-	}
-
-	public void setP1TimeLimit(int timeLimit) {
-		p1Data.timeLimit = timeLimit;
-	}
-
-	public int getP2TimeLimit() {
-		return p2Data.timeLimit;
-	}
-
-	public void setP2TimeLimit(int timeLimit) {
-		p2Data.timeLimit = timeLimit;
-	}
-
 	public int getP1Score() {
 		return p1ScoreProperty().get();
 	}
 
 	public IntegerProperty p1ScoreProperty() {
 		return p1Data.score;
-	}
-
-	public void setP1Score(int p1Score) {
-		p1ScoreProperty().set(p1Score);
 	}
 
 	public int getP2Score() {
@@ -157,10 +139,6 @@ public class GameManager {
 		return p2Data.score;
 	}
 
-	public void setP2Score(int p2Score) {
-		p2ScoreProperty().set(p2Score);
-	}
-
 	public int getP1RemainingTime() {
 		return p1RemainingTimeProperty().get();
 	}
@@ -169,20 +147,12 @@ public class GameManager {
 		return p1Data.remainingTime;
 	}
 
-	public void setP1RemainingTime(int p1RemainingTime) {
-		p1RemainingTimeProperty().set(p1RemainingTime);
-	}
-
 	public int getP2RemainingTime() {
 		return p2RemainingTimeProperty().get();
 	}
 
 	public IntegerProperty p2RemainingTimeProperty() {
 		return p2Data.remainingTime;
-	}
-
-	public void setP2RemainingTime(int p2RemainingTime) {
-		p2RemainingTimeProperty().set(p2RemainingTime);
 	}
 
 	public PlayerState getP1State() {
@@ -587,5 +557,62 @@ public class GameManager {
 	void sendChat(PlayerState player, String message) {
 		players.get(flip(player)).receivedChat(message);
 		dialogHandler.accept(String.format("<b>%s: </b>%s", players.get(player).profileName, message));
+	}
+
+	public boolean saveGame(String filename) {
+		if (!gameStarted()) return false;
+		try {
+			PrintWriter writer = new PrintWriter(new FileOutputStream(filename));
+			writer.println(moves.size());
+			for (int i = 0; i < moves.size(); ++i) {
+				Pair<Pair<Point, PlayerState>, List<Point>> move = moves.get(i);
+				writer.println(move.fst.fst.x + " " + move.fst.fst.y + " " + move.fst.snd);
+			}
+			writer.close();
+		} catch (FileNotFoundException e) {
+			return false;
+		}
+		return true;
+	}
+
+	public boolean loadGame(String filename) {
+		if (gameStarted()) return false;
+		try {
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
+			int movesCnt = Integer.parseInt(reader.readLine());
+			ArrayList<Pair<Point, PlayerState>> moves = new ArrayList<>();
+			for (int i = 0; i < movesCnt; ++i) {
+				String[] parts = reader.readLine().split(" ");
+				int x = Integer.parseInt(parts[0]), y = Integer.parseInt(parts[1]);
+				PlayerState player = PlayerState.valueOf(parts[2]);
+				moves.add(Pair.of(new Point(x, y), player));
+			}
+
+			newGame();
+			TaskScheduler.singleShot(400, () -> {
+				endTurn(PlayerState.BLACK);
+				currentPlayer.set(PlayerState.NONE);
+				for (int i = 0; i < moves.size() - 1; ++i) {
+					Pair<Point, PlayerState> move = moves.get(i);
+					int x = move.fst.x, y = move.fst.y;
+					PlayerState player = move.snd;
+
+					gameBoard[x][y] = player;
+					List<Point> flippedPositions = getFlippedPositions(x, y, player);
+					for (Point p : flippedPositions)
+						gameBoard[p.x][p.y] = flip(gameBoard[p.x][p.y]);
+					dropPieceHandler.handle(move.fst, player, flippedPositions);
+					this.moves.add(Pair.of(Pair.of(move.fst, player), flippedPositions));
+				}
+				executeAfterAnimationHandler.accept(() -> {
+					Pair<Point, PlayerState> move = moves.get(moves.size() - 1);
+					currentPlayer.set(move.snd);
+					dropPiece(move.fst.x, move.fst.y, move.snd, false);
+				});
+			});
+		} catch (IOException | IllegalArgumentException e) {
+			return false;
+		}
+		return true;
 	}
 }
