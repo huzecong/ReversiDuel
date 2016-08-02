@@ -188,7 +188,11 @@ public class GameManager {
 	private PlayerProperty<AbstractPlayer> players = new PlayerProperty<>();
 	private PlayerProperty<GameManagerInterface> interfaces = new PlayerProperty<>();
 
-	private boolean firstRun;
+	private BooleanProperty firstRun;
+
+	public BooleanProperty firstRunProperty() {
+		return firstRun;
+	}
 
 	public void init(AbstractPlayer p1, int p1TimeLimit, AbstractPlayer p2, int p2TimeLimit) {
 		players.setBlack(p1);
@@ -211,47 +215,54 @@ public class GameManager {
 		playerTimer = new PlayerProperty<>();
 		remainingTimeUpdateTimer = new PlayerProperty<>();
 
-		firstRun = true;
+		firstRun = new SimpleBooleanProperty(true);
 	}
 
 	private void newGame() {
+		newGame(false);
+	}
+
+	private void newGame(boolean isLoadedGame) {
 		++roundCount;
 		moves = new ArrayList<>();
-		currentPlayer.set(PlayerState.BLACK);
 		gameBoard = new PlayerState[N][N];
 		for (int i = 0; i < N; ++i)
 			Arrays.fill(gameBoard[i], PlayerState.NONE);
 		candidatePositions.clear();
 		newGameHandler.run();
 
-		if (!firstRun) {
+		if (!firstRun.get()) {
 			players.swap();
 			players.getBlack().setManager(interfaces.getBlack());
 			players.getWhite().setManager(interfaces.getWhite());
 			playerData.swap();
 			playerData.getBlack().state.set(PlayerState.BLACK);
 			playerData.getWhite().state.set(PlayerState.WHITE);
-			firstRun = false;
+			firstRun.set(false);
 		}
 
 		dialogHandler.accept(String.format("<i>System: Game started, <b>%s</b> goes first</i>", players.getBlack().profileName));
 
-		TaskScheduler.singleShot(200, () -> {
-			gameBoard[3][3] = PlayerState.WHITE;
-			gameBoard[3][4] = PlayerState.BLACK;
-			gameBoard[4][3] = PlayerState.BLACK;
-			gameBoard[4][4] = PlayerState.WHITE;
-			dropPieceHandler.handle(new Point(3, 3), PlayerState.WHITE, new ArrayList<>());
-			dropPieceHandler.handle(new Point(3, 4), PlayerState.BLACK, new ArrayList<>());
-			dropPieceHandler.handle(new Point(4, 3), PlayerState.BLACK, new ArrayList<>());
-			updateCandidatePositions();
-			dropPieceHandler.handle(new Point(4, 4), PlayerState.WHITE, new ArrayList<>());
-			gameStarted.set(true);
-			players.getBlack().newGame(PlayerState.BLACK);
-			players.getWhite().newGame(PlayerState.WHITE);
+		gameBoard[3][3] = PlayerState.WHITE;
+		gameBoard[3][4] = PlayerState.BLACK;
+		gameBoard[4][3] = PlayerState.BLACK;
+		gameBoard[4][4] = PlayerState.WHITE;
+		dropPieceHandler.handle(new Point(3, 3), PlayerState.WHITE, new ArrayList<>());
+		dropPieceHandler.handle(new Point(3, 4), PlayerState.BLACK, new ArrayList<>());
+		dropPieceHandler.handle(new Point(4, 3), PlayerState.BLACK, new ArrayList<>());
+		dropPieceHandler.handle(new Point(4, 4), PlayerState.WHITE, new ArrayList<>());
 
-			startTurn(PlayerState.BLACK);
-		});
+		if (!isLoadedGame) {
+			executeAfterAnimationHandler.accept(() -> {
+				gameStarted.set(true);
+				currentPlayer.set(PlayerState.BLACK);
+				updateCandidatePositions();
+				startTurn(PlayerState.BLACK);
+				// make sure calculation does not block the thread
+				TaskScheduler.singleShot(1, () -> players.getBlack().newGame(PlayerState.BLACK));
+				TaskScheduler.singleShot(1, () -> players.getWhite().newGame(PlayerState.WHITE));
+			});
+		}
 	}
 
 	private PlayerProperty<TimerTask> playerTimer, remainingTimeUpdateTimer;
@@ -347,11 +358,11 @@ public class GameManager {
 				updateCandidatePositions(player); // should not be empty
 				assert candidatePositions.size() > 0;
 				startTurn(currentPlayer.get());
-				players.get(player).informOpponentMove(null, false, false);
+				TaskScheduler.singleShot(1, () -> players.get(player).informOpponentMove(null, false, false));
 			} else {
 				currentPlayer.set(flip(getCurrentPlayer()));
 				startTurn(currentPlayer.get());
-				players.get(flip(player)).informOpponentMove(point, false, isTimeout);
+				TaskScheduler.singleShot(1, () -> players.get(flip(player)).informOpponentMove(point, false, isTimeout));
 			}
 		} else {
 			PlayerState result = winner.get();
@@ -577,27 +588,24 @@ public class GameManager {
 				moves.add(Pair.of(new Point(x, y), player));
 			}
 
-			newGame();
-			TaskScheduler.singleShot(400, () -> {
-				endTurn(PlayerState.BLACK);
-				currentPlayer.set(PlayerState.NONE);
-				for (int i = 0; i < moves.size() - 1; ++i) {
-					Pair<Point, PlayerState> move = moves.get(i);
-					int x = move.fst.x, y = move.fst.y;
-					PlayerState player = move.snd;
+			newGame(true);
+			for (int i = 0; i < moves.size() - 1; ++i) {
+				Pair<Point, PlayerState> move = moves.get(i);
+				int x = move.fst.x, y = move.fst.y;
+				PlayerState player = move.snd;
 
-					gameBoard[x][y] = player;
-					List<Point> flippedPositions = getFlippedPositions(x, y, player);
-					for (Point p : flippedPositions)
-						gameBoard[p.x][p.y] = flip(gameBoard[p.x][p.y]);
-					dropPieceHandler.handle(move.fst, player, flippedPositions);
-					this.moves.add(Pair.of(Pair.of(move.fst, player), flippedPositions));
-				}
-				executeAfterAnimationHandler.accept(() -> {
-					Pair<Point, PlayerState> move = moves.get(moves.size() - 1);
-					currentPlayer.set(move.snd);
-					dropPiece(move.fst.x, move.fst.y, move.snd, false);
-				});
+				gameBoard[x][y] = player;
+				List<Point> flippedPositions = getFlippedPositions(x, y, player);
+				for (Point p : flippedPositions)
+					gameBoard[p.x][p.y] = flip(gameBoard[p.x][p.y]);
+				dropPieceHandler.handle(move.fst, player, flippedPositions);
+				this.moves.add(Pair.of(Pair.of(move.fst, player), flippedPositions));
+			}
+			executeAfterAnimationHandler.accept(() -> {
+				Pair<Point, PlayerState> move = moves.get(moves.size() - 1);
+				currentPlayer.set(move.snd);
+				gameStarted.set(true);
+				dropPiece(move.fst.x, move.fst.y, move.snd, false);
 			});
 		} catch (IOException | IllegalArgumentException e) {
 			return false;

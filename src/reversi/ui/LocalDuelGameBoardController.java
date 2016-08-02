@@ -57,39 +57,31 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 		setAction.accept(undoButton, p -> p::requestUndo);
 		setAction.accept(surrenderButton, p -> p::requestSurrender);
 		setAction.accept(drawButton, p -> p::requestDraw);
-		exitButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
-			if (showConfirmDialog("Confirm request", "Quit match and return to main menu?", "YES", "NO")) {
-				((Runnable) context.getRegisteredObject("returnToHome")).run();
+		saveButton.setOnAction(e -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Save Game State");
+			File file = fileChooser.showSaveDialog(saveButton.getScene().getWindow());
+			if (file != null) {
+				boolean result = manager.saveGame(file.getAbsolutePath());
+				if (!result) showInfoDialog("Error", "Could not save replay file");
 			}
-		}));
+		});
+		loadButton.setOnAction(e -> {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Load Game State");
+			File file = fileChooser.showOpenDialog(loadButton.getScene().getWindow());
+			if (file != null) {
+				boolean result = manager.loadGame(file.getAbsolutePath());
+				if (!result) showInfoDialog("Error", "Could not load replay file");
+			}
+		});
 
 		isLocalPlayer = new SimpleBooleanProperty(false);
 		undoButton.setDisable(true);
 		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
-		Runnable enableSave = () -> {
-			saveLoadButton.setText("SAVE");
-			saveLoadButton.setOnAction(e -> {
-				FileChooser fileChooser = new FileChooser();
-				fileChooser.setTitle("Save Game State");
-				File file = fileChooser.showSaveDialog(saveLoadButton.getScene().getWindow());
-				if (file != null) manager.saveGame(file.getAbsolutePath());
-			});
-		};
-		Runnable enableLoad = () -> {
-			saveLoadButton.setText("LOAD");
-			saveLoadButton.setOnAction(e -> {
-				FileChooser fileChooser = new FileChooser();
-				fileChooser.setTitle("Load Game State");
-				File file = fileChooser.showOpenDialog(saveLoadButton.getScene().getWindow());
-				if (file != null) manager.loadGame(file.getAbsolutePath());
-			});
-		};
-		enableLoad.run();
-		manager.gameStartedProperty().addListener((observable, oldValue, newValue) -> Platform.runLater(() -> {
-			if (newValue) enableSave.run();
-			else enableLoad.run();
-		}));
+		saveButton.disableProperty().bind(manager.firstRunProperty());
+		loadButton.disableProperty().bind(manager.gameStartedProperty().or(animationManager.isEmptyProperty().not()));
 		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
 			undoButton.disableProperty().unbind();
 			if (newValue == PlayerState.NONE) {

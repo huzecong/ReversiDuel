@@ -70,9 +70,9 @@
 					           GridPane.rowIndex="1" GridPane.columnIndex="0"/>
 					<JFXButton fx:id="surrenderButton" text="GIVE UP"
 					           GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-					<JFXButton fx:id="saveLoadButton" text="LOAD"
+					<JFXButton fx:id="loadButton" text="LOAD"
 					           GridPane.rowIndex="2" GridPane.columnIndex="0"/>
-					<JFXButton fx:id="exitButton" text="EXIT"
+					<JFXButton fx:id="saveButton" text="SAVE"
 					           GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 				</GridPane>
 			</VBox>

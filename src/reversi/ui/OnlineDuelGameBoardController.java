@@ -53,10 +53,6 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 			setAction.accept(surrenderButton, p -> p::requestSurrender);
 			setAction.accept(drawButton, p -> p::requestDraw);
 		}
-		exitButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
-			if (localPlayer instanceof LocalPlayer) ((LocalPlayer) localPlayer).requestExit();
-			else ((AIPlayer) localPlayer).requestExit();
-		}));
 		sendChatButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
 			if (localPlayer instanceof LocalPlayer && !chatText.getText().isEmpty()) {
 				((LocalPlayer) localPlayer).sendChat(chatText.getText());
@@ -72,7 +68,8 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 		}
 		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
-		saveLoadButton.setDisable(true);
+		saveButton.setDisable(true);
+		loadButton.setDisable(true);
 		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue == PlayerState.NONE || !(manager.getPlayer(newValue) instanceof LocalPlayer)) {
 				isLocalPlayer.setValue(false);

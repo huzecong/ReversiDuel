@@ -64,7 +64,7 @@ public abstract class AbstractGameBoardController {
 	@FXML
 	protected GridPane buttonsPane;
 	@FXML
-	protected JFXButton readyButton, undoButton, drawButton, surrenderButton, saveLoadButton, exitButton;
+	protected JFXButton readyButton, undoButton, drawButton, surrenderButton, loadButton, saveButton;
 
 	@FXML
 	protected InformationDialog infoDialog;
@@ -313,8 +313,8 @@ public abstract class AbstractGameBoardController {
 		});
 	}
 
-	private class BoardAnimationManager {
-		ArrayList<Timeline> animationQueue = new ArrayList<>();
+	protected class BoardAnimationManager {
+		LinkedList<Timeline> animationQueue = new LinkedList<>();
 		Timeline lastAnimation;
 		BooleanProperty isEmpty = new SimpleBooleanProperty(true);
 
@@ -322,7 +322,7 @@ public abstract class AbstractGameBoardController {
 			animation.setOnFinished(e -> startNext());
 			isEmpty.set(false);
 			if (!animationQueue.isEmpty() || lastAnimation != null) {
-				animationQueue.add(animation);
+				animationQueue.addLast(animation);
 			} else {
 				lastAnimation = animation;
 				lastAnimation.play();
@@ -332,11 +332,11 @@ public abstract class AbstractGameBoardController {
 		void executeAfterLastAnimation(Runnable action) {
 			if (animationQueue.isEmpty()) action.run();
 			else {
-				Timeline animation = animationQueue.get(animationQueue.size() - 1);
+				Timeline animation = animationQueue.getLast();
 				EventHandler<ActionEvent> handler = animation.getOnFinished();
 				animation.setOnFinished(e -> {
-					handler.handle(e);
 					action.run();
+					handler.handle(e);
 				});
 			}
 		}
@@ -344,7 +344,7 @@ public abstract class AbstractGameBoardController {
 		private void startNext() {
 			lastAnimation = null;
 			if (!animationQueue.isEmpty()) {
-				lastAnimation = animationQueue.remove(0);
+				lastAnimation = animationQueue.removeFirst();
 				TaskScheduler.singleShot(200, lastAnimation::play);
 			} else {
 				isEmpty.set(true);
@@ -353,12 +353,12 @@ public abstract class AbstractGameBoardController {
 			}
 		}
 
-		public BooleanProperty isEmptyProperty() {
+		BooleanProperty isEmptyProperty() {
 			return isEmpty;
 		}
 	}
 
-	private BoardAnimationManager animationManager = new BoardAnimationManager();
+	protected BoardAnimationManager animationManager = new BoardAnimationManager();
 
 	/**
 	 * Handlers
@@ -378,7 +378,6 @@ public abstract class AbstractGameBoardController {
 
 		if (player != PlayerState.NONE) { // drop piece
 			animation.getKeyFrames().add(new KeyFrame(Duration.ZERO, event -> boardPieces[point.x][point.y].show(player)));
-
 			for (int i = 0; i < maxDist; ++i) {
 				final int index = i;
 				animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * index), event -> {
@@ -388,9 +387,7 @@ public abstract class AbstractGameBoardController {
 					}
 				}));
 			}
-			animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * maxDist), event -> {
-				// mark the end of the whole animation
-			}));
+			animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * maxDist))); // mark the end of the whole animation
 		} else { // undo
 			for (int i = maxDist - 1; i >= 0; --i) {
 				final int index = i;
@@ -401,11 +398,8 @@ public abstract class AbstractGameBoardController {
 					}
 				}));
 			}
-			animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * maxDist), event -> {
-				// mark the end of the whole animation
-			}));
-
 			animation.getKeyFrames().add(new KeyFrame(Duration.millis(300 * maxDist), event -> boardPieces[point.x][point.y].hide()));
+			animation.getKeyFrames().add(new KeyFrame(Duration.millis(200 + 300 * maxDist))); // mark the end of the whole animation
 		}
 
 		animationManager.add(animation);
@@ -450,21 +444,25 @@ public abstract class AbstractGameBoardController {
 	}
 
 	public void drawCandidatePositions() {
-		Collection<Point> positions = manager.getCandidatePositions();
+		List<Point> positions = manager.getCandidatePositions();
 		for (Point point : positions)
 			boardPieces[point.x][point.y].showAsCandidate(manager.getCurrentPlayer());
 	}
 
 	public void hideCandidates() {
-		for (int i = 0; i < N; ++i)
-			for (int j = 0; j < N; ++j)
-				boardPieces[i][j].hideCandidate();
+//		animationManager.add(new Timeline(new KeyFrame(Duration.ZERO, e -> {
+			for (int i = 0; i < N; ++i)
+				for (int j = 0; j < N; ++j)
+					boardPieces[i][j].hideCandidate();
+//		}))); // does not wait for animation end
 	}
 
 	public void hidePieces() {
-		for (int i = 0; i < N; ++i)
-			for (int j = 0; j < N; ++j)
-				boardPieces[i][j].hide();
+		animationManager.add(new Timeline(new KeyFrame(Duration.ZERO, e -> {
+			for (int i = 0; i < N; ++i)
+				for (int j = 0; j < N; ++j)
+					boardPieces[i][j].hide();
+		}), new KeyFrame(Duration.millis(200))));
 	}
 
 	private Point getCell(double mouseX, double mouseY) {
