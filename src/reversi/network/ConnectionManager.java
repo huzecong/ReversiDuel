@@ -6,7 +6,6 @@ package network;
 
 import util.InvalidFormatException;
 import util.Pair;
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import util.TaskScheduler;
 
@@ -300,7 +299,9 @@ public class ConnectionManager {
 							Thread.currentThread().interrupt();
 						}
 					} catch (InvalidFormatException e) {
-						onClientAborted.accept(e);
+						if (e.getMessage().equals(SignaturedMessageFactory.DEFAULT_EXCEPTION_MESSAGE)) {
+							onClientAborted.accept(new Exception("Unable to connect to host"));
+						} else onClientAborted.accept(e);
 					} catch (IOException e) {
 						onTimeout.accept(e);
 					}
@@ -313,7 +314,7 @@ public class ConnectionManager {
 						assert socket != null && !socket.isClosed();
 						HostData finalClientData = clientData;
 						Socket finalSocket = socket;
-						Platform.runLater(() -> onConnectionConfirmed.accept(finalClientData, finalSocket, true));
+						onConnectionConfirmed.accept(finalClientData, finalSocket, true);
 					} else {
 						if (socket != null) socket.close();
 					}
@@ -375,7 +376,7 @@ public class ConnectionManager {
 			boolean connectionConfirmed = false;
 			if (manual) {
 				if (address == null) {
-					Platform.runLater(() -> onTimeout.accept(new UnknownHostException("IP address invalid")));
+					onTimeout.accept(new UnknownHostException("IP address invalid"));
 					return;
 				}
 				hostData = new HostData("", "", 0, address, -1, new Date());
@@ -391,7 +392,7 @@ public class ConnectionManager {
 				if (!Thread.currentThread().isInterrupted() && manual) {
 					out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, "manual_join"));
 					hostData = SignaturedMessageFactory.parseSignaturedMessageWithException(in.readLine(), "host_data");
-					Platform.runLater(() -> onHostDataReceived.accept(hostData));
+					onHostDataReceived.accept(hostData);
 				} else {
 					out.println(SignaturedMessageFactory.createSignaturedMessage(playerData, "join"));
 				}
@@ -411,12 +412,14 @@ public class ConnectionManager {
 					}
 				}
 			} catch (InvalidFormatException e) {
-				Platform.runLater(() -> onRequestRefused.accept(e));
+				if (e.getMessage().equals(SignaturedMessageFactory.DEFAULT_EXCEPTION_MESSAGE)) {
+					onRequestRefused.accept(new Exception("Unable to connect to host"));
+				} else onRequestRefused.accept(e);
 			} catch (IOException e) {
-				Platform.runLater(() -> onTimeout.accept(e));
+				onTimeout.accept(e);
 			} finally {
 				if (connectionConfirmed) {
-					Platform.runLater(() -> onConnectionConfirmed.accept(hostData, socket, false));
+					onConnectionConfirmed.accept(hostData, socket, false);
 				} else {
 					if (socket != null) try {
 						socket.close();

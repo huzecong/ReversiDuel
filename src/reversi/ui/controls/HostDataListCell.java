@@ -40,9 +40,17 @@ public class HostDataListCell extends AnchorPane {
 	}
 
 	public void setUsingHostData(HostData hostData) {
+		setUsingHostData(hostData, true);
+	}
+
+	public void setUsingHostData(HostData hostData, boolean displayTime) {
 		this.hostData = hostData;
 		setName(hostData.getProfileName());
-		setCaption("IP: " + hostData.getIP() + "\nTime Limit = " + hostData.getTimeLimit() + " seconds");
+		if (displayTime) {
+			setCaption("IP: " + hostData.getIP() + "\nTime Limit = " + hostData.getTimeLimit() + " seconds");
+		} else {
+			setCaption("IP: " + hostData.getIP());
+		}
 		setIcon(hostData.getAvatarID());
 	}
 

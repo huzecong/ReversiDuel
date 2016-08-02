@@ -10,6 +10,8 @@ import org.datafx.controller.flow.container.DefaultFlowContainer;
 import org.datafx.controller.flow.context.ViewFlowContext;
 import ui.BaseController;
 
+import java.io.IOException;
+
 public class Main extends Application {
 
 	@Override
@@ -48,6 +50,16 @@ public class Main extends Application {
 
 
 	public static void main(String[] args) {
+		if (args.length == 0 || !args[0].equals("JVMOptionsPassed")) {
+			try {
+				// re-launch the app itself with VM option passed
+				String jarName = new java.io.File(Main.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getName();
+				Runtime.getRuntime().exec(new String[]{"java", "-Djava.net.preferIPv4Stack=true", "-jar", jarName, "JVMOptionsPassed"});
+			} catch (IOException ioe) {
+				ioe.printStackTrace();
+			}
+			System.exit(0);
+		}
 		launch(args);
 	}
 }

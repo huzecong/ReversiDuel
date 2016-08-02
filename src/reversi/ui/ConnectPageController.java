@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import logic.LocalPlayer;
 import logic.NetworkPlayer;
+import logic.PlayerState;
 import network.ConnectionManager;
 import network.HostData;
 import org.datafx.controller.FXMLController;
@@ -101,11 +102,13 @@ public class ConnectPageController {
 			context.register("player1", networkPlayer);
 			context.register("player2", localPlayer);
 		}
-		try {
-			actionHandler.navigate(OnlineDuelGameBoardController.class);
-		} catch (VetoException | FlowException e) {
-			e.printStackTrace();
-		}
+		Platform.runLater(() -> {           // make sure! WebView can only be created in JavaFX App thread
+			try {
+				actionHandler.navigate(OnlineDuelGameBoardController.class);
+			} catch (VetoException | FlowException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	@PostConstruct
@@ -171,10 +174,7 @@ public class ConnectPageController {
 			connectionCancelledDialog.show(__rootPane);
 		}));
 		connectionManager.setOnNewClientJoined(clientData -> {
-			Platform.runLater(() -> {
-				newClientDataItem.setUsingHostData(clientData);
-				newClientDataItem.setCaption("IP: " + clientData.getIP()); // overwrite
-			});
+			Platform.runLater(() -> newClientDataItem.setUsingHostData(clientData, false));
 			Synchronous<Boolean> accepted = new Synchronous<>();
 			newClientDialog.setOnAccepted(e -> accepted.setValue(true));
 			newClientDialog.setOnDeclined(e -> accepted.setValue(false));
@@ -183,7 +183,7 @@ public class ConnectPageController {
 			return accepted.getValue();
 		});
 		connectionManager.setOnConnectionConfirmed(this::connectionConfirmed);
-		connectionManager.setOnHostDataReceived(hostData -> hostDataItem.setUsingHostData(hostData));
+		connectionManager.setOnHostDataReceived(hostData -> Platform.runLater(() -> hostDataItem.setUsingHostData(hostData)));
 
 		for (int i = 0; i < 10; ++i) {
 			int number = i;

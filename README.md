@@ -11,14 +11,14 @@ This project is based on JavaFX 8. Below is a list of third-party frameworks use
 
 To build this project, simply run: 
 ```bash
-./gradlew run
+./gradlew runApp
 ```
 In case you're using Windows, change `./gradlew` into `gradlew.bat`.
 (Gradle processes could take really long, please have patience and make sure you aren't blocked by firewalls)
 
 To compile a JAR executable, run
 ```bash
-./gradlew buildApp
+./gradlew buildJar
 ```
 This operation cannot be executed under Windows because a Bash script is run during the process.
 The compiled JAR will be copied to project root, and then patched using script `fix-jar-build.sh`.

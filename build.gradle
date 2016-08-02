@@ -27,8 +27,6 @@ dependencies {
 
 mainClassName = "Main"
 
-applicationDefaultJvmArgs = ['-Djava.net.preferIPv4Stack=true']
-
 sourceSets {
     main {
         java {
@@ -53,6 +51,13 @@ jar {
     }
 }
 
+task runApp(type: JavaExec) {
+    classpath = sourceSets.main.runtimeClasspath
+    main = 'Main'
+    args 'JVMOptionsPassed'
+    jvmArgs '-Djava.net.preferIPv4Stack=true'
+}
+
 task copyJar(type: Copy, dependsOn: jar) {
     from jar
     into rootDir.absolutePath
@@ -62,4 +67,4 @@ task fixJarBuild(type: Exec, dependsOn: copyJar) {
     commandLine './fix-jar-build.sh', 'ReversiDuel-' + version + '.jar'
 }
 
-task buildApp(dependsOn: [clean, jar, copyJar, fixJarBuild])
+task buildJar(dependsOn: [clean, jar, copyJar, fixJarBuild])

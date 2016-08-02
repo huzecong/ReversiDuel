@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 public class SignaturedMessageFactory {
 	private static String separator = "\t";     // should not be line separators
+	public static String DEFAULT_EXCEPTION_MESSAGE = "Signatured message has invalid format.";
 
 	public static String createSignaturedMessage(HostData data, String message) {
 		return new Date().getTime() + separator + data.getProfileName() + separator + data.getAvatarID() + separator
@@ -62,19 +63,19 @@ public class SignaturedMessageFactory {
 
 	public static Pair<HostData, String> parseSignaturedMessageWithException(String data) throws InvalidFormatException {
 		Optional<Pair<HostData, String>> result = parseSignaturedMessage(data);
-		if (!result.isPresent()) throw new InvalidFormatException("Signatured message has invalid format.");
+		if (!result.isPresent()) throw new InvalidFormatException(DEFAULT_EXCEPTION_MESSAGE);
 		return result.get();
 	}
 
 	public static HostData parseSignaturedMessageWithException(String data, String message) throws InvalidFormatException {
 		Optional<HostData> hostData = parseSignaturedMessage(data, message);
-		if (!hostData.isPresent()) throw new InvalidFormatException("Signatured message has invalid format.");
+		if (!hostData.isPresent()) throw new InvalidFormatException(DEFAULT_EXCEPTION_MESSAGE);
 		return hostData.get();
 	}
 
 	public static String parseSignaturedMessageWithException(String data, HostData hostData) throws InvalidFormatException {
 		Optional<String> message = parseSignaturedMessage(data, hostData);
-		if (!message.isPresent()) throw new InvalidFormatException("Signatured message has invalid format.");
+		if (!message.isPresent()) throw new InvalidFormatException(DEFAULT_EXCEPTION_MESSAGE);
 		return message.get();
 	}
 }

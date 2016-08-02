@@ -44,7 +44,7 @@ public class LocalGameConfigurePageController {
 
 	@FXML
 	private Label duelButton;
-	
+
 	@FXML
 	private PlayerProfileDialog dialog;
 
