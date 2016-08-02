@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.Arrays;
 import java.util.List;
@@ -79,12 +78,12 @@ public class NetworkPlayer extends AbstractPlayer {
 		 * @return
 		 *     If timed out, returns {@code null}. Otherwise returns the read message.
 		 */
-		String read(int timeout) {
+		String read(int timeout) throws InterruptedException {
 			message.reset();
 			return message.getValue(timeout);
 		}
 
-		String read() {
+		String read() throws InterruptedException {
 			return read(0);
 		}
 	}
@@ -121,7 +120,11 @@ public class NetworkPlayer extends AbstractPlayer {
 
 	@Override
 	public Point timeOut() {
-		Point point = timeoutResponse.getValue(2000);
+		Point point = null;
+		try {
+			point = timeoutResponse.getValue(2000);
+		} catch (InterruptedException ignored) {
+		}
 		timeoutResponse.reset();
 		if (point == null) handleConnectionBroken();
 		return point;
@@ -197,8 +200,8 @@ public class NetworkPlayer extends AbstractPlayer {
 
 	private boolean processRequest(String message) {
 		sendMessage(message);
-		String responseMessage = in.read();
 		try {
+			String responseMessage = in.read();
 			String response = SignaturedMessageFactory.parseSignaturedMessageWithException(responseMessage, hostData);
 			switch (response) {
 				case "accept":
@@ -210,6 +213,8 @@ public class NetworkPlayer extends AbstractPlayer {
 			}
 		} catch (InvalidFormatException e) {
 			manager.forceExit(e.getLocalizedMessage());
+		} catch (InterruptedException e) {
+			handleConnectionBroken();
 		}
 		return false;
 	}

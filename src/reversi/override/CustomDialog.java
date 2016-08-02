@@ -50,7 +50,10 @@ public class CustomDialog extends JFXDialog {
 			super.setOnDialogClosed(onDialogClosed);
 		});
 		Platform.runLater(this::show);
-		boolean ignored = isClosed.getValue(); // wait for close
+		try {
+			isClosed.getValue(); // wait for close
+		} catch (InterruptedException ignored) {
+		}
 	}
 
 	/**

@@ -9,8 +9,6 @@ import com.jfoenix.effects.JFXDepthManager;
 import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -32,11 +30,8 @@ import org.datafx.controller.flow.context.ViewFlowContext;
 import org.datafx.controller.util.VetoException;
 import override.*;
 import ui.controls.ConfirmationDialog;
-import ui.controls.PlayerProfileDialog;
 
 import javax.annotation.PostConstruct;
-import java.util.Properties;
-import java.util.function.Consumer;
 
 @FXMLController(value = "fxml/Base.fxml", title = "Reversi Duel")
 public class BaseController {

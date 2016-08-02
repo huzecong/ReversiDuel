@@ -14,28 +14,27 @@ import org.datafx.controller.flow.action.FlowLink;
 import org.datafx.controller.flow.context.ViewFlowContext;
 import org.datafx.controller.util.VetoException;
 
+import java.util.HashMap;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public class CustomFlowHandler extends FlowHandler {
 	private ObservableList<ViewHistoryDefinition<?>> controllerHistory;
 
-	public interface NavigatingBackHandler {
-		public void handle(Class from, Class to);
+	private HashMap<Class, Consumer<Class>> onNavigatingBack;
+
+	public Consumer<Class> getOnNavigatingBack(Class from) {
+		return onNavigatingBack.get(from);
 	}
 
-	private NavigatingBackHandler onNavigatingBack;
-
-	public NavigatingBackHandler getOnNavigatingBack() {
-		return onNavigatingBack;
-	}
-
-	public void setOnNavigatingBack(NavigatingBackHandler onNavigatingBack) {
-		this.onNavigatingBack = onNavigatingBack;
+	public void setOnNavigatingBack(Class klass, Consumer<Class> handler) {
+		onNavigatingBack.put(klass, handler);
 	}
 
 	public CustomFlowHandler(Flow flow, ViewFlowContext flowContext) {
 		super(flow, flowContext);
 		controllerHistory = FXCollections.observableArrayList();
+		onNavigatingBack = new HashMap<>();
 	}
 
 	@Override
@@ -78,7 +77,17 @@ public class CustomFlowHandler extends FlowHandler {
 	@Override
 	public void navigateToHistoryIndex(int index) throws VetoException, FlowException {
 		Class<?> controllerClass = controllerHistory.remove(index).getControllerClass();
-		onNavigatingBack.handle(getCurrentView().getViewContext().getController().getClass(), controllerClass);
+
+		Class currentClass = getCurrentView().getViewContext().getController().getClass();
+		do {
+			Consumer<Class> handler = onNavigatingBack.get(currentClass);
+			if (handler != null) {
+				handler.accept(controllerClass);
+				break;
+			}
+			currentClass = currentClass.getSuperclass();
+		} while (currentClass != null);
+
 		for (int i = 0; i < index; ++i)
 			controllerHistory.remove(i);
 		handle(new FlowLink(controllerClass, false), "backAction-" + UUID.randomUUID().toString());

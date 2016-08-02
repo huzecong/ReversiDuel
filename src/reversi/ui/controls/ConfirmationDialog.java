@@ -95,7 +95,12 @@ public class ConfirmationDialog extends CustomDialog {
 	public boolean showAndWaitResult() {
 		dialogResult.reset();
 		Platform.runLater(this::show);
-		return dialogResult.getValue();
+		boolean result = false;
+		try {
+			result = dialogResult.getValue();
+		} catch (InterruptedException ignored) {
+		}
+		return result;
 	}
 
 	public String getHeading() {

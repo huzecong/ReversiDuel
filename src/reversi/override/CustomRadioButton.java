@@ -6,7 +6,6 @@ package override;
 
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXRippler;
-import com.jfoenix.skins.JFXRadioButtonSkin;
 import com.sun.javafx.scene.control.skin.RadioButtonSkin;
 import javafx.animation.*;
 import javafx.geometry.HPos;
@@ -19,7 +18,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
-import util.Synchronous;
 
 public class CustomRadioButton extends JFXRadioButton {
 

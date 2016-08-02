@@ -4,9 +4,6 @@
 
 package logic;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-
 import java.awt.Point;
 import java.util.List;
 

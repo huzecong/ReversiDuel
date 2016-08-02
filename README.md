@@ -9,7 +9,10 @@ This project is based on JavaFX 8. Below is a list of third-party frameworks use
 - DataFX 8: https://bitbucket.org/datafx/datafx/
 - Material Icons 2.2.0: https://bitbucket.org/Jerady/fontawesomefx
 
+### Build Instructions
+
 To build this project, simply run: 
+
 ```bash
 ./gradlew runApp
 ```
@@ -28,3 +31,21 @@ You can run the JAR executable by
 ```bash
 java -jar <JAR file>
 ```
+
+### Screenshots
+
+Main menu:
+
+<img src="doc/image-hd/main-menu.jpg">
+
+Game board:
+
+<img src="doc/image-hd/game-board.jpg">
+
+LAN match discovery:
+
+<img src="doc/image-hd/connecting-to-host.jpg">
+
+Player profile configuration:
+
+<img src="doc/image-hd/player-profile.jpg">

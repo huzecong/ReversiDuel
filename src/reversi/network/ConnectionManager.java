@@ -65,6 +65,11 @@ public class ConnectionManager {
 		this.clientTCPManager.setOnHostDataReceived(hostData -> onHostDataReceived.accept(hostData));
 	}
 
+	public void purge() {
+		abortHost();
+		manager.purge();
+	}
+
 	/**
 	 * GUI handlers
 	 */
@@ -149,17 +154,18 @@ public class ConnectionManager {
 	}
 
 	private void updateHostList(HostData hostData) {
-//		System.out.println("hostData: " + hostData.getProfileName() + " " + hostData.getIP());
+		Date date = new Date();  // use local time
 		if (hostData.getIP().equals(this.localIP.getHostAddress())) return;
 		boolean exist = false;
 		for (HostData host : hostList)
 			if (host.equals(hostData)) {
 				exist = true;
-				host.setDate(hostData.getDate());
+				host.setDate(date);
 				break;
 			}
 		updateHostList();
 		if (!exist) {
+			hostData.setDate(date);
 			hostList.add(hostData);
 			onAddToHostList.accept(hostData);
 		}
@@ -191,7 +197,7 @@ public class ConnectionManager {
 
 	public void abortHost() {
 		manager.abortHost();
-		connectionThread.interrupt();
+		if (connectionThread != null) connectionThread.interrupt();
 		isHost.set(false);
 	}
 
@@ -312,9 +318,7 @@ public class ConnectionManager {
 				try {
 					if (connectionConfirmed) {
 						assert socket != null && !socket.isClosed();
-						HostData finalClientData = clientData;
-						Socket finalSocket = socket;
-						onConnectionConfirmed.accept(finalClientData, finalSocket, true);
+						onConnectionConfirmed.accept(clientData, socket, true);
 					} else {
 						if (socket != null) socket.close();
 					}

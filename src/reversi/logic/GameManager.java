@@ -5,7 +5,6 @@
 package logic;
 
 
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import util.Pair;
 import util.TaskScheduler;
@@ -13,7 +12,6 @@ import util.TaskScheduler;
 import java.awt.Point;
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ScheduledFuture;
 import java.util.function.Consumer;
 
 public class GameManager {

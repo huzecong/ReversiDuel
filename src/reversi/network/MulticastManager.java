@@ -83,7 +83,12 @@ class MulticastManager {
 	}
 
 	void abortHost() {
-		transceiverThread.interrupt();
+		if (transceiverThread != null) transceiverThread.interrupt();
+	}
+
+	void purge() {
+		receiverThread.interrupt();
+		if (transceiverThread != null) transceiverThread.interrupt();
 	}
 
 	/**

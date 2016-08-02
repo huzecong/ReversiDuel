@@ -30,19 +30,15 @@ public class Synchronous<T> {
 		}
 	}
 
-	public T getValue(int timeout) {
+	public T getValue(int timeout) throws InterruptedException {
 		synchronized (hasSet) {
-			try {
-				hasSet.wait(timeout);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
+			hasSet.wait(timeout);
 		}
 		if (!hasSet.get()) return null;
 		return value;
 	}
 
-	public T getValue() {
+	public T getValue() throws InterruptedException {
 		return getValue(0);
 	}
 }

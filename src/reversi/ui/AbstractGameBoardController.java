@@ -6,7 +6,6 @@ package ui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.*;
 import javafx.application.Platform;
@@ -16,7 +15,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.*;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.effect.BlurType;
 import javafx.scene.effect.DropShadow;
@@ -29,7 +27,6 @@ import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import logic.*;
 import org.datafx.controller.FXMLController;
-import org.datafx.controller.flow.FlowHandler;
 import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
 import override.CustomFlowHandler;
@@ -238,10 +235,7 @@ public abstract class AbstractGameBoardController {
 	@PostConstruct
 	public void init() {
 		((CustomFlowHandler) context.getRegisteredObject("flowHandler"))
-				.setOnNavigatingBack((fromClass, toClass) -> {
-					if (AbstractGameBoardController.class.isAssignableFrom(fromClass))
-						manager.forceExit("");
-				});
+				.setOnNavigatingBack(AbstractGameBoardController.class, toClass -> manager.forceExit(""));
 
 		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
 		player2 = (AbstractPlayer) context.getRegisteredObject("player2");

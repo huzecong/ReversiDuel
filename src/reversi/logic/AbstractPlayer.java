@@ -4,8 +4,6 @@
 
 package logic;
 
-import javafx.beans.property.BooleanProperty;
-
 import java.awt.Point;
 import java.util.List;
 import java.util.Random;

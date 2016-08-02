@@ -12,15 +12,14 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import logic.AbstractPlayer;
-import logic.LocalPlayer;
 import logic.NetworkPlayer;
-import logic.PlayerState;
 import network.ConnectionManager;
 import network.HostData;
 import org.datafx.controller.FXMLController;
 import org.datafx.controller.flow.FlowException;
 import org.datafx.controller.flow.context.*;
 import org.datafx.controller.util.VetoException;
+import override.CustomFlowHandler;
 import ui.controls.*;
 import util.*;
 
@@ -105,6 +104,7 @@ public class ConnectPageController {
 			context.register("p1TimeLimit", opponentData.getTimeLimit());
 			context.register("p2TimeLimit", opponentData.getTimeLimit());
 		}
+		connectionManager.purge();
 		Platform.runLater(() -> {           // make sure! WebView can only be created in JavaFX App thread
 			try {
 				actionHandler.navigate(OnlineDuelGameBoardController.class);
@@ -116,6 +116,9 @@ public class ConnectPageController {
 
 	@PostConstruct
 	public void init() throws UnknownHostException {
+		((CustomFlowHandler) context.getRegisteredObject("flowHandler"))
+				.setOnNavigatingBack(ConnectPageController.class, toClass -> connectionManager.purge());
+
 		JFXDepthManager.setDepth(rootPane, 1);
 
 		{   // dirty but maybe somehow robust (???) approach to vertically fill matchList
@@ -183,7 +186,12 @@ public class ConnectPageController {
 			newClientDialog.setOnDeclined(e -> accepted.setValue(false));
 			Platform.runLater(() -> newClientDialog.show(__rootPane));
 			currentDialog = newClientDialog;
-			return accepted.getValue();
+			boolean result = false;
+			try {
+				result = accepted.getValue();
+			} catch (InterruptedException ignored) {
+			}
+			return result;
 		});
 		connectionManager.setOnConnectionConfirmed(this::connectionConfirmed);
 		connectionManager.setOnHostDataReceived(hostData -> Platform.runLater(() -> hostDataItem.setUsingHostData(hostData)));
