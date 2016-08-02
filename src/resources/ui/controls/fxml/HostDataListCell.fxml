@@ -11,7 +11,7 @@
 	</HBox>
 	<VBox AnchorPane.leftAnchor="70" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
 		<Label fx:id="name" text="Name"/>
-		<Label fx:id="ip" text="123.45.67.8" style="-fx-text-fill: DARKGREY"/>
+		<Label fx:id="caption" text="123.45.67.8" style="-fx-text-fill: DARKGREY"/>
 	</VBox>
 	<HBox AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0"
 	      AnchorPane.bottomAnchor="0" alignment="CENTER">
