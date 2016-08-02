@@ -20,6 +20,11 @@ public class AIPlayer extends AbstractPlayer {
 	}
 
 	private void makeMove() {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		allowUndo = true;
 		List<Point> candidatePositions = manager.getCandidatePositions();
 		assert candidatePositions.size() > 0;

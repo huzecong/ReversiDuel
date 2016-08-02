@@ -238,8 +238,8 @@ public class GameManager {
 			playerData.swap();
 			playerData.getBlack().state.set(PlayerState.BLACK);
 			playerData.getWhite().state.set(PlayerState.WHITE);
-			firstRun.set(false);
 		}
+		firstRun.set(false);
 
 		dialogHandler.accept(String.format("<i>System: Game started, <b>%s</b> goes first</i>", players.getBlack().profileName));
 
