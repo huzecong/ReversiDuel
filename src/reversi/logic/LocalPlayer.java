@@ -13,8 +13,7 @@ import java.util.function.*;
 public class LocalPlayer extends AbstractPlayer {
 	private BiConsumer<String, String> infoDialogCaller;
 	private BiFunction<String, String, Boolean> confirmDialogCaller;
-	private Consumer<String> waitDialogCaller;
-	private Runnable waitDialogDismisser;
+	private Function<String, Runnable> waitDialogCaller;
 
 	public LocalPlayer(String profileName, String avatarID) {
 		super(profileName, avatarID);
@@ -28,12 +27,8 @@ public class LocalPlayer extends AbstractPlayer {
 		this.confirmDialogCaller = confirmDialogCaller;
 	}
 
-	public void setWaitDialogCaller(Consumer<String> waitDialogCaller) {
+	public void setWaitDialogCaller(Function<String, Runnable> waitDialogCaller) {
 		this.waitDialogCaller = waitDialogCaller;
-	}
-
-	public void setWaitDialogDismisser(Runnable waitDialogDismisser) {
-		this.waitDialogDismisser = waitDialogDismisser;
 	}
 
 	@Override
@@ -72,40 +67,41 @@ public class LocalPlayer extends AbstractPlayer {
 	}
 
 	public void requestUndo() {
-		if (waitDialogCaller != null) waitDialogCaller.accept("Undo requested");
-		boolean result = manager.requestUndo();
-		if (waitDialogDismisser != null) {
-			waitDialogDismisser.run();
+		boolean result;
+		if (waitDialogCaller != null) {
+			Runnable dismissCaller = waitDialogCaller.apply("Undo requested");
+			result = manager.requestUndo();
+			dismissCaller.run();
 			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your undo request");
-		}
+		} else result = manager.requestUndo();
 		if (result) canUndo.set(manager.canUndo());
 	}
 
 	public void requestDraw() {
-		if (waitDialogCaller != null) waitDialogCaller.accept("Draw requested");
-		boolean result = manager.requestDraw();
-		if (waitDialogDismisser != null) {
-			waitDialogDismisser.run();
+		if (waitDialogCaller != null) {
+			Runnable dismissCaller = waitDialogCaller.apply("Draw requested");
+			boolean result = manager.requestDraw();
+			dismissCaller.run();
 			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your draw request");
-		}
+		} else manager.requestDraw();
 	}
 
 	public void requestSurrender() {
-		if (waitDialogCaller != null) waitDialogCaller.accept("Surrender requested");
-		boolean result = manager.requestSurrender();
-		if (waitDialogDismisser != null) {
-			waitDialogDismisser.run();
+		if (waitDialogCaller != null) {
+			Runnable dismissCaller = waitDialogCaller.apply("Surrender requested");
+			boolean result = manager.requestSurrender();
+			dismissCaller.run();
 			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your surrender request");
-		}
+		} else manager.requestSurrender();
 	}
 
 	public void requestExit() {
-		if (waitDialogCaller != null) waitDialogCaller.accept("Exit requested");
-		boolean result = manager.requestExit();
-		if (waitDialogDismisser != null) {
-			waitDialogDismisser.run();
+		if (waitDialogCaller != null) {
+			Runnable dismissCaller = waitDialogCaller.apply("Exit requested");
+			boolean result = manager.requestExit();
+			dismissCaller.run();
 			if (!result) infoDialogCaller.accept("Request refused", "Your opponent refused your exit request");
-		}
+		} else manager.requestExit();
 	}
 
 	public void sendChat(String message) {

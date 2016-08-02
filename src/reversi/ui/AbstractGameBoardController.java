@@ -104,15 +104,16 @@ public abstract class AbstractGameBoardController {
 		return showConfirmDialog(heading, contents);
 	}
 
-	public void showWaitDialog(String heading) {
+	public Runnable showWaitDialog(String heading) {
 		Platform.runLater(() -> {
 			waitDialogHeading.setText(heading);
 			waitDialog.show(__rootPane);
 		});
+		return () -> Platform.runLater(() -> waitDialog.close());
 	}
 
 	public void dismissWaitDialog() {
-		waitDialog.close();
+		Platform.runLater(() -> waitDialog.close());
 	}
 
 	protected final static int N = 8;
@@ -274,9 +275,11 @@ public abstract class AbstractGameBoardController {
 					"document.getElementById('content').appendChild(child);" +
 					"window.scrollTo(0, document.body.scrollHeight);");
 		}));
+
 		chatDialog.getEngine().loadContent("" +
 				"<div id='content' style='font-family: Helvetica'>" +
 				"</div>");
+		chatText.setOnAction(e -> sendChatButton.fire());
 
 		// prevent user from starting new game before animation finishes
 		readyButton.disableProperty().bind(manager.gameStartedProperty().or(animationManager.isEmptyProperty().not()));

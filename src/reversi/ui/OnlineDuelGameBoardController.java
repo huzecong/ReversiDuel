@@ -33,17 +33,10 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 			((LocalPlayer) localPlayer).setInfoDialogCaller(this::showInfoDialog);
 			((LocalPlayer) localPlayer).setConfirmDialogCaller(this::showConfirmDialog);
 			((LocalPlayer) localPlayer).setWaitDialogCaller(this::showWaitDialog);
-			((LocalPlayer) localPlayer).setWaitDialogDismisser(this::dismissWaitDialog);
 		}
 
 		assert localPlayer instanceof LocalPlayer || localPlayer instanceof AIPlayer;
 		assert networkPlayer instanceof NetworkPlayer;
-
-		undoButton.setDisable(true);
-		if (localPlayer instanceof LocalPlayer) {
-			undoButton.disableProperty().bind(manager.gameStartedProperty().not()
-					.or(((LocalPlayer) localPlayer).canUndoProperty().not()));
-		}
 
 		readyButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
 			if (localPlayer instanceof LocalPlayer) ((LocalPlayer) localPlayer).ready();
@@ -72,7 +65,11 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 		}));
 
 		isLocalPlayer = new SimpleBooleanProperty(false);
-		undoButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
+		undoButton.setDisable(true);
+		if (localPlayer instanceof LocalPlayer) {
+			undoButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not())
+					.or(((LocalPlayer) localPlayer).canUndoProperty().not()));
+		}
 		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
 		saveLoadButton.setDisable(true);
