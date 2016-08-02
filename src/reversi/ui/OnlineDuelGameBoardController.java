@@ -16,7 +16,7 @@ import java.util.function.Function;
 
 @FXMLController(value = "fxml/GameBoard.fxml", title = "Reversi Duel")
 public class OnlineDuelGameBoardController extends AbstractGameBoardController {
-	private BooleanProperty isLocalPlayer;
+	private BooleanProperty isMyself;
 
 	@Override
 	protected void initPlayersAndControls() {
@@ -54,27 +54,28 @@ public class OnlineDuelGameBoardController extends AbstractGameBoardController {
 			setAction.accept(drawButton, p -> p::requestDraw);
 		}
 		sendChatButton.setOnAction(e -> TaskScheduler.singleShot(1, () -> {
-			if (localPlayer instanceof LocalPlayer && !chatText.getText().isEmpty()) {
-				((LocalPlayer) localPlayer).sendChat(chatText.getText());
+			if (!chatText.getText().isEmpty()) {
+				if (localPlayer instanceof LocalPlayer) ((LocalPlayer) localPlayer).sendChat(chatText.getText());
+				else ((AIPlayer) localPlayer).sendChat(chatText.getText());
 				chatText.setText("");
 			}
 		}));
 
-		isLocalPlayer = new SimpleBooleanProperty(false);
+		isMyself = new SimpleBooleanProperty(false);
 		undoButton.setDisable(true);
 		if (localPlayer instanceof LocalPlayer) {
-			undoButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not())
+			undoButton.disableProperty().bind(manager.gameStartedProperty().not().or(isMyself.not())
 					.or(((LocalPlayer) localPlayer).canUndoProperty().not()));
 		}
-		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
-		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isLocalPlayer.not()));
+		surrenderButton.disableProperty().bind(manager.gameStartedProperty().not().or(isMyself.not()));
+		drawButton.disableProperty().bind(manager.gameStartedProperty().not().or(isMyself.not()));
 		saveButton.setDisable(true);
 		loadButton.setDisable(true);
 		manager.currentPlayerProperty().addListener((observable, oldValue, newValue) -> {
 			if (newValue == PlayerState.NONE || !(manager.getPlayer(newValue) instanceof LocalPlayer)) {
-				isLocalPlayer.setValue(false);
+				isMyself.setValue(false);
 			} else {
-				isLocalPlayer.setValue(true);
+				isMyself.setValue(true);
 			}
 		});
 	}

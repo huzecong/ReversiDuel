@@ -253,15 +253,13 @@ public class GameManager {
 		dropPieceHandler.handle(new Point(4, 4), PlayerState.WHITE, new ArrayList<>());
 
 		if (!isLoadedGame) {
-			executeAfterAnimationHandler.accept(() -> {
-				gameStarted.set(true);
-				currentPlayer.set(PlayerState.BLACK);
-				updateCandidatePositions();
-				startTurn(PlayerState.BLACK);
-				// make sure calculation does not block the thread
-				TaskScheduler.singleShot(1, () -> players.getBlack().newGame(PlayerState.BLACK));
-				TaskScheduler.singleShot(1, () -> players.getWhite().newGame(PlayerState.WHITE));
-			});
+			gameStarted.set(true);
+			currentPlayer.set(PlayerState.BLACK);
+			updateCandidatePositions();
+			startTurn(PlayerState.BLACK);
+			// make sure calculation does not block the thread
+			TaskScheduler.singleShot(1, () -> players.getBlack().newGame(PlayerState.BLACK));
+			TaskScheduler.singleShot(1, () -> players.getWhite().newGame(PlayerState.WHITE));
 		}
 	}
 

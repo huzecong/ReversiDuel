@@ -11,6 +11,7 @@ import javafx.beans.binding.DoubleBinding;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.*;
+import logic.AbstractPlayer;
 import logic.LocalPlayer;
 import logic.NetworkPlayer;
 import logic.PlayerState;
@@ -91,7 +92,7 @@ public class ConnectPageController {
 
 	private void connectionConfirmed(HostData opponentData, Socket socket, boolean isHost) {
 //		System.out.println("Connection confirmed with " + opponentData.getProfileName() + " from " + opponentData.getIP());
-		LocalPlayer localPlayer = new LocalPlayer(connectionManager.getPlayerData().getProfileName(), connectionManager.getPlayerData().getAvatarID());
+		AbstractPlayer localPlayer = PreferenceLoader.playerFromProperties(PreferenceLoader.loadFromPreferences("p1"));
 		NetworkPlayer networkPlayer = new NetworkPlayer(connectionManager.getPlayerData(), opponentData, socket);
 		if (isHost) {
 			context.register("player1", localPlayer);

@@ -119,4 +119,8 @@ public class AIPlayer extends AbstractPlayer {
 	public void ready() {
 		manager.ready();
 	}
+
+	public void sendChat(String text) {
+		manager.sendChat(text);
+	}
 }

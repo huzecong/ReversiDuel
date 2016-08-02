@@ -19,13 +19,13 @@ public class CustomDialog extends JFXDialog {
 	public void show(StackPane dialogContainer) {
 		super.show(dialogContainer);
 		// focus must be requested after a short delay... dunno why
-		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
+		TaskScheduler.singleShot(200, () -> Platform.runLater(this::requestFocus));
 	}
 
 	@Override
 	public void show() {
 		super.show();
-		TaskScheduler.singleShot(100, () -> Platform.runLater(this::requestFocus));
+		TaskScheduler.singleShot(200, () -> Platform.runLater(this::requestFocus));
 	}
 
 	private ObjectProperty<EventHandler<? super JFXDialogEvent>> onDialogClosedProperty = new SimpleObjectProperty<>((closed) -> {

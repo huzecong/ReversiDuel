@@ -7,6 +7,7 @@ package ui.controls;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialogLayout;
 import com.jfoenix.controls.events.JFXDialogEvent;
+import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -93,7 +94,7 @@ public class ConfirmationDialog extends CustomDialog {
 
 	public boolean showAndWaitResult() {
 		dialogResult.reset();
-		show();
+		Platform.runLater(this::show);
 		return dialogResult.getValue();
 	}
 
