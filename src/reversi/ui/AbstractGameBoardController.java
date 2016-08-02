@@ -112,10 +112,6 @@ public abstract class AbstractGameBoardController {
 		return () -> Platform.runLater(() -> waitDialog.close());
 	}
 
-	public void dismissWaitDialog() {
-		Platform.runLater(() -> waitDialog.close());
-	}
-
 	protected final static int N = 8;
 	protected final static double boardOffsetX = 39.5;
 	protected final static double boardOffsetY = 35;
@@ -143,6 +139,7 @@ public abstract class AbstractGameBoardController {
 
 			view = new ImageView();
 			JFXDepthManager.setDepth(view, 2);
+			((DropShadow) view.getEffect()).setBlurType(BlurType.THREE_PASS_BOX);
 			view.setOpacity(0.0);
 			container.getChildren().add(view);
 
@@ -261,10 +258,9 @@ public abstract class AbstractGameBoardController {
 		manager.init(player1, p1TimeLimit, player2, p2TimeLimit);
 		manager.setDropPieceHandler(this::dropPiece);
 		manager.setGameOverHandler(this::gameOver);
-		manager.setExitHandler(() -> ((Runnable) context.getRegisteredObject("returnToHome")).run());
 		manager.setNewGameHandler(this::newGame);
 		manager.setExceptionHandler(message -> {
-			showInfoDialog("Error occurred", message);
+			if (!message.isEmpty()) showInfoDialog("Error occurred", message);
 			((Runnable) context.getRegisteredObject("returnToHome")).run();
 		});
 		manager.setExecuteAfterAnimationHandler(runnable -> animationManager.executeAfterLastAnimation(runnable));

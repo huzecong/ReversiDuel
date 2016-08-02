@@ -7,7 +7,7 @@ package util;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Synchronous<T> {
-	AtomicBoolean hasSet;
+	final AtomicBoolean hasSet;
 	volatile T value;
 
 	public Synchronous() {
@@ -23,17 +23,20 @@ public class Synchronous<T> {
 	}
 
 	public void setValue(T newValue) {
-		value = newValue;
-		hasSet.set(true);
+		synchronized (hasSet) {
+			value = newValue;
+			hasSet.set(true);
+			hasSet.notifyAll();
+		}
 	}
 
 	public T getValue(int timeout) {
-		Thread thread = new Thread(new Helper(hasSet, timeout));
-		thread.start();
-		try {
-			thread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		synchronized (hasSet) {
+			try {
+				hasSet.wait(timeout);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		if (!hasSet.get()) return null;
 		return value;
@@ -41,27 +44,5 @@ public class Synchronous<T> {
 
 	public T getValue() {
 		return getValue(0);
-	}
-
-	private class Helper implements Runnable {
-		AtomicBoolean watchValue;
-		int timeout;
-
-		Helper(AtomicBoolean watchValue, int timeout) {
-			this.watchValue = watchValue;
-			this.timeout = timeout;
-		}
-
-		@Override
-		public void run() {
-			long time = System.currentTimeMillis();
-			while (!watchValue.get() && (timeout == 0 || System.currentTimeMillis() - time <= timeout)) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
 	}
 }

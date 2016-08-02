@@ -8,7 +8,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class TaskScheduler {
-	private static Timer timer = new Timer();
+	private static Timer timer;
+
+	private static Timer getTimer() {
+		if (timer == null) timer = new Timer();
+		try {
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+				}
+			}, 1);
+		} catch (IllegalStateException e) {
+			timer = new Timer();
+		}
+		return timer;
+	}
 
 	public static TimerTask singleShot(long delayMillis, Runnable task) {
 		TimerTask timerTask = new TimerTask() {
@@ -17,7 +31,7 @@ public class TaskScheduler {
 				task.run();
 			}
 		};
-		timer.schedule(timerTask, delayMillis);
+		getTimer().schedule(timerTask, delayMillis);
 		return timerTask;
 	}
 
@@ -28,7 +42,7 @@ public class TaskScheduler {
 				task.run();
 			}
 		};
-		timer.scheduleAtFixedRate(timerTask, periodMillis, periodMillis);
+		getTimer().scheduleAtFixedRate(timerTask, periodMillis, periodMillis);
 		return timerTask;
 	}
 }

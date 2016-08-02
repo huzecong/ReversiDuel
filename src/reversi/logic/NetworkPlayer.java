@@ -123,6 +123,7 @@ public class NetworkPlayer extends AbstractPlayer {
 	public Point timeOut() {
 		Point point = timeoutResponse.getValue(2000);
 		timeoutResponse.reset();
+		if (point == null) handleConnectionBroken();
 		return point;
 	}
 

@@ -13,6 +13,7 @@ import util.TaskScheduler;
 import java.awt.Point;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ScheduledFuture;
 import java.util.function.Consumer;
 
 public class GameManager {
@@ -46,7 +47,6 @@ public class GameManager {
 
 	private DropPieceHandler dropPieceHandler;
 	private Consumer<PlayerState> gameOverHandler;
-	private Runnable exitHandler;
 	private Runnable newGameHandler;
 	private Consumer<String> dialogHandler;
 	private Consumer<String> exceptionHandler;
@@ -66,14 +66,6 @@ public class GameManager {
 
 	public void setGameOverHandler(Consumer<PlayerState> gameOverHandler) {
 		this.gameOverHandler = gameOverHandler;
-	}
-
-	public Runnable getExitHandler() {
-		return exitHandler;
-	}
-
-	public void setExitHandler(Runnable exitHandler) {
-		this.exitHandler = exitHandler;
 	}
 
 	public Runnable getNewGameHandler() {
@@ -439,6 +431,8 @@ public class GameManager {
 	 */
 	public void forceExit(String message) {
 		TaskScheduler.singleShot(50, () -> {
+			endTurn(PlayerState.BLACK);
+			endTurn(PlayerState.WHITE);
 			players.getBlack().purge();
 			players.getWhite().purge();
 			exceptionHandler.accept(message);
@@ -545,12 +539,7 @@ public class GameManager {
 				players.get(flip(player)).profileName, result ? "accepted" : "refused", players.get(player).profileName));
 		if (!result) return false;
 
-		// purge after request is responded
-		TaskScheduler.singleShot(50, () -> {
-			players.getBlack().purge();
-			players.getWhite().purge();
-			exitHandler.run();
-		});
+		forceExit(""); // does not should exception dialog
 		return true;
 	}
 

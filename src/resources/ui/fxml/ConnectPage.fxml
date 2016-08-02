@@ -15,7 +15,7 @@
 			</JFXListView>
 			<Label text="  Available matches" styleClass="sublist-header"/>
 			<StackPane>
-				<JFXListView fx:id="matchList" styleClass="os-x-scrollbar" focusTraversable="true">
+				<JFXListView fx:id="matchList" styleClass="os-x-scrollbar">
 					<placeholder>
 						<Label fx:id="noMatchLabel" text="    Searching for online matches..."
 						       styleClass="sublist-header" style="-fx-font-size: 20px"/>

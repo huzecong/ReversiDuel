@@ -89,18 +89,20 @@ public class ConnectPageController {
 	@FXML
 	private GridPane numbersPane;
 
-	private void connectionConfirmed(HostData hostData, Socket socket, boolean isHost) {
-//		System.out.println("Connection confirmed with " + hostData.getProfileName() + " from " + hostData.getIP());
+	private void connectionConfirmed(HostData opponentData, Socket socket, boolean isHost) {
+//		System.out.println("Connection confirmed with " + opponentData.getProfileName() + " from " + opponentData.getIP());
 		LocalPlayer localPlayer = new LocalPlayer(connectionManager.getPlayerData().getProfileName(), connectionManager.getPlayerData().getAvatarID());
-		NetworkPlayer networkPlayer = new NetworkPlayer(connectionManager.getPlayerData(), hostData, socket);
-		context.register("p1TimeLimit", hostData.getTimeLimit());
-		context.register("p2TimeLimit", hostData.getTimeLimit());
+		NetworkPlayer networkPlayer = new NetworkPlayer(connectionManager.getPlayerData(), opponentData, socket);
 		if (isHost) {
 			context.register("player1", localPlayer);
 			context.register("player2", networkPlayer);
+			context.register("p1TimeLimit", connectionManager.getPlayerData().getTimeLimit());
+			context.register("p2TimeLimit", connectionManager.getPlayerData().getTimeLimit());
 		} else {
 			context.register("player1", networkPlayer);
 			context.register("player2", localPlayer);
+			context.register("p1TimeLimit", opponentData.getTimeLimit());
+			context.register("p2TimeLimit", opponentData.getTimeLimit());
 		}
 		Platform.runLater(() -> {           // make sure! WebView can only be created in JavaFX App thread
 			try {

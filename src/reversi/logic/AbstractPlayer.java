@@ -64,8 +64,9 @@ public abstract class AbstractPlayer {
 	public abstract void gameOver(boolean isWinner, boolean isTie);
 
 	/**
-	 * The player has run out of time, and should return a drop position immediately.
-	 * Overridden implementation should guarantee the above behavior.
+	 * The player has run out of time, and should return a VALID drop position immediately.
+	 * Overridden implementation should guarantee the above behavior (as this is not checked).
+	 * @return The drop position.
 	 */
 	public Point timeOut() {
 		// make a random move
