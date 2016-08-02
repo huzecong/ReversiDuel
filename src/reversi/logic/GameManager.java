@@ -558,7 +558,7 @@ public class GameManager {
 	}
 
 	public boolean saveGame(String filename) {
-		if (!gameStarted()) return false;
+//		if (!gameStarted()) return false;
 		try {
 			PrintWriter writer = new PrintWriter(new FileOutputStream(filename));
 			writer.println(moves.size());

@@ -62,8 +62,10 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 			fileChooser.setTitle("Save Game State");
 			File file = fileChooser.showSaveDialog(saveButton.getScene().getWindow());
 			if (file != null) {
-				boolean result = manager.saveGame(file.getAbsolutePath());
-				if (!result) showInfoDialog("Error", "Could not save replay file");
+				TaskScheduler.singleShot(1, () -> {
+					boolean result = manager.saveGame(file.getAbsolutePath());
+					if (!result) showInfoDialog("Error", "Could not save replay file");
+				});
 			}
 		});
 		loadButton.setOnAction(e -> {
@@ -71,8 +73,10 @@ public class LocalDuelGameBoardController extends AbstractGameBoardController {
 			fileChooser.setTitle("Load Game State");
 			File file = fileChooser.showOpenDialog(loadButton.getScene().getWindow());
 			if (file != null) {
-				boolean result = manager.loadGame(file.getAbsolutePath());
-				if (!result) showInfoDialog("Error", "Could not load replay file");
+				TaskScheduler.singleShot(1, () -> {
+					boolean result = manager.loadGame(file.getAbsolutePath());
+					if (!result) showInfoDialog("Error", "Could not load replay file");
+				});
 			}
 		});
 
