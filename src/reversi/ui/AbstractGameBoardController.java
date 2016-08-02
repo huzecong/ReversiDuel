@@ -29,8 +29,10 @@ import javafx.scene.web.WebView;
 import javafx.util.Duration;
 import logic.*;
 import org.datafx.controller.FXMLController;
+import org.datafx.controller.flow.FlowHandler;
 import org.datafx.controller.flow.context.FXMLViewFlowContext;
 import org.datafx.controller.flow.context.ViewFlowContext;
+import override.CustomFlowHandler;
 import ui.controls.*;
 import util.*;
 
@@ -235,6 +237,12 @@ public abstract class AbstractGameBoardController {
 
 	@PostConstruct
 	public void init() {
+		((CustomFlowHandler) context.getRegisteredObject("flowHandler"))
+				.setOnNavigatingBack((fromClass, toClass) -> {
+					if (AbstractGameBoardController.class.isAssignableFrom(fromClass))
+						manager.forceExit("");
+				});
+
 		player1 = (AbstractPlayer) context.getRegisteredObject("player1");
 		player2 = (AbstractPlayer) context.getRegisteredObject("player2");
 		p1TimeLimit = (Integer) context.getRegisteredObject("p1TimeLimit");
@@ -451,9 +459,9 @@ public abstract class AbstractGameBoardController {
 
 	public void hideCandidates() {
 //		animationManager.add(new Timeline(new KeyFrame(Duration.ZERO, e -> {
-			for (int i = 0; i < N; ++i)
-				for (int j = 0; j < N; ++j)
-					boardPieces[i][j].hideCandidate();
+		for (int i = 0; i < N; ++i)
+			for (int j = 0; j < N; ++j)
+				boardPieces[i][j].hideCandidate();
 //		}))); // does not wait for animation end
 	}
 

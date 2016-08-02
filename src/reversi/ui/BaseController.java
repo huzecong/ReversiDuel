@@ -70,9 +70,10 @@ public class BaseController {
 		Flow innerFlow = new Flow(MainMenuController.class)
 				.withLink(MainMenuController.class, "singlePlayer", LocalGameConfigurePageController.class)
 				.withLink(MainMenuController.class, "networkDuel", ConnectPageController.class);
-		EventHandler<Event> closeHandler = event -> closeDialog.show(__rootPane);
 		Stage stage = (Stage) context.getRegisteredObject("stage");
 		CustomAnimatedFlowContainer container = new CustomAnimatedFlowContainer(Duration.millis(400));
+
+		EventHandler<Event> closeHandler = event -> closeDialog.show(__rootPane);
 		context.register("closeHandler", closeHandler);
 		context.register("returnToHome", (Runnable) () -> Platform.runLater(() -> {
 			try {
@@ -80,13 +81,6 @@ public class BaseController {
 			} catch (VetoException | FlowException e) {
 				e.printStackTrace();
 			}
-//			while (!container.isIsInitialView()) {
-//				try {
-//					flowHandler.navigateBack();
-//				} catch (VetoException | FlowException e) {
-//					e.printStackTrace();
-//				}
-//			}
 		}));
 
 		stage.titleProperty().unbind();
@@ -99,6 +93,7 @@ public class BaseController {
 
 //		flowHandler = innerFlow.createHandler(context);
 		flowHandler = new CustomFlowHandler(innerFlow, context);
+		context.register("flowHandler", flowHandler);
 		mainPane.getChildren().add(flowHandler.start(container));
 
 		backButton.visibleProperty().bind(container.isInitialViewProperty().not());

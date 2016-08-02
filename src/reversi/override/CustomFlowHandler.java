@@ -19,6 +19,20 @@ import java.util.UUID;
 public class CustomFlowHandler extends FlowHandler {
 	private ObservableList<ViewHistoryDefinition<?>> controllerHistory;
 
+	public interface NavigatingBackHandler {
+		public void handle(Class from, Class to);
+	}
+
+	private NavigatingBackHandler onNavigatingBack;
+
+	public NavigatingBackHandler getOnNavigatingBack() {
+		return onNavigatingBack;
+	}
+
+	public void setOnNavigatingBack(NavigatingBackHandler onNavigatingBack) {
+		this.onNavigatingBack = onNavigatingBack;
+	}
+
 	public CustomFlowHandler(Flow flow, ViewFlowContext flowContext) {
 		super(flow, flowContext);
 		controllerHistory = FXCollections.observableArrayList();
@@ -64,6 +78,7 @@ public class CustomFlowHandler extends FlowHandler {
 	@Override
 	public void navigateToHistoryIndex(int index) throws VetoException, FlowException {
 		Class<?> controllerClass = controllerHistory.remove(index).getControllerClass();
+		onNavigatingBack.handle(getCurrentView().getViewContext().getController().getClass(), controllerClass);
 		for (int i = 0; i < index; ++i)
 			controllerHistory.remove(i);
 		handle(new FlowLink(controllerClass, false), "backAction-" + UUID.randomUUID().toString());
