@@ -1,4 +1,4 @@
-#ReversiDuel
+# ReversiDuel
 
 A Java clone of **GomokuDuel**, except that Gomoku's changed to Reversi.
 
