@@ -6,11 +6,11 @@
 
 本项目在开发过程中使用IntelliJ Idea 2016.2作为IDE，使用Gradle进行构建。图形界面基于JavaFX框架，代码中使用了下列开源库：
 
-- JFoenix: https://github.com/jfoenixadmin/JFoenix
-- DataFX 8: https://bitbucket.org/datafx/datafx/
-- Material Icons 2.2.0: https://bitbucket.org/Jerady/fontawesomefx
+- JFoenix: <https://github.com/jfoenixadmin/JFoenix>
+- DataFX 8: <https://bitbucket.org/datafx/datafx/>
+- Material Icons 2.2.0: <https://bitbucket.org/Jerady/fontawesomefx>
 
-本项目的代码已经在GitHub上开源，请访问https://github.com/huzecong/ReversiDuel查看。
+本项目的代码已经在GitHub上开源，请访问<https://github.com/huzecong/ReversiDuel>查看。
 
 ### 构建方法
 
@@ -94,12 +94,12 @@
 
 本项目将各类按照所述功能分成了若干包（package），对应着项目中的各个模块。各模块列表如下：
 
-- **逻辑模块（logic）：**包含游戏的数据模型（model），负责游戏的逻辑处理，以及双方玩家的请求响应；
-- **网络模块（network）：**负责进行对战的搜索与连接，并提供了信息包装与校验的方法；
-- **界面模块（ui）：**包含了各个不同视图（view）的控制器（controller）；
-- **界面控件模块（ui.controls）：**包含了一些可复用的界面控件；
-- **实用工具模块（util）：**包含了一些方便代码编写的工具类，如自定义的异常、对Timer类的包装等；
-- **重载部件模块（override）：**包含了对所依赖的第三方库中并不尽人意的实现的改写。
+- **逻辑模块（logic）：** 包含游戏的数据模型（model），负责游戏的逻辑处理，以及双方玩家的请求响应；
+- **网络模块（network）：** 负责进行对战的搜索与连接，并提供了信息包装与校验的方法；
+- **界面模块（ui）：** 包含了各个不同视图（view）的控制器（controller）；
+- **界面控件模块（ui.controls）：** 包含了一些可复用的界面控件；
+- **实用工具模块（util）：** 包含了一些方便代码编写的工具类，如自定义的异常、对Timer类的包装等；
+- **重载部件模块（override）：** 包含了对所依赖的第三方库中并不尽人意的实现的改写。
 
 在设计上，本项目尽可能实现了界面与逻辑的解耦合。界面控制器与逻辑部分仅通过预设的一些回调函数进行沟通。这样的设计虽然使得架构变得复杂，但是简化了代码编写，也增强了代码的可维护性。
 
@@ -137,12 +137,12 @@ JavaFX提供了以类XML语言描述界面的方法：FXML文件。在项目资�
 
 各界面对应的控制器和FXML文件列表如下：
 
-- **基础界面：**BaseController、Base.fxml；
-- **主菜单：**MainMenuController、MainMenu.fxml；
-- **单机对战配置界面：**LocalGameConfigurePageController、LocalGameConfigurePage.fxml；
-- **单机对战游戏界面：**LocalDuelGameBoardController、GameBoard.fxml；
-- **网络对战搜索界面：**ConnectPageController、ConnectPage.fxml；
-- **网络对战游戏界面：**OnlineDuelGameBoardController、GameBoard.fxml。
+- **基础界面：** BaseController、Base.fxml；
+- **主菜单：** MainMenuController、MainMenu.fxml；
+- **单机对战配置界面：** LocalGameConfigurePageController、LocalGameConfigurePage.fxml；
+- **单机对战游戏界面：** LocalDuelGameBoardController、GameBoard.fxml；
+- **网络对战搜索界面：** ConnectPageController、ConnectPage.fxml；
+- **网络对战游戏界面：** OnlineDuelGameBoardController、GameBoard.fxml。
 
 值得一提的是，由于两个模式下的游戏界面的布局与交互逻辑有许多相似之处，因此它们的控制器继承自相同的抽象类AbstractGameBoardController。
 
@@ -197,11 +197,11 @@ JavaFX提供了以类XML语言描述界面的方法：FXML文件。在项目资�
 
 ### 项目特点
 
-- **美观的UI设计：**采用Material Design设计风格，并适当添加了动画效果，使得界面简洁却不失美感；
-- **容错性强的交互：**充分考虑各种情况，采取保守策略，在出现各种异常的时候可以弹出错误对话框，并结束操作；
-- **丰富的功能：**支持评分标准中提到的所有功能，此外还支持局域网对战搜索，以及用户信息的设定；
-- **强可拓展性与可维护性：**架构的设计使得开发者可以轻松对已有代码进行修改或者拓展；
-- **简单的构建流程：**使用gradle进行项目管理，实现“一键运行”。
+- **美观的UI设计：** 采用Material Design设计风格，并适当添加了动画效果，使得界面简洁却不失美感；
+- **容错性强的交互：** 充分考虑各种情况，采取保守策略，在出现各种异常的时候可以弹出错误对话框，并结束操作；
+- **丰富的功能：** 支持评分标准中提到的所有功能，此外还支持局域网对战搜索，以及用户信息的设定；
+- **强可拓展性与可维护性：** 架构的设计使得开发者可以轻松对已有代码进行修改或者拓展；
+- **简单的构建流程：** 使用gradle进行项目管理，实现“一键运行”。
 
 ### 开发流程
 
