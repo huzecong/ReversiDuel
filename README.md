@@ -1,8 +1,8 @@
 # ReversiDuel
 
-A Java clone of **GomokuDuel**, except that Gomoku's changed to Reversi.
+A Java clone of [**GomokuDuel**](https://github.com/huzecong/GomokuDuel), except that Gomoku's changed to Reversi.
 
-I tried to make this "clone" as similar to its original as possible, but due to framework limits differences exist. Also, there are enhancements and new features compared to the original version.
+I tried to make this "clone" as similar to its original as possible, but differences exist due to framework limitations. Also, there are enhancements and new features compared to the original version.
 
 This project is based on JavaFX 8. Below is a list of third-party frameworks used:
 - JFoenix: https://github.com/jfoenixadmin/JFoenix
@@ -11,20 +11,20 @@ This project is based on JavaFX 8. Below is a list of third-party frameworks use
 
 ### Build Instructions
 
-To build this project, simply run: 
+To build this project, run the following command:
 
 ```bash
 ./gradlew runApp
 ```
 In case you're using Windows, change `./gradlew` into `gradlew.bat`.
-(Gradle processes could take really long, please have patience and make sure you aren't blocked by firewalls)
+(Gradle processes could take a long time, please have patience and make sure you aren't blocked by firewalls)
 
 To compile a JAR executable, run
 ```bash
 ./gradlew buildJar
 ```
-This operation cannot be executed under Windows because a Bash script is run during the process.
-The compiled JAR will be copied to project root, and then patched using script `fix-jar-build.sh`.
+This operation cannot be executed under Windows because a Bash script needs to be run during the process.
+The compiled JAR will be copied to project root, and then patched using the script `fix-jar-build.sh`.
 The patch step is necessary due to errors in the manifest file for DataFX.
 
 You can run the JAR executable by
